@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer } from './types'
 
 declare global {
   interface Window {
@@ -31,6 +31,19 @@ declare global {
       settings: {
         getAll(): Promise<{ key: string; value: string }[]>
         set(key: string, value: string): Promise<{ key: string; value: string } | null>
+      }
+      customers: {
+        findByPhone(phone: string): Promise<Customer | null>
+        getAll(): Promise<Customer[]>
+        create(input: { name: string; phone: string; email: string | null; notes: string | null }): Promise<Customer | null>
+        update(id: number, input: Partial<Customer>): Promise<Customer | null>
+        invoices(customerId: number): Promise<unknown[]>
+      }
+      reports: {
+        revenue(from: string, to: string): Promise<unknown[]>
+        summary(from: string, to: string): Promise<unknown[]>
+        tableStats(from: string, to: string): Promise<unknown[]>
+        lowStock(): Promise<unknown[]>
       }
     }
   }

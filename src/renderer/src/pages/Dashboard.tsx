@@ -32,8 +32,8 @@ export default function Dashboard({ onViewSession }: Props) {
   }, [activeSessions, setActiveSessions])
 
   const openSessionMutation = useMutation({
-    mutationFn: ({ tableId, phone: _phone }: { tableId: number; phone: string | null }) =>
-      api().sessions.create(tableId, null),
+    mutationFn: ({ tableId, customerId }: { tableId: number; customerId: number | null }) =>
+      api().sessions.create(tableId, customerId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tables'] })
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
@@ -71,8 +71,8 @@ export default function Dashboard({ onViewSession }: Props) {
       </div>
       <OpenSessionModal
         table={selectedTable}
-        onConfirm={async (tableId, phone) => {
-          await openSessionMutation.mutateAsync({ tableId, phone })
+        onConfirm={async (tableId, customerId) => {
+          await openSessionMutation.mutateAsync({ tableId, customerId })
         }}
         onClose={() => setSelectedTable(null)}
       />

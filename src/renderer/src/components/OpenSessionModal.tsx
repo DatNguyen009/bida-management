@@ -8,7 +8,7 @@ import { formatCurrency } from '../lib/utils'
 
 interface Props {
   table: BidaTable | null
-  onConfirm: (tableId: number, customerPhone: string | null) => Promise<void>
+  onConfirm: (tableId: number, customerId: number | null) => Promise<void>
   onClose: () => void
 }
 
@@ -20,7 +20,20 @@ export default function OpenSessionModal({ table, onConfirm, onClose }: Props) {
 
   const handleConfirm = async () => {
     setLoading(true)
-    await onConfirm(table.id, phone.trim() || null)
+    let customerId: number | null = null
+    if (phone.trim()) {
+      const existing = await window.api.customers.findByPhone(phone.trim())
+      if (existing) {
+        customerId = existing.id
+      } else {
+        const name = prompt('Khách hàng mới. Nhập tên:') ?? phone.trim()
+        const newCustomer = await window.api.customers.create({
+          name, phone: phone.trim(), email: null, notes: null,
+        })
+        customerId = newCustomer?.id ?? null
+      }
+    }
+    await onConfirm(table.id, customerId)
     setLoading(false)
     setPhone('')
   }

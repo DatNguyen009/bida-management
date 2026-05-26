@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -46,5 +46,27 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('settings:getAll'),
     set: (key: string, value: string): Promise<{ key: string; value: string } | null> =>
       ipcRenderer.invoke('settings:set', key, value),
+  },
+  customers: {
+    findByPhone: (phone: string): Promise<Customer | null> =>
+      ipcRenderer.invoke('customers:findByPhone', phone),
+    getAll: (): Promise<Customer[]> =>
+      ipcRenderer.invoke('customers:getAll'),
+    create: (input: { name: string; phone: string; email: string | null; notes: string | null }): Promise<Customer | null> =>
+      ipcRenderer.invoke('customers:create', input),
+    update: (id: number, input: Partial<Customer>): Promise<Customer | null> =>
+      ipcRenderer.invoke('customers:update', id, input),
+    invoices: (customerId: number): Promise<unknown[]> =>
+      ipcRenderer.invoke('customers:invoices', customerId),
+  },
+  reports: {
+    revenue: (from: string, to: string): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:revenue', from, to),
+    summary: (from: string, to: string): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:summary', from, to),
+    tableStats: (from: string, to: string): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:tableStats', from, to),
+    lowStock: (): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:lowStock'),
   },
 })

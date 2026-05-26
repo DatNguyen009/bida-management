@@ -77,3 +77,15 @@ export interface InvoiceCreateInput {
   customerPhone?: string
   customerPoints?: number
 }
+
+export interface Customer {
+  id: number
+  name: string
+  phone: string
+  email: string | null
+  total_visits: number
+  total_spent: number
+  points_balance: number
+  notes: string | null
+  created_at: string
+}
