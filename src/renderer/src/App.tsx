@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard'
 import SessionPage from './pages/Session'
 import InvoicePage from './pages/Invoice'
 import ProductsPage from './pages/Products'
+import CustomersPage from './pages/Customers'
 import type { Session } from './types'
 
 type View =
@@ -10,6 +11,9 @@ type View =
   | { page: 'session'; tableId: number }
   | { page: 'invoice'; session: Session & { table_name: string; hourly_rate: number }; playAmount: number }
   | { page: 'products' }
+  | { page: 'customers' }
+  | { page: 'reports' }
+  | { page: 'settings' }
 
 export default function App() {
   const [view, setView] = useState<View>({ page: 'dashboard' })
@@ -30,12 +34,10 @@ export default function App() {
         >
           🎱 Bida Manager
         </button>
-        <button
-          onClick={() => setView({ page: 'products' })}
-          className="text-sm text-gray-300 hover:text-white"
-        >
-          Sản phẩm
-        </button>
+        <button onClick={() => setView({ page: 'products' })} className="text-sm text-gray-300 hover:text-white">Sản phẩm</button>
+        <button onClick={() => setView({ page: 'customers' })} className="text-sm text-gray-300 hover:text-white">Khách hàng</button>
+        <button onClick={() => setView({ page: 'reports' })} className="text-sm text-gray-300 hover:text-white">Báo cáo</button>
+        <button onClick={() => setView({ page: 'settings' })} className="text-sm text-gray-300 hover:text-white ml-auto">Cài đặt</button>
       </nav>
       <main className="p-6">
         {view.page === 'dashboard' && (
@@ -56,6 +58,9 @@ export default function App() {
           />
         )}
         {view.page === 'products' && <ProductsPage />}
+        {view.page === 'customers' && <CustomersPage />}
+        {view.page === 'reports' && <div className="text-gray-500 text-center py-20">Reports (Task 4)</div>}
+        {view.page === 'settings' && <div className="text-gray-500 text-center py-20">Settings (Task 5)</div>}
       </main>
     </div>
   )
