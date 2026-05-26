@@ -5,6 +5,7 @@ import InvoicePage from './pages/Invoice'
 import ProductsPage from './pages/Products'
 import CustomersPage from './pages/Customers'
 import ReportsPage from './pages/Reports'
+import SettingsPage from './pages/Settings'
 import type { Session } from './types'
 
 type View =
@@ -61,7 +62,7 @@ export default function App() {
         {view.page === 'products' && <ProductsPage />}
         {view.page === 'customers' && <CustomersPage />}
         {view.page === 'reports' && <ReportsPage />}
-        {view.page === 'settings' && <div className="text-gray-500 text-center py-20">Settings (Task 5)</div>}
+        {view.page === 'settings' && <SettingsPage />}
       </main>
     </div>
   )
