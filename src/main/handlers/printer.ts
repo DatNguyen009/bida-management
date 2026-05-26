@@ -1,4 +1,4 @@
-import ThermalPrinter, { PrinterTypes, CharacterSet } from 'node-thermal-printer'
+import { ThermalPrinter, PrinterTypes, CharacterSet } from 'node-thermal-printer'
 import { formatCurrency } from '../../renderer/src/lib/utils'
 import type { InvoiceCreateInput } from '../../renderer/src/types'
 

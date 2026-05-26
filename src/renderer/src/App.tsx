@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import Dashboard from './pages/Dashboard'
 import SessionPage from './pages/Session'
+import InvoicePage from './pages/Invoice'
 import type { Session } from './types'
 
 type View =
   | { page: 'dashboard' }
   | { page: 'session'; tableId: number }
+  | { page: 'invoice'; session: Session & { table_name: string; hourly_rate: number }; playAmount: number }
+  | { page: 'products' }
 
 export default function App() {
   const [view, setView] = useState<View>({ page: 'dashboard' })
@@ -14,9 +17,7 @@ export default function App() {
     session: Session & { table_name: string; hourly_rate: number },
     playAmount: number
   ) => {
-    // TODO Plan 2: navigate to Invoice page
-    console.log('Checkout session', session.id, 'play amount:', playAmount)
-    setView({ page: 'dashboard' })
+    setView({ page: 'invoice', session, playAmount })
   }
 
   return (
@@ -27,6 +28,12 @@ export default function App() {
           onClick={() => setView({ page: 'dashboard' })}
         >
           🎱 Bida Manager
+        </button>
+        <button
+          onClick={() => setView({ page: 'products' })}
+          className="text-sm text-gray-300 hover:text-white"
+        >
+          Sản phẩm
         </button>
       </nav>
       <main className="p-6">
@@ -39,6 +46,16 @@ export default function App() {
             onBack={() => setView({ page: 'dashboard' })}
             onCheckout={handleCheckout}
           />
+        )}
+        {view.page === 'invoice' && (
+          <InvoicePage
+            session={view.session}
+            playAmount={view.playAmount}
+            onComplete={() => setView({ page: 'dashboard' })}
+          />
+        )}
+        {view.page === 'products' && (
+          <div className="text-center text-gray-500 py-20">Products page (Task 6)</div>
         )}
       </main>
     </div>
