@@ -1,22 +1,12 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+// src/preload/index.ts
+import { contextBridge, ipcRenderer } from 'electron'
+import type { BidaTable } from '../renderer/src/types'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
-}
+contextBridge.exposeInMainWorld('api', {
+  tables: {
+    getAll: (): Promise<BidaTable[]> =>
+      ipcRenderer.invoke('tables:getAll'),
+    updateStatus: (tableId: number, status: BidaTable['status']): Promise<BidaTable | null> =>
+      ipcRenderer.invoke('tables:updateStatus', tableId, status),
+  },
+})
