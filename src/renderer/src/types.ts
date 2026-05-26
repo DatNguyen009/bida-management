@@ -17,3 +17,63 @@ export interface Session {
   play_amount: number
   status: 'open' | 'closed'
 }
+
+export interface Product {
+  id: number
+  name: string
+  category: 'drink' | 'food' | 'other'
+  price: number
+  stock_quantity: number
+  min_stock_alert: number
+  unit: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface OrderItem {
+  id: number
+  session_id: number
+  product_id: number
+  quantity: number
+  unit_price: number
+  subtotal: number
+  created_at: string
+  product_name?: string
+}
+
+export interface Invoice {
+  id: number
+  session_id: number
+  invoice_number: string
+  play_amount: number
+  items_amount: number
+  total_amount: number
+  discount: number
+  points_redeemed: number
+  discount_from_points: number
+  final_amount: number
+  points_earned: number
+  printed_at: string | null
+  created_at: string
+}
+
+export interface InvoiceCreateInput {
+  sessionId: number
+  customerId: number | null
+  playAmount: number
+  itemsAmount: number
+  discount: number
+  pointsRedeemed: number
+  pointsEarned: number
+  discountFromPoints: number
+  finalAmount: number
+  shopName: string
+  shopAddress: string
+  shopPhone: string
+  tableId: number
+  tableName: string
+  orderItems: { product_name: string; quantity: number; subtotal: number }[]
+  customerName?: string
+  customerPhone?: string
+  customerPoints?: number
+}

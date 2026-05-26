@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerTableHandlers } from './handlers/tables'
 import { registerSessionHandlers } from './handlers/sessions'
+import { registerProductHandlers } from './handlers/products'
 
 function createWindow(): void {
   // Create the browser window.
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
 
   registerTableHandlers()
   registerSessionHandlers()
+  registerProductHandlers()
 
   createWindow()
 
