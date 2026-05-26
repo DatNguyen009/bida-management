@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerTableHandlers } from './handlers/tables'
+import { registerSessionHandlers } from './handlers/sessions'
 
 function createWindow(): void {
   // Create the browser window.
@@ -53,6 +54,7 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   registerTableHandlers()
+  registerSessionHandlers()
 
   createWindow()
 
