@@ -23,9 +23,6 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const [pointsToRedeem, setPointsToRedeem] = useState(0)
   const [showPicker, setShowPicker] = useState(false)
 
-  const VND_PER_POINT = 100
-  const POINTS_PER_10K = 1
-
   const { data: orderItems = [] } = useQuery({
     queryKey: ['orderItems', session.id],
     queryFn: () => api().orderItems.get(session.id),
@@ -35,6 +32,28 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     queryKey: ['settings'],
     queryFn: () => api().settings.getAll(),
   })
+
+  const { data: loyaltySettings } = useQuery({
+    queryKey: ['settings', 'loyalty'],
+    queryFn: async () => {
+      const all = await api().settings.getAll() as Array<{ key: string; value: string }>
+      return {
+        vndPerPoint: Number(all.find((s) => s.key === 'vnd_per_point')?.value ?? 100),
+        pointsPer10k: Number(all.find((s) => s.key === 'points_per_10k')?.value ?? 1),
+      }
+    },
+  })
+
+  const { data: customer } = useQuery({
+    queryKey: ['customer', session.customer_id],
+    queryFn: () => session.customer_id
+      ? window.api.customers.getAll().then((list) => list.find((c) => c.id === session.customer_id) ?? null)
+      : Promise.resolve(null),
+    enabled: !!session.customer_id,
+  })
+
+  const VND_PER_POINT = loyaltySettings?.vndPerPoint ?? 100
+  const POINTS_PER_10K = loyaltySettings?.pointsPer10k ?? 1
 
   const itemsAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
   const discountFromPoints = calcDiscountFromPoints(pointsToRedeem, VND_PER_POINT)
@@ -60,6 +79,9 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     orderItems: orderItems.map((i) => ({
       product_name: i.product_name ?? '', quantity: i.quantity, subtotal: i.subtotal,
     })),
+    customerName: customer?.name,
+    customerPhone: customer?.phone,
+    customerPoints: customer?.points_balance,
   }
 
   const addItemMutation = useMutation({
@@ -114,6 +136,9 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
           </div>
           <div>
             <Label>Đổi điểm (1 điểm = {formatCurrency(VND_PER_POINT)})</Label>
+            {customer && (
+              <p className="text-xs text-yellow-400 mt-0.5">Điểm hiện tại: {customer.points_balance}</p>
+            )}
             <Input type="number" className="mt-1 bg-gray-800 border-gray-600"
               value={pointsToRedeem} onChange={(e) => setPointsToRedeem(Number(e.target.value))} />
           </div>
