@@ -38,13 +38,6 @@ linux:
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
-snapcraft:
-  name: bida
-  summary: Billiard hall management app
-  description: Billiard hall management desktop app
-  grade: stable
-  confinement: classic
-  base: core22
 npmRebuild: false
 publish:
   provider: generic
