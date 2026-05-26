@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Dashboard from './pages/Dashboard'
 import SessionPage from './pages/Session'
 import InvoicePage from './pages/Invoice'
+import ProductsPage from './pages/Products'
 import type { Session } from './types'
 
 type View =
@@ -54,9 +55,7 @@ export default function App() {
             onComplete={() => setView({ page: 'dashboard' })}
           />
         )}
-        {view.page === 'products' && (
-          <div className="text-center text-gray-500 py-20">Products page (Task 6)</div>
-        )}
+        {view.page === 'products' && <ProductsPage />}
       </main>
     </div>
   )
