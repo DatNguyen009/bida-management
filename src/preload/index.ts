@@ -8,6 +8,10 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('tables:getAll'),
     updateStatus: (tableId: number, status: BidaTable['status']): Promise<BidaTable | null> =>
       ipcRenderer.invoke('tables:updateStatus', tableId, status),
+    create: (name: string, hourlyRate: number): Promise<BidaTable | null> =>
+      ipcRenderer.invoke('tables:create', name, hourlyRate),
+    update: (tableId: number, name: string, hourlyRate: number): Promise<BidaTable | null> =>
+      ipcRenderer.invoke('tables:update', tableId, name, hourlyRate),
   },
   sessions: {
     create: (tableId: number, customerId: number | null): Promise<Session | null> =>

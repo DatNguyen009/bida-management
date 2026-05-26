@@ -36,10 +36,10 @@ export default function App() {
         >
           🎱 Bida Manager
         </button>
-        <button onClick={() => setView({ page: 'products' })} className="text-sm text-gray-300 hover:text-white">Sản phẩm</button>
-        <button onClick={() => setView({ page: 'customers' })} className="text-sm text-gray-300 hover:text-white">Khách hàng</button>
-        <button onClick={() => setView({ page: 'reports' })} className="text-sm text-gray-300 hover:text-white">Báo cáo</button>
-        <button onClick={() => setView({ page: 'settings' })} className="text-sm text-gray-300 hover:text-white ml-auto">Cài đặt</button>
+        <button onClick={() => setView({ page: 'products' })} className="text-sm text-white hover:text-gray-200">Sản phẩm</button>
+        <button onClick={() => setView({ page: 'customers' })} className="text-sm text-white hover:text-gray-200">Khách hàng</button>
+        <button onClick={() => setView({ page: 'reports' })} className="text-sm text-white hover:text-gray-200">Báo cáo</button>
+        <button onClick={() => setView({ page: 'settings' })} className="text-sm text-white hover:text-gray-200 ml-auto">Cài đặt</button>
       </nav>
       <main className="p-6">
         {view.page === 'dashboard' && (

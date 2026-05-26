@@ -7,6 +7,8 @@ declare global {
       tables: {
         getAll(): Promise<BidaTable[]>
         updateStatus(id: number, status: BidaTable['status']): Promise<BidaTable | null>
+        create(name: string, hourlyRate: number): Promise<BidaTable | null>
+        update(tableId: number, name: string, hourlyRate: number): Promise<BidaTable | null>
       }
       sessions: {
         create(tableId: number, customerId: number | null): Promise<Session | null>
