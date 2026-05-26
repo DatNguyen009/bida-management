@@ -8,6 +8,7 @@ import { registerOrderItemHandlers } from './handlers/orderItems'
 import { registerInvoiceHandlers } from './handlers/invoices'
 import { registerSettingsHandlers } from './handlers/settings'
 import { registerCustomerHandlers } from './handlers/customers'
+import { registerReportHandlers } from './handlers/reports'
 
 function createWindow(): void {
   // Create the browser window.
@@ -65,6 +66,7 @@ app.whenReady().then(() => {
   registerInvoiceHandlers()
   registerSettingsHandlers()
   registerCustomerHandlers()
+  registerReportHandlers()
 
   createWindow()
 
