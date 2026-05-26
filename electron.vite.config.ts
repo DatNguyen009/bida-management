@@ -16,10 +16,6 @@ export default defineConfig({
         '@': resolve('src/renderer/src')
       }
     },
-    plugins: [react()],
-    test: {
-      environment: 'node',
-      include: ['tests/unit/**/*.test.ts']
-    }
+    plugins: [react()]
   }
 })
