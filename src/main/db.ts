@@ -1,8 +1,12 @@
 // src/main/db.ts
-import { Pool } from 'pg'
+import { Pool, types } from 'pg'
 import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
+
+// PostgreSQL returns DECIMAL/NUMERIC (OID 1700) as strings by default.
+// Parse them as floats so JavaScript arithmetic works correctly.
+types.setTypeParser(1700, (val: string) => parseFloat(val))
 
 interface DbConfig {
   host: string
