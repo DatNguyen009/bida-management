@@ -23,9 +23,13 @@ async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
   return data
 }
 
-function parseExpiry(accessToken: string): number {
-  const payload = JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64').toString())
-  return payload.exp * 1000
+function parseExpiry(token: string): number {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
+    return (payload.exp ?? 0) * 1000
+  } catch {
+    return 0 // treat as expired
+  }
 }
 
 export function registerAuthHandlers(): void {
@@ -76,6 +80,7 @@ export function registerAuthHandlers(): void {
         body: JSON.stringify({ refreshToken }),
       })
       store.set('accessToken', data.accessToken)
+      store.set('refreshToken', data.refreshToken)
       store.set('expiresAt', parseExpiry(data.accessToken))
       return { role: store.get('role'), agentId: store.get('agentId') }
     } catch {

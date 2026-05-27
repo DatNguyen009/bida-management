@@ -85,20 +85,24 @@ describe('POST /auth/refresh', () => {
     expect(res.status).toBe(401)
   })
 
-  it('200 với accessToken mới cho refresh token hợp lệ', async () => {
+  it('200 với accessToken và refreshToken mới cho refresh token hợp lệ', async () => {
     const { raw } = generateRefreshToken()
-    mockQuery.mockResolvedValueOnce({
-      rows: [{
-        account_id: 'uid1',
-        expires_at: new Date(Date.now() + 1_000_000),
-        role: 'master',
-        agent_id: null,
-        status: 'active'
-      }]
-    })
+    mockQuery
+      .mockResolvedValueOnce({
+        rows: [{
+          account_id: 'uid1',
+          expires_at: new Date(Date.now() + 1_000_000),
+          role: 'master',
+          agent_id: null,
+          status: 'active'
+        }]
+      })
+      .mockResolvedValueOnce({ rows: [] }) // DELETE old token
+      .mockResolvedValueOnce({ rows: [] }) // INSERT new token
     const res = await request(makeApp()).post('/auth/refresh').send({ refreshToken: raw })
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('accessToken')
+    expect(res.body).toHaveProperty('refreshToken')
   })
 })
 

@@ -95,18 +95,31 @@ describe('PATCH /agents/:id', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('200 suspend agent và sync account status', async () => {
-    mockQuery
-      .mockResolvedValueOnce({ rows: [{ id: 'a1' }] })
-      .mockResolvedValueOnce({ rows: [] })
+    const client = {
+      query: vi.fn()
+        .mockResolvedValueOnce(undefined)        // BEGIN
+        .mockResolvedValueOnce({ rows: [{ id: 'a1' }] }) // UPDATE agents
+        .mockResolvedValueOnce({ rows: [] })     // UPDATE accounts
+        .mockResolvedValueOnce(undefined),       // COMMIT
+      release: vi.fn()
+    }
+    mockConnect.mockResolvedValueOnce(client)
     const res = await request(makeApp())
       .patch('/agents/a1').set('Authorization', `Bearer ${masterToken()}`)
       .send({ status: 'suspended' })
     expect(res.status).toBe(200)
-    expect(mockQuery).toHaveBeenCalledTimes(2)
+    expect(client.query).toHaveBeenCalledTimes(4)
   })
 
   it('404 khi agent không tồn tại', async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [] })
+    const client = {
+      query: vi.fn()
+        .mockResolvedValueOnce(undefined)    // BEGIN
+        .mockResolvedValueOnce({ rows: [] }) // UPDATE agents returns nothing
+        .mockResolvedValueOnce(undefined),   // ROLLBACK
+      release: vi.fn()
+    }
+    mockConnect.mockResolvedValueOnce(client)
     const res = await request(makeApp())
       .patch('/agents/unknown').set('Authorization', `Bearer ${masterToken()}`)
       .send({ status: 'suspended' })

@@ -74,8 +74,10 @@ agentsRouter.get('/:id', async (req: AuthRequest, res: Response) => {
 
 agentsRouter.patch('/:id', async (req: AuthRequest, res: Response) => {
   const { name, phone, address, status } = req.body
+  const client = await pool.connect()
   try {
-    const { rows } = await pool.query(
+    await client.query('BEGIN')
+    const { rows } = await client.query(
       `UPDATE agents
        SET name    = COALESCE($1, name),
            phone   = COALESCE($2, phone),
@@ -84,13 +86,21 @@ agentsRouter.patch('/:id', async (req: AuthRequest, res: Response) => {
        WHERE id = $5 RETURNING id`,
       [name ?? null, phone ?? null, address ?? null, status ?? null, req.params.id]
     )
-    if (!rows[0]) { res.status(404).json({ error: 'Agent not found' }); return }
-    if (status) {
-      await pool.query('UPDATE accounts SET status = $1 WHERE agent_id = $2', [status, req.params.id])
+    if (!rows[0]) {
+      await client.query('ROLLBACK')
+      res.status(404).json({ error: 'Agent not found' })
+      return
     }
+    if (status) {
+      await client.query('UPDATE accounts SET status = $1 WHERE agent_id = $2', [status, req.params.id])
+    }
+    await client.query('COMMIT')
     res.json({ ok: true })
-  } catch {
-    res.status(500).json({ error: 'Internal server error' })
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
   }
 })
 

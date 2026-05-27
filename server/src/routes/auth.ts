@@ -12,6 +12,10 @@ authRouter.post('/login', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'Username and password required' })
     return
   }
+  if (password.length > 200) {
+    res.status(401).json({ error: 'Sai thông tin đăng nhập' })
+    return
+  }
   try {
     const { rows } = await pool.query(
       'SELECT id, password_hash, role, agent_id, status FROM accounts WHERE username = $1',
@@ -63,8 +67,15 @@ authRouter.post('/refresh', async (req: Request, res: Response) => {
       res.status(403).json({ error: 'Tài khoản đã bị khóa' })
       return
     }
+    // Rotate refresh token: delete old, insert new
+    await pool.query('DELETE FROM refresh_tokens WHERE token_hash = $1', [hashToken(refreshToken)])
+    const { raw: newRaw, hash: newHash, expiresAt: newExpiresAt } = generateRefreshToken()
+    await pool.query(
+      'INSERT INTO refresh_tokens (account_id, token_hash, expires_at) VALUES ($1, $2, $3)',
+      [row.account_id, newHash, newExpiresAt]
+    )
     const accessToken = signAccessToken({ accountId: row.account_id, role: row.role, agentId: row.agent_id })
-    res.json({ accessToken })
+    res.json({ accessToken, refreshToken: newRaw })
   } catch {
     res.status(500).json({ error: 'Internal server error' })
   }

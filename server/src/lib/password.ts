@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import { randomInt } from 'crypto'
 
 const SALT_ROUNDS = 12
 
@@ -14,6 +15,6 @@ export function generatePassword(length = 12): string {
   if (length < 1) throw new Error('Password length must be at least 1')
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
   return Array.from({ length }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
+    chars[randomInt(chars.length)]
   ).join('')
 }
