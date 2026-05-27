@@ -42,20 +42,20 @@ export async function adjustStock(
   note: string,
   costPrice: number | null = null
 ): Promise<Product | null> {
-  // Query current stock before making changes
-  const current = await queryOne<{ stock_quantity: number }>(
-    'SELECT stock_quantity FROM products WHERE id = $1',
-    [productId]
-  )
-  const beforeQty = current?.stock_quantity ?? 0
-  const afterQty = type === 'out' ? beforeQty - quantity : beforeQty + quantity
-
   const operator = type === 'out' ? '-' : '+'
   const product = await queryOne<Product>(
     `UPDATE products SET stock_quantity = stock_quantity ${operator} $1
      WHERE id = $2 RETURNING *`,
     [quantity, productId]
   )
+
+  // Product not found — don't log a phantom transaction
+  if (!product) return null
+
+  // Derive before/after from the UPDATE result (race-free, single round-trip)
+  const afterQty = product.stock_quantity
+  const beforeQty = type === 'out' ? afterQty + quantity : afterQty - quantity
+
   await query(
     `INSERT INTO stock_transactions (product_id, type, quantity, cost_price, before_qty, after_qty, note)
      VALUES ($1, $2, $3, $4, $5, $6, $7)`,

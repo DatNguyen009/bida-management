@@ -46,23 +46,18 @@ describe('adjustStock', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('logs before_qty, after_qty and cost_price in transaction', async () => {
-    const currentProduct = { id: 1, stock_quantity: 20 }
-    const updatedProduct = { id: 1, stock_quantity: 30 }
-    // queryOne is called twice: get current stock, then update
-    vi.mocked(db.queryOne)
-      .mockResolvedValueOnce(currentProduct)
-      .mockResolvedValueOnce(updatedProduct)
+    // queryOne called once: UPDATE RETURNING (returns afterQty)
+    const updatedProduct = { id: 1, stock_quantity: 30, name: 'Test' }
+    vi.mocked(db.queryOne).mockResolvedValueOnce(updatedProduct)
     vi.mocked(db.query).mockResolvedValue([])
 
     const result = await adjustStock(1, 'in', 10, 'Nhập kho test', 15000)
 
-    // Check stock update
-    expect(db.queryOne).toHaveBeenNthCalledWith(
-      2,
+    expect(db.queryOne).toHaveBeenCalledWith(
       expect.stringContaining('stock_quantity + $1'),
       expect.arrayContaining([10, 1])
     )
-    // Check transaction log has all info
+    // afterQty=30 (from RETURNING), beforeQty=30-10=20
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO stock_transactions'),
       expect.arrayContaining([1, 'in', 10, 15000, 20, 30, 'Nhập kho test'])
@@ -71,16 +66,38 @@ describe('adjustStock', () => {
   })
 
   it('accepts null cost_price', async () => {
-    vi.mocked(db.queryOne)
-      .mockResolvedValueOnce({ id: 1, stock_quantity: 5 })
-      .mockResolvedValueOnce({ id: 1, stock_quantity: 8 })
+    vi.mocked(db.queryOne).mockResolvedValueOnce({ id: 1, stock_quantity: 8 })
     vi.mocked(db.query).mockResolvedValue([])
 
     await adjustStock(1, 'in', 3, 'Nhập không có giá', null)
 
+    // afterQty=8, beforeQty=8-3=5
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO stock_transactions'),
       expect.arrayContaining([1, 'in', 3, null, 5, 8, 'Nhập không có giá'])
+    )
+  })
+
+  it('returns null and skips transaction when product not found', async () => {
+    vi.mocked(db.queryOne).mockResolvedValueOnce(null)
+    vi.mocked(db.query).mockResolvedValue([])
+
+    const result = await adjustStock(999, 'in', 5, 'ghost', null)
+
+    expect(result).toBeNull()
+    expect(db.query).not.toHaveBeenCalled()
+  })
+
+  it('calculates before_qty correctly for out type', async () => {
+    vi.mocked(db.queryOne).mockResolvedValueOnce({ id: 1, stock_quantity: 15 })
+    vi.mocked(db.query).mockResolvedValue([])
+
+    await adjustStock(1, 'out', 5, 'Bán hàng', null)
+
+    // afterQty=15, beforeQty=15+5=20 for 'out' type
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO stock_transactions'),
+      expect.arrayContaining([1, 'out', 5, null, 20, 15, 'Bán hàng'])
     )
   })
 })
