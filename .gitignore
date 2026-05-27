@@ -16,3 +16,8 @@ out
 *.njsproj
 *.sln
 *.sw?
+
+# Local env files
+.env
+.env.local
+server/.env
