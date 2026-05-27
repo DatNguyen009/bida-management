@@ -89,3 +89,15 @@ export interface Customer {
   notes: string | null
   created_at: string
 }
+
+export interface StockTransaction {
+  id: number
+  product_id: number
+  type: 'in' | 'out' | 'adjust'
+  quantity: number
+  cost_price: number | null
+  before_qty: number
+  after_qty: number
+  note: string | null
+  created_at: string
+}
