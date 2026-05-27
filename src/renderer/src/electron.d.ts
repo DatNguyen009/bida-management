@@ -47,6 +47,11 @@ declare global {
         tableStats(from: string, to: string): Promise<unknown[]>
         lowStock(): Promise<unknown[]>
       }
+      auth: {
+        login(username: string, password: string): Promise<{ role: string; agentId: string | null }>
+        logout(): Promise<void>
+        getSession(): Promise<{ role: string; agentId: string | null } | null>
+      }
     }
   }
 }

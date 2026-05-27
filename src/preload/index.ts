@@ -73,4 +73,10 @@ contextBridge.exposeInMainWorld('api', {
     lowStock: (): Promise<unknown[]> =>
       ipcRenderer.invoke('reports:lowStock'),
   },
+  auth: {
+    login: (username: string, password: string) =>
+      ipcRenderer.invoke('auth:login', username, password),
+    logout: () => ipcRenderer.invoke('auth:logout'),
+    getSession: () => ipcRenderer.invoke('auth:getSession'),
+  },
 })
