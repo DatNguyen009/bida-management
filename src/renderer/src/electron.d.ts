@@ -19,7 +19,7 @@ declare global {
         getAll(): Promise<Product[]>
         create(input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null>
         update(id: number, input: Partial<Product>): Promise<Product | null>
-        adjustStock(id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string): Promise<Product | null>
+        adjustStock(id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null>
       }
       orderItems: {
         add(sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null>
