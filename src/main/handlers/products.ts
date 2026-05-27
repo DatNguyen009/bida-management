@@ -39,8 +39,17 @@ export async function adjustStock(
   productId: number,
   type: 'in' | 'out' | 'adjust',
   quantity: number,
-  note: string
+  note: string,
+  costPrice: number | null = null
 ): Promise<Product | null> {
+  // Query current stock before making changes
+  const current = await queryOne<{ stock_quantity: number }>(
+    'SELECT stock_quantity FROM products WHERE id = $1',
+    [productId]
+  )
+  const beforeQty = current?.stock_quantity ?? 0
+  const afterQty = type === 'out' ? beforeQty - quantity : beforeQty + quantity
+
   const operator = type === 'out' ? '-' : '+'
   const product = await queryOne<Product>(
     `UPDATE products SET stock_quantity = stock_quantity ${operator} $1
@@ -48,9 +57,9 @@ export async function adjustStock(
     [quantity, productId]
   )
   await query(
-    `INSERT INTO stock_transactions (product_id, type, quantity, note)
-     VALUES ($1, $2, $3, $4)`,
-    [productId, type, quantity, note]
+    `INSERT INTO stock_transactions (product_id, type, quantity, cost_price, before_qty, after_qty, note)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [productId, type, quantity, costPrice, beforeQty, afterQty, note]
   )
   return product
 }
@@ -61,7 +70,7 @@ export function registerProductHandlers() {
   ipcMain.handle('products:update', (_e, id: number, input) => updateProduct(id, input))
   ipcMain.handle(
     'products:adjustStock',
-    (_e, id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string) =>
-      adjustStock(id, type, qty, note)
+    (_e, id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null) =>
+      adjustStock(id, type, qty, note, costPrice)
   )
 }
