@@ -17,8 +17,8 @@ export default function LoginPage({ onLogin }: Props) {
     try {
       await window.api.auth.login(username, password)
       onLogin()
-    } catch (err: any) {
-      setError(err?.message ?? 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
     } finally {
       setLoading(false)
     }

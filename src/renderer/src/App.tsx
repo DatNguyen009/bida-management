@@ -23,9 +23,13 @@ export default function App() {
   const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
 
   useEffect(() => {
-    window.api.auth.getSession().then((session) => {
-      setAuthState(session ? 'authenticated' : 'unauthenticated')
-    })
+    window.api.auth.getSession()
+      .then((session) => {
+        setAuthState(session ? 'authenticated' : 'unauthenticated')
+      })
+      .catch(() => {
+        setAuthState('unauthenticated')
+      })
   }, [])
 
   if (authState === 'checking') {
