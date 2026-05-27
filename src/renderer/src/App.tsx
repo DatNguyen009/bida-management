@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Dashboard from './pages/Dashboard'
 import SessionPage from './pages/Session'
 import InvoicePage from './pages/Invoice'
@@ -7,6 +7,7 @@ import CustomersPage from './pages/Customers'
 import ReportsPage from './pages/Reports'
 import SettingsPage from './pages/Settings'
 import type { Session } from './types'
+import LoginPage from './pages/LoginPage'
 
 type View =
   | { page: 'dashboard' }
@@ -19,6 +20,25 @@ type View =
 
 export default function App() {
   const [view, setView] = useState<View>({ page: 'dashboard' })
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
+
+  useEffect(() => {
+    window.api.auth.getSession().then((session) => {
+      setAuthState(session ? 'authenticated' : 'unauthenticated')
+    })
+  }, [])
+
+  if (authState === 'checking') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <p className="text-gray-500 text-sm">Đang tải...</p>
+      </div>
+    )
+  }
+
+  if (authState === 'unauthenticated') {
+    return <LoginPage onLogin={() => setAuthState('authenticated')} />
+  }
 
   const handleCheckout = (
     session: Session & { table_name: string; hourly_rate: number },
