@@ -20,6 +20,7 @@ export default function ProductsPage() {
   const [form, setForm] = useState({ name: '', category: 'drink', price: 0, unit: 'lon', min_stock_alert: 5 })
   const [stockQty, setStockQty] = useState(0)
   const [stockNote, setStockNote] = useState('')
+  const [stockCostPrice, setStockCostPrice] = useState<number | ''>('')
 
   const { data: products = [] } = useQuery({
     queryKey: ['products'],
@@ -37,7 +38,9 @@ export default function ProductsPage() {
   })
 
   const stockMutation = useMutation({
-    mutationFn: () => selected ? api().products.adjustStock(selected.id, 'in', stockQty, stockNote) : Promise.resolve(null),
+    mutationFn: () => selected
+      ? api().products.adjustStock(selected.id, 'in', stockQty, stockNote, stockCostPrice === '' ? null : stockCostPrice)
+      : Promise.resolve(null),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
   })
 
@@ -92,7 +95,7 @@ export default function ProductsPage() {
                 </td>
                 <td className="p-3 text-right space-x-2">
                   <Button size="sm" variant="outline" className="border-gray-600 h-7 text-xs"
-                    onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setMode('stock') }}>
+                    onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
                     Nhập kho
                   </Button>
                   <Button size="sm" variant="outline" className="border-gray-600 h-7 text-xs"
@@ -149,13 +152,31 @@ export default function ProductsPage() {
             <DialogTitle>Nhập kho — {selected?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <p className="text-sm text-gray-400">Tồn hiện tại: <span className="text-white">{selected?.stock_quantity} {selected?.unit}</span></p>
-            <div><Label>Số lượng nhập thêm</Label>
+            <p className="text-sm text-gray-400">
+              Tồn hiện tại: <span className="text-white">{selected?.stock_quantity} {selected?.unit}</span>
+            </p>
+            <div>
+              <Label>Số lượng nhập thêm</Label>
               <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={stockQty}
-                onChange={(e) => setStockQty(Number(e.target.value))} /></div>
-            <div><Label>Ghi chú</Label>
+                onChange={(e) => setStockQty(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Giá nhập (đ/đơn vị) — tuỳ chọn</Label>
+              <Input type="number" className="mt-1 bg-gray-800 border-gray-600"
+                placeholder="Để trống nếu không cần theo dõi"
+                value={stockCostPrice}
+                onChange={(e) => setStockCostPrice(e.target.value === '' ? '' : Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Ghi chú</Label>
               <Input className="mt-1 bg-gray-800 border-gray-600" value={stockNote}
-                onChange={(e) => setStockNote(e.target.value)} /></div>
+                onChange={(e) => setStockNote(e.target.value)} />
+            </div>
+            {stockQty > 0 && (
+              <p className="text-sm text-green-400">
+                Tồn sau khi nhập: {(selected?.stock_quantity ?? 0) + stockQty} {selected?.unit}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMode(null)} className="border-gray-600">Huỷ</Button>

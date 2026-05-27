@@ -28,8 +28,8 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('products:create', input),
     update: (id: number, input: Partial<Product>): Promise<Product | null> =>
       ipcRenderer.invoke('products:update', id, input),
-    adjustStock: (id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string): Promise<Product | null> =>
-      ipcRenderer.invoke('products:adjustStock', id, type, qty, note),
+    adjustStock: (id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null> =>
+      ipcRenderer.invoke('products:adjustStock', id, type, qty, note, costPrice),
   },
   orderItems: {
     add: (sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null> =>
