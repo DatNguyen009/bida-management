@@ -81,6 +81,9 @@ CREATE TABLE IF NOT EXISTS stock_transactions (
   product_id INT NOT NULL REFERENCES products(id),
   type VARCHAR(10) NOT NULL,
   quantity INT NOT NULL,
+  cost_price NUMERIC(12,0) NULL,
+  before_qty INT NOT NULL DEFAULT 0,
+  after_qty INT NOT NULL DEFAULT 0,
   note TEXT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
