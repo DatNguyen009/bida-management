@@ -4,7 +4,10 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET
+if (!ACCESS_SECRET || ACCESS_SECRET.length < 32) {
+  throw new Error('JWT_ACCESS_SECRET env var must be set and at least 32 characters')
+}
 
 export interface TokenPayload {
   accountId: string
