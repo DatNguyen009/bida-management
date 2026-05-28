@@ -84,11 +84,11 @@ class SyncWorker {
     for (const table of TABLES_INT_ID) {
       await query(
         `INSERT INTO sync_queue (table_name, row_id, operation, payload)
-         SELECT $1, id::text, 'insert', row_to_json(t)
+         SELECT $1::text, id::text, 'insert', row_to_json(t)
          FROM ${table} t
          WHERE agent_id IS NOT NULL
            AND id::text NOT IN (
-             SELECT row_id FROM sync_queue WHERE table_name = $1
+             SELECT row_id FROM sync_queue WHERE table_name = $1::text
            )`,
         [table]
       )
