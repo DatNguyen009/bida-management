@@ -1,5 +1,8 @@
+// src/main/handlers/customers.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
+import { getAgentId } from '../lib/authStore'
+import { enqueue, syncWorker } from '../sync/worker'
 import type { Customer } from '../../renderer/src/types'
 
 export async function findCustomerByPhone(phone: string): Promise<Customer | null> {
@@ -16,11 +19,17 @@ export async function createCustomer(input: {
   email: string | null
   notes: string | null
 }): Promise<Customer | null> {
-  return queryOne<Customer>(
-    `INSERT INTO customers (name, phone, email, notes)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [input.name, input.phone, input.email, input.notes]
+  const agentId = getAgentId()
+  const customer = await queryOne<Customer>(
+    `INSERT INTO customers (name, phone, email, notes, agent_id)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [input.name, input.phone, input.email, input.notes, agentId]
   )
+  if (customer) {
+    await enqueue('customers', customer.id, 'insert', customer)
+    syncWorker.flush()
+  }
+  return customer
 }
 
 export async function updateCustomer(
@@ -30,10 +39,15 @@ export async function updateCustomer(
   const fields = Object.keys(input)
   const values = Object.values(input)
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
-  return queryOne<Customer>(
+  const customer = await queryOne<Customer>(
     `UPDATE customers SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
     [...values, id]
   )
+  if (customer) {
+    await enqueue('customers', customer.id, 'update', customer)
+    syncWorker.flush()
+  }
+  return customer
 }
 
 export async function getCustomerInvoices(customerId: number) {
