@@ -54,7 +54,7 @@ export async function closeSession(
   const closed = await queryOne<Session>(
     `UPDATE sessions
      SET status = 'closed', end_time = $1, duration_minutes = $2, play_amount = $3
-     WHERE id = $4 RETURNING *`,
+     WHERE id = $4 AND status = 'open' RETURNING *`,
     [endTime.toISOString(), durationMinutes, playAmount, sessionId]
   )
 

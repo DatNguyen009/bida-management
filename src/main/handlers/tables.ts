@@ -18,8 +18,11 @@ export async function updateTableStatus(
     [status, tableId]
   )
   if (table) {
-    await enqueue('tables', table.id, 'update', table)
-    syncWorker.flush()
+    const agentId = getAgentId()
+    if (agentId) {
+      await enqueue('tables', table.id, 'update', table)
+      syncWorker.flush()
+    }
   }
   return table
 }
