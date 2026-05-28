@@ -1,5 +1,8 @@
+// src/main/handlers/orderItems.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
+import { getAgentId } from '../lib/authStore'
+import { enqueue, syncWorker } from '../sync/worker'
 import type { OrderItem } from '../../renderer/src/types'
 
 export async function addOrderItem(
@@ -8,15 +11,23 @@ export async function addOrderItem(
   quantity: number,
   unitPrice: number
 ): Promise<OrderItem | null> {
+  const agentId = getAgentId()
   const subtotal = quantity * unitPrice
-  return queryOne<OrderItem>(
-    `INSERT INTO order_items (session_id, product_id, quantity, unit_price, subtotal)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [sessionId, productId, quantity, unitPrice, subtotal]
+  const item = await queryOne<OrderItem>(
+    `INSERT INTO order_items (session_id, product_id, quantity, unit_price, subtotal, agent_id)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [sessionId, productId, quantity, unitPrice, subtotal, agentId]
   )
+  if (item) {
+    await enqueue('order_items', item.id, 'insert', item)
+    syncWorker.flush()
+  }
+  return item
 }
 
-export async function getOrderItems(sessionId: number): Promise<(OrderItem & { product_name: string })[]> {
+export async function getOrderItems(
+  sessionId: number
+): Promise<(OrderItem & { product_name: string })[]> {
   return query(
     `SELECT oi.*, p.name AS product_name
      FROM order_items oi
@@ -29,6 +40,8 @@ export async function getOrderItems(sessionId: number): Promise<(OrderItem & { p
 
 export async function removeOrderItem(itemId: number): Promise<void> {
   await queryOne('DELETE FROM order_items WHERE id = $1 RETURNING id', [itemId])
+  await enqueue('order_items', itemId, 'delete', {})
+  syncWorker.flush()
 }
 
 export async function getOrderTotal(sessionId: number): Promise<number> {

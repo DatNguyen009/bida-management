@@ -1,5 +1,8 @@
+// src/main/handlers/invoices.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
+import { getAgentId } from '../lib/authStore'
+import { enqueue, syncWorker } from '../sync/worker'
 import type { Invoice, InvoiceCreateInput } from '../../renderer/src/types'
 import { printInvoice } from './printer'
 
@@ -12,19 +15,20 @@ export async function getNextInvoiceNumber(): Promise<string> {
 }
 
 export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice | null> {
+  const agentId = getAgentId()
   const invoiceNumber = await getNextInvoiceNumber()
 
   const invoice = await queryOne<Invoice>(
     `INSERT INTO invoices
-     (session_id, invoice_number, play_amount, items_amount, total_amount,
-      discount, points_redeemed, discount_from_points, final_amount, points_earned)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+       (session_id, invoice_number, play_amount, items_amount, total_amount,
+        discount, points_redeemed, discount_from_points, final_amount, points_earned, agent_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
     [
       input.sessionId, invoiceNumber,
       input.playAmount, input.itemsAmount,
       input.playAmount + input.itemsAmount,
       input.discount, input.pointsRedeemed, input.discountFromPoints,
-      input.finalAmount, input.pointsEarned,
+      input.finalAmount, input.pointsEarned, agentId,
     ]
   )
 
@@ -37,8 +41,14 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
        WHERE id = $4`,
       [input.pointsEarned, input.pointsRedeemed, input.finalAmount, input.customerId]
     )
+    const customer = await queryOne('SELECT * FROM customers WHERE id = $1', [input.customerId])
+    if (customer) await enqueue('customers', input.customerId, 'update', customer)
   }
 
+  if (invoice) {
+    await enqueue('invoices', invoice.id, 'insert', invoice)
+    syncWorker.flush()
+  }
   return invoice
 }
 
