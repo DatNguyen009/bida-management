@@ -32,7 +32,7 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
     ]
   )
 
-  if (invoice && input.customerId && input.pointsEarned > 0) {
+  if (invoice && input.customerId) {
     await query(
       `UPDATE customers
        SET points_balance = points_balance + $1 - $2,
