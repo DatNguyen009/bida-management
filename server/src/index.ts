@@ -4,6 +4,7 @@ import { rateLimit } from 'express-rate-limit'
 import dotenv from 'dotenv'
 import { authRouter } from './routes/auth'
 import { agentsRouter } from './routes/agents'
+import syncRouter from './routes/sync'
 
 dotenv.config()
 
@@ -20,6 +21,7 @@ app.use(rateLimit({ windowMs: 60_000, max: 100, standardHeaders: true, legacyHea
 
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/agents', agentsRouter)
+app.use('/api/v1/sync', syncRouter)
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 
