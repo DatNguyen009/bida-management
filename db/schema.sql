@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS tables (
   name VARCHAR(50) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'idle',
   hourly_rate DECIMAL(10,0) NOT NULL DEFAULT 50000,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS customers (
   total_spent DECIMAL(12,0) DEFAULT 0,
   points_balance INT DEFAULT 0,
   notes TEXT NULL,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -28,6 +30,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   end_time TIMESTAMPTZ NULL,
   duration_minutes INT NULL,
   play_amount DECIMAL(10,0) DEFAULT 0,
+  agent_id UUID NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'open'
 );
 
@@ -40,6 +43,7 @@ CREATE TABLE IF NOT EXISTS products (
   min_stock_alert INT NOT NULL DEFAULT 5,
   unit VARCHAR(20) NOT NULL DEFAULT 'cái',
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -50,6 +54,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity INT NOT NULL,
   unit_price DECIMAL(10,0) NOT NULL,
   subtotal DECIMAL(10,0) NOT NULL,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -57,7 +62,8 @@ CREATE TABLE IF NOT EXISTS loyalty_settings (
   id SERIAL PRIMARY KEY,
   points_per_10k_vnd INT NOT NULL DEFAULT 1,
   vnd_per_point INT NOT NULL DEFAULT 100,
-  min_redeem_points INT NOT NULL DEFAULT 100
+  min_redeem_points INT NOT NULL DEFAULT 100,
+  agent_id UUID NULL
 );
 
 CREATE TABLE IF NOT EXISTS invoices (
@@ -73,6 +79,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   final_amount DECIMAL(10,0) NOT NULL,
   points_earned INT NOT NULL DEFAULT 0,
   printed_at TIMESTAMPTZ NULL,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -85,13 +92,30 @@ CREATE TABLE IF NOT EXISTS stock_transactions (
   before_qty INT NOT NULL DEFAULT 0,
   after_qty INT NOT NULL DEFAULT 0,
   note TEXT NULL,
+  agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS settings (
   key VARCHAR(100) PRIMARY KEY,
-  value TEXT
+  value TEXT,
+  agent_id UUID NULL
 );
+
+CREATE TABLE IF NOT EXISTS sync_queue (
+  id          SERIAL       PRIMARY KEY,
+  table_name  VARCHAR(50)  NOT NULL,
+  row_id      TEXT         NOT NULL,
+  operation   VARCHAR(10)  NOT NULL,  -- insert | update | delete
+  payload     JSONB        NOT NULL,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  synced_at   TIMESTAMPTZ  NULL,
+  retry_count INT          NOT NULL DEFAULT 0,
+  last_error  TEXT         NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sync_queue_pending
+  ON sync_queue (id) WHERE synced_at IS NULL;
 
 -- Seed default data
 INSERT INTO settings (key, value) VALUES
