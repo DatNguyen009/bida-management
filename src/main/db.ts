@@ -4,17 +4,24 @@ import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 
+// PostgreSQL returns DECIMAL/NUMERIC (OID 1700) as strings — parse to float for arithmetic.
 types.setTypeParser(1700, (val: string) => parseFloat(val))
 
 function createPool(): Pool {
+  // DATABASE_URL format: postgresql://user:password@host/dbname (Render External Database URL)
   const url = process.env.DATABASE_URL
   if (url) {
     return new Pool({ connectionString: url, ssl: { rejectUnauthorized: false } })
   }
   const configPath = path.join(app.getPath('userData'), 'db-config.json')
   if (fs.existsSync(configPath)) {
-    const cfg = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-    return new Pool(cfg)
+    try {
+      const cfg = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+      return new Pool(cfg)
+    } catch (err) {
+      console.error('[DB] Failed to parse db-config.json:', err)
+      throw err
+    }
   }
   return new Pool({
     host: 'localhost',
