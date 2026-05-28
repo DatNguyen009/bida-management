@@ -37,9 +37,10 @@ export async function updateProduct(
   id: number,
   input: Partial<Omit<Product, 'id' | 'created_at'>>
 ): Promise<Product | null> {
-  const fields = Object.keys(input)
+  const ALLOWED = new Set(['name', 'category', 'price', 'unit', 'min_stock_alert', 'is_active', 'stock_quantity', 'agent_id'])
+  const fields = Object.keys(input).filter((f) => ALLOWED.has(f))
   if (fields.length === 0) return null
-  const values = Object.values(input)
+  const values = fields.map((f) => (input as any)[f])
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
   const product = await queryOne<Product>(
     `UPDATE products SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,

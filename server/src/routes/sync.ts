@@ -64,6 +64,9 @@ router.post('/batch', async (req: AuthRequest, res: Response) => {
           )
         } else {
           const cols = Object.keys(payload as object)
+          if (cols.some((c) => !/^[a-z_][a-z0-9_]*$/.test(c))) {
+            throw new Error('Invalid column name in payload')
+          }
           const vals = Object.values(payload as object)
           const allCols = ['agent_id', ...cols]
           const allVals = [agentId, ...vals]

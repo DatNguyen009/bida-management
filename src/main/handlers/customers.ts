@@ -36,9 +36,10 @@ export async function updateCustomer(
   id: number,
   input: Partial<Pick<Customer, 'name' | 'phone' | 'email' | 'notes' | 'points_balance'>>
 ): Promise<Customer | null> {
-  const fields = Object.keys(input)
+  const ALLOWED = new Set(['name', 'phone', 'email', 'notes', 'points_balance'])
+  const fields = Object.keys(input).filter((f) => ALLOWED.has(f))
   if (fields.length === 0) return null
-  const values = Object.values(input)
+  const values = fields.map((f) => (input as any)[f])
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
   const customer = await queryOne<Customer>(
     `UPDATE customers SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
