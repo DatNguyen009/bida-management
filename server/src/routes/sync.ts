@@ -63,11 +63,11 @@ router.post('/batch', async (req: AuthRequest, res: Response) => {
             [agentId, (payload as any).key, (payload as any).value]
           )
         } else {
-          const cols = Object.keys(payload as object)
+          const cols = Object.keys(payload as object).filter((c) => c !== 'agent_id')
           if (cols.some((c) => !/^[a-z_][a-z0-9_]*$/.test(c))) {
             throw new Error('Invalid column name in payload')
           }
-          const vals = Object.values(payload as object)
+          const vals = cols.map((c) => (payload as Record<string, unknown>)[c])
           const allCols = ['agent_id', ...cols]
           const allVals = [agentId, ...vals]
           const placeholders = allCols.map((_, i) => `$${i + 1}`).join(', ')
@@ -86,6 +86,7 @@ router.post('/batch', async (req: AuthRequest, res: Response) => {
     res.json({ synced: records.length, failed: 0 })
   } catch (err) {
     await client.query('ROLLBACK')
+    console.error('[sync] error:', err)
     res.status(500).json({ error: 'Sync failed' })
   } finally {
     client.release()
