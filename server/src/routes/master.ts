@@ -65,8 +65,9 @@ router.get('/agents', async (_req: AuthRequest, res: Response) => {
 router.get('/agents/:id', async (req: AuthRequest, res: Response) => {
   const { id } = req.params
   try {
-    const [agentRes, tablesRes, invoicesRes, byDayRes] = await Promise.all([
-      pool.query('SELECT id, name, phone, address FROM agents WHERE id = $1', [id]),
+    const agentRes = await pool.query('SELECT id, name, phone, address FROM agents WHERE id = $1', [id])
+    if (!agentRes.rows[0]) { res.status(404).json({ error: 'Agent not found' }); return }
+    const [tablesRes, invoicesRes, byDayRes] = await Promise.all([
       pool.query('SELECT id, name, status, hourly_rate FROM cloud_tables WHERE agent_id = $1 ORDER BY id', [id]),
       pool.query(
         'SELECT invoice_number, final_amount, created_at FROM cloud_invoices WHERE agent_id = $1 ORDER BY created_at DESC LIMIT 10',
@@ -80,7 +81,6 @@ router.get('/agents/:id', async (req: AuthRequest, res: Response) => {
         [id]
       ),
     ])
-    if (!agentRes.rows[0]) { res.status(404).json({ error: 'Agent not found' }); return }
     res.json({
       agent: agentRes.rows[0],
       tables: tablesRes.rows.map((r) => ({ ...r, hourly_rate: Number(r.hourly_rate) })),

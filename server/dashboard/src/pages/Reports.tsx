@@ -27,11 +27,12 @@ function toISO(daysAgo: number) {
 export default function Reports() {
   const [from, setFrom] = useState(() => toISO(6))
   const [to, setTo] = useState(() => toISO(0))
-  const [queryKey, setQueryKey] = useState(() => [from, to])
+  const [queryKey, setQueryKey] = useState<[string, string] | null>(null)
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['reports', ...queryKey],
-    queryFn: () => apiFetch<ReportsData>(`/master/reports?from=${queryKey[0]}&to=${queryKey[1]}`),
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['reports', ...(queryKey ?? [])],
+    queryFn: () => apiFetch<ReportsData>(`/master/reports?from=${queryKey![0]}&to=${queryKey![1]}`),
+    enabled: queryKey !== null,
   })
 
   return (
@@ -56,7 +57,7 @@ export default function Reports() {
       </div>
 
       {isLoading && <div className="text-center py-12 text-gray-400">Đang tải...</div>}
-      {isError && <div className="text-center py-12 text-red-500">Lỗi tải dữ liệu.</div>}
+      {isError && <div className="text-center py-12 text-red-500">{(error as Error).message}</div>}
 
       {data && (
         <>

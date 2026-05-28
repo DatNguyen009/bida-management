@@ -58,9 +58,6 @@ describe('GET /api/v1/master/agents/:id', () => {
   it('404 nếu agent không tồn tại', async () => {
     vi.mocked(pool).query = vi.fn()
       .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
     const res = await request(app).get('/api/v1/master/agents/nonexistent').set('Authorization', 'Bearer t')
     expect(res.status).toBe(404)
   })
