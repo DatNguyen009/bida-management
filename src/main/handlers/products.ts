@@ -38,6 +38,7 @@ export async function updateProduct(
   input: Partial<Omit<Product, 'id' | 'created_at'>>
 ): Promise<Product | null> {
   const fields = Object.keys(input)
+  if (fields.length === 0) return null
   const values = Object.values(input)
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
   const product = await queryOne<Product>(
@@ -68,6 +69,8 @@ export async function adjustStock(
   if (!product) return null
 
   const afterQty = product.stock_quantity
+  // For 'in'/'adjust': afterQty = oldQty + quantity → beforeQty = afterQty - quantity
+  // For 'out': afterQty = oldQty - quantity → beforeQty = afterQty + quantity
   const beforeQty = type === 'out' ? afterQty + quantity : afterQty - quantity
 
   const tx = await queryOne<StockTransaction>(
@@ -78,7 +81,7 @@ export async function adjustStock(
   )
 
   await enqueue('products', product.id, 'update', product)
-  if (tx) await enqueue('stock_transactions', (tx as any).id, 'insert', tx)
+  if (tx) await enqueue('stock_transactions', tx.id, 'insert', tx)
   syncWorker.flush()
 
   return product

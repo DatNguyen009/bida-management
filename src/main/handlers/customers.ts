@@ -37,6 +37,7 @@ export async function updateCustomer(
   input: Partial<Pick<Customer, 'name' | 'phone' | 'email' | 'notes' | 'points_balance'>>
 ): Promise<Customer | null> {
   const fields = Object.keys(input)
+  if (fields.length === 0) return null
   const values = Object.values(input)
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
   const customer = await queryOne<Customer>(
