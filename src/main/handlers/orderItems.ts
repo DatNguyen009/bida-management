@@ -2,7 +2,6 @@
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
 import { getAgentId } from '../lib/authStore'
-import { enqueue, syncWorker } from '../sync/worker'
 import type { OrderItem } from '../../renderer/src/types'
 
 export async function addOrderItem(
@@ -13,48 +12,46 @@ export async function addOrderItem(
 ): Promise<OrderItem | null> {
   const agentId = getAgentId()
   const subtotal = quantity * unitPrice
-  const item = await queryOne<OrderItem>(
-    `INSERT INTO order_items (session_id, product_id, quantity, unit_price, subtotal, agent_id)
+  return queryOne<OrderItem>(
+    `INSERT INTO cloud_order_items (session_id, product_id, quantity, unit_price, subtotal, agent_id)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
     [sessionId, productId, quantity, unitPrice, subtotal, agentId]
   )
-  if (item) {
-    await enqueue('order_items', item.id, 'insert', item)
-    syncWorker.flush()
-  }
-  return item
 }
 
 export async function getOrderItems(
   sessionId: number
 ): Promise<(OrderItem & { product_name: string })[]> {
+  const agentId = getAgentId()
   return query(
     `SELECT oi.*, p.name AS product_name
-     FROM order_items oi
-     JOIN products p ON p.id = oi.product_id
-     WHERE oi.session_id = $1
+     FROM cloud_order_items oi
+     JOIN cloud_products p ON p.id = oi.product_id
+     WHERE oi.session_id = $1 AND oi.agent_id = $2
      ORDER BY oi.created_at`,
-    [sessionId]
+    [sessionId, agentId]
   )
 }
 
 export async function removeOrderItem(itemId: number): Promise<void> {
-  await queryOne('DELETE FROM order_items WHERE id = $1 RETURNING id', [itemId])
-  await enqueue('order_items', itemId, 'delete', {})
-  syncWorker.flush()
+  const agentId = getAgentId()
+  await queryOne(
+    'DELETE FROM cloud_order_items WHERE id = $1 AND agent_id = $2 RETURNING id',
+    [itemId, agentId]
+  )
 }
 
 export async function getOrderTotal(sessionId: number): Promise<number> {
+  const agentId = getAgentId()
   const result = await queryOne<{ total: string }>(
-    'SELECT COALESCE(SUM(subtotal), 0) AS total FROM order_items WHERE session_id = $1',
-    [sessionId]
+    'SELECT COALESCE(SUM(subtotal), 0) AS total FROM cloud_order_items WHERE session_id = $1 AND agent_id = $2',
+    [sessionId, agentId]
   )
   return Number(result?.total ?? 0)
 }
 
 export function registerOrderItemHandlers() {
-  ipcMain.handle(
-    'orderItems:add',
+  ipcMain.handle('orderItems:add',
     (_e, sessionId: number, productId: number, qty: number, price: number) =>
       addOrderItem(sessionId, productId, qty, price)
   )
