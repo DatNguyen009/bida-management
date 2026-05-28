@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dashboard:build": "cd dashboard && npm run build"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
