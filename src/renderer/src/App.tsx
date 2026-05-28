@@ -64,6 +64,16 @@ export default function App() {
         <button onClick={() => setView({ page: 'customers' })} className="text-sm text-white hover:text-gray-200">Khách hàng</button>
         <button onClick={() => setView({ page: 'reports' })} className="text-sm text-white hover:text-gray-200">Báo cáo</button>
         <button onClick={() => setView({ page: 'settings' })} className="text-sm text-white hover:text-gray-200 ml-auto">Cài đặt</button>
+        <button
+          onClick={async () => {
+            await window.api.auth.logout()
+            setAuthState('unauthenticated')
+            setView({ page: 'dashboard' })
+          }}
+          className="text-sm text-red-400 hover:text-red-300"
+        >
+          Đăng xuất
+        </button>
       </nav>
       <main className="p-6">
         {view.page === 'dashboard' && (
