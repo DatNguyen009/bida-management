@@ -2,15 +2,22 @@
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
 import { getAgentId } from '../lib/authStore'
-import { enqueue, syncWorker } from '../sync/worker'
 import type { Customer } from '../../renderer/src/types'
 
 export async function findCustomerByPhone(phone: string): Promise<Customer | null> {
-  return queryOne<Customer>('SELECT * FROM customers WHERE phone = $1', [phone])
+  const agentId = getAgentId()
+  return queryOne<Customer>(
+    'SELECT * FROM cloud_customers WHERE phone = $1 AND agent_id = $2',
+    [phone, agentId]
+  )
 }
 
 export async function getAllCustomers(): Promise<Customer[]> {
-  return query<Customer>('SELECT * FROM customers ORDER BY total_spent DESC')
+  const agentId = getAgentId()
+  return query<Customer>(
+    'SELECT * FROM cloud_customers WHERE agent_id = $1 ORDER BY total_spent DESC',
+    [agentId]
+  )
 }
 
 export async function createCustomer(input: {
@@ -20,48 +27,40 @@ export async function createCustomer(input: {
   notes: string | null
 }): Promise<Customer | null> {
   const agentId = getAgentId()
-  const customer = await queryOne<Customer>(
-    `INSERT INTO customers (name, phone, email, notes, agent_id)
+  return queryOne<Customer>(
+    `INSERT INTO cloud_customers (name, phone, email, notes, agent_id)
      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [input.name, input.phone, input.email, input.notes, agentId]
   )
-  if (customer) {
-    await enqueue('customers', customer.id, 'insert', customer)
-    syncWorker.flush()
-  }
-  return customer
 }
 
 export async function updateCustomer(
   id: number,
   input: Partial<Pick<Customer, 'name' | 'phone' | 'email' | 'notes' | 'points_balance'>>
 ): Promise<Customer | null> {
+  const agentId = getAgentId()
   const ALLOWED = new Set(['name', 'phone', 'email', 'notes', 'points_balance'])
   const fields = Object.keys(input).filter((f) => ALLOWED.has(f))
   if (fields.length === 0) return null
   const values = fields.map((f) => (input as any)[f])
   const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ')
-  const customer = await queryOne<Customer>(
-    `UPDATE customers SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
-    [...values, id]
+  return queryOne<Customer>(
+    `UPDATE cloud_customers SET ${setClause} WHERE id = $${fields.length + 1} AND agent_id = $${fields.length + 2} RETURNING *`,
+    [...values, id, agentId]
   )
-  if (customer) {
-    await enqueue('customers', customer.id, 'update', customer)
-    syncWorker.flush()
-  }
-  return customer
 }
 
 export async function getCustomerInvoices(customerId: number) {
+  const agentId = getAgentId()
   return query(
     `SELECT i.*, s.start_time, t.name AS table_name
-     FROM invoices i
-     JOIN sessions s ON s.id = i.session_id
-     JOIN tables t ON t.id = s.table_id
-     WHERE s.customer_id = $1
+     FROM cloud_invoices i
+     JOIN cloud_sessions s ON s.id = i.session_id
+     JOIN cloud_tables t ON t.id = s.table_id
+     WHERE s.customer_id = $1 AND i.agent_id = $2
      ORDER BY i.created_at DESC
      LIMIT 20`,
-    [customerId]
+    [customerId, agentId]
   )
 }
 
