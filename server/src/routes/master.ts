@@ -83,7 +83,7 @@ router.get('/agents/:id', async (req: AuthRequest, res: Response) => {
     if (!agentRes.rows[0]) { res.status(404).json({ error: 'Agent not found' }); return }
     res.json({
       agent: agentRes.rows[0],
-      tables: tablesRes.rows,
+      tables: tablesRes.rows.map((r) => ({ ...r, hourly_rate: Number(r.hourly_rate) })),
       recentInvoices: invoicesRes.rows.map((r) => ({ ...r, final_amount: Number(r.final_amount) })),
       revenueByDay: byDayRes.rows.map((r) => ({ date: toDate(r.date), total: Number(r.total) })),
     })
@@ -96,6 +96,9 @@ router.get('/reports', async (req: AuthRequest, res: Response) => {
   const { from, to } = req.query
   if (!from || !to || typeof from !== 'string' || typeof to !== 'string') {
     res.status(400).json({ error: 'from and to query params are required' }); return
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    res.status(400).json({ error: 'Invalid date format, use YYYY-MM-DD' }); return
   }
   const fromDt = new Date(from), toDt = new Date(to)
   if (isNaN(fromDt.getTime()) || isNaN(toDt.getTime())) {
