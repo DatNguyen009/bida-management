@@ -1,7 +1,10 @@
+// src/main/handlers/reports.ts
 import { ipcMain } from 'electron'
 import { query } from '../db'
+import { getAgentId } from '../lib/authStore'
 
 export async function getRevenueReport(fromDate: string, toDate: string) {
+  const agentId = getAgentId()
   return query(
     `SELECT
        DATE(i.created_at) AS date,
@@ -9,25 +12,29 @@ export async function getRevenueReport(fromDate: string, toDate: string) {
        COUNT(*) AS invoice_count
      FROM invoices i
      WHERE DATE(i.created_at) BETWEEN $1 AND $2
+       AND (i.agent_id = $3 OR i.agent_id IS NULL)
      GROUP BY DATE(i.created_at)
      ORDER BY date`,
-    [fromDate, toDate]
+    [fromDate, toDate, agentId]
   )
 }
 
 export async function getRevenueSummary(fromDate: string, toDate: string) {
+  const agentId = getAgentId()
   return query(
     `SELECT
        SUM(i.final_amount) AS total_revenue,
        COUNT(*) AS total_invoices,
        AVG(i.final_amount) AS avg_invoice
      FROM invoices i
-     WHERE DATE(i.created_at) BETWEEN $1 AND $2`,
-    [fromDate, toDate]
+     WHERE DATE(i.created_at) BETWEEN $1 AND $2
+       AND (i.agent_id = $3 OR i.agent_id IS NULL)`,
+    [fromDate, toDate, agentId]
   )
 }
 
 export async function getTableStats(fromDate: string, toDate: string) {
+  const agentId = getAgentId()
   return query(
     `SELECT
        t.name AS table_name,
@@ -38,9 +45,10 @@ export async function getTableStats(fromDate: string, toDate: string) {
      JOIN tables t ON t.id = s.table_id
      JOIN invoices i ON i.session_id = s.id
      WHERE DATE(s.start_time) BETWEEN $1 AND $2
+       AND (s.agent_id = $3 OR s.agent_id IS NULL)
      GROUP BY t.id, t.name
      ORDER BY total_revenue DESC`,
-    [fromDate, toDate]
+    [fromDate, toDate, agentId]
   )
 }
 
