@@ -10,6 +10,8 @@ import { registerSettingsHandlers } from './handlers/settings'
 import { registerCustomerHandlers } from './handlers/customers'
 import { registerReportHandlers } from './handlers/reports'
 import { registerAuthHandlers } from './handlers/auth'
+import { syncWorker } from './sync/worker'
+import { startNetworkWatcher } from './sync/network'
 
 function createWindow(): void {
   // Create the browser window.
@@ -69,6 +71,9 @@ app.whenReady().then(() => {
   registerCustomerHandlers()
   registerReportHandlers()
   registerAuthHandlers()
+
+  startNetworkWatcher()
+  syncWorker.initialSync()
 
   createWindow()
 
