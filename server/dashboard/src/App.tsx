@@ -5,6 +5,7 @@ import Overview from './pages/Overview'
 import Agents from './pages/Agents'
 import AgentDetail from './pages/AgentDetail'
 import Reports from './pages/Reports'
+import AgentManagement from './pages/AgentManagement'
 import NavBar from './components/NavBar'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ export default function App() {
                   <Route path="/agents" element={<Agents />} />
                   <Route path="/agents/:id" element={<AgentDetail />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/manage" element={<AgentManagement />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>

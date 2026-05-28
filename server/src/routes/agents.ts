@@ -104,6 +104,30 @@ agentsRouter.patch('/:id', async (req: AuthRequest, res: Response) => {
   }
 })
 
+agentsRouter.delete('/:id', async (req: AuthRequest, res: Response) => {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `UPDATE agents SET status = 'inactive' WHERE id = $1 AND status != 'inactive' RETURNING id`,
+      [req.params.id]
+    )
+    if (!rows[0]) { await client.query('ROLLBACK'); res.status(404).json({ error: 'Agent not found' }); return }
+    await client.query(`UPDATE accounts SET status = 'inactive' WHERE agent_id = $1`, [req.params.id])
+    await client.query(
+      `DELETE FROM refresh_tokens WHERE account_id IN (SELECT id FROM accounts WHERE agent_id = $1)`,
+      [req.params.id]
+    )
+    await client.query('COMMIT')
+    res.json({ ok: true })
+  } catch {
+    await client.query('ROLLBACK')
+    res.status(500).json({ error: 'Internal server error' })
+  } finally {
+    client.release()
+  }
+})
+
 agentsRouter.post('/:id/reset-password', async (req: AuthRequest, res: Response) => {
   try {
     const password = generatePassword()

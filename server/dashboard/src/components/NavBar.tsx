@@ -22,6 +22,7 @@ export default function NavBar() {
           <NavLink to="/" end className={cls}>Overview</NavLink>
           <NavLink to="/agents" className={cls}>Quán</NavLink>
           <NavLink to="/reports" className={cls}>Báo cáo</NavLink>
+          <NavLink to="/manage" className={cls}>Quản lý quán</NavLink>
         </div>
         <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1 rounded hover:bg-gray-100">
           Đăng xuất
