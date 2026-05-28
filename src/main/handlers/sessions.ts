@@ -1,21 +1,24 @@
 // src/main/handlers/sessions.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
+import { getAgentId } from '../lib/authStore'
+import { enqueue, syncWorker } from '../sync/worker'
+import { updateTableStatus } from './tables'
 import type { Session } from '../../renderer/src/types'
 
 export async function createSession(
   tableId: number,
   customerId: number | null
 ): Promise<Session | null> {
+  const agentId = getAgentId()
   const session = await queryOne<Session>(
-    'INSERT INTO sessions (table_id, customer_id) VALUES ($1, $2) RETURNING *',
-    [tableId, customerId]
+    'INSERT INTO sessions (table_id, customer_id, agent_id) VALUES ($1, $2, $3) RETURNING *',
+    [tableId, customerId, agentId]
   )
   if (session) {
-    await queryOne(
-      'UPDATE tables SET status = $1 WHERE id = $2 RETURNING *',
-      ['playing', tableId]
-    )
+    await updateTableStatus(tableId, 'playing')
+    await enqueue('sessions', session.id, 'insert', session)
+    syncWorker.flush()
   }
   return session
 }
@@ -51,16 +54,14 @@ export async function closeSession(
   const closed = await queryOne<Session>(
     `UPDATE sessions
      SET status = 'closed', end_time = $1, duration_minutes = $2, play_amount = $3
-     WHERE id = $4
-     RETURNING *`,
+     WHERE id = $4 RETURNING *`,
     [endTime.toISOString(), durationMinutes, playAmount, sessionId]
   )
 
   if (closed) {
-    await queryOne(
-      "UPDATE tables SET status = 'idle' WHERE id = $1 RETURNING *",
-      [session.table_id]
-    )
+    await updateTableStatus(session.table_id, 'idle')
+    await enqueue('sessions', closed.id, 'update', closed)
+    syncWorker.flush()
   }
   return closed
 }
@@ -71,9 +72,7 @@ export function registerSessionHandlers() {
     (_event, tableId: number, customerId: number | null) =>
       createSession(tableId, customerId)
   )
-
   ipcMain.handle('sessions:getActive', () => getActiveSessions())
-
   ipcMain.handle(
     'sessions:close',
     (_event, sessionId: number, playAmount: number) =>
