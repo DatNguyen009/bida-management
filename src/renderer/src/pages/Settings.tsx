@@ -15,6 +15,11 @@ export default function SettingsPage() {
     queryFn: () => api().settings.getAll() as Promise<SettingRow[]>,
   })
 
+  const { data: loyaltyData } = useQuery({
+    queryKey: ['loyalty', 'settings'],
+    queryFn: () => window.api.loyalty.getSettings(),
+  })
+
   const getVal = (key: string) => settings.find((s) => s.key === key)?.value ?? ''
 
   const [shopName, setShopName] = useState('')
@@ -32,10 +37,14 @@ export default function SettingsPage() {
     setPhone(getVal('phone'))
     setDefaultRate(getVal('default_hourly_rate'))
     setPrinterPath(getVal('printer_path') || 'USB001')
-    setPointsPer10k(getVal('points_per_10k') || '1')
-    setVndPerPoint(getVal('vnd_per_point') || '100')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings])
+
+  useEffect(() => {
+    if (!loyaltyData) return
+    setPointsPer10k(String(loyaltyData.pointsPer10k))
+    setVndPerPoint(String(loyaltyData.vndPerPoint))
+  }, [loyaltyData])
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -45,15 +54,19 @@ export default function SettingsPage() {
         ['phone', phone],
         ['default_hourly_rate', defaultRate],
         ['printer_path', printerPath],
-        ['points_per_10k', pointsPer10k],
-        ['vnd_per_point', vndPerPoint],
       ]
       for (const [key, value] of pairs) {
         await api().settings.set(key, value)
       }
+      await window.api.loyalty.saveSettings({
+        pointsPer10k: Number(pointsPer10k) || 1,
+        vndPerPoint: Number(vndPerPoint) || 100,
+        minRedeemPoints: 100,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] })
+      queryClient.invalidateQueries({ queryKey: ['loyalty', 'settings'] })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     },
