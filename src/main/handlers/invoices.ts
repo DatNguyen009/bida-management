@@ -44,6 +44,32 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
     )
   }
 
+  if (invoice) {
+    const orderItems = await query<{ product_id: number; quantity: number; unit_price: number }>(
+      'SELECT product_id, quantity, unit_price FROM cloud_order_items WHERE session_id = $1 AND agent_id = $2',
+      [input.sessionId, agentId]
+    )
+
+    for (const item of orderItems) {
+      const updated = await queryOne<{ stock_quantity: number }>(
+        `UPDATE cloud_products SET stock_quantity = stock_quantity - $1
+         WHERE id = $2 AND agent_id = $3 RETURNING stock_quantity`,
+        [item.quantity, item.product_id, agentId]
+      )
+      if (!updated) continue
+
+      const afterQty = updated.stock_quantity
+      const beforeQty = afterQty + item.quantity
+
+      await queryOne(
+        `INSERT INTO cloud_stock_transactions
+           (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+        [item.product_id, 'out', item.quantity, null, beforeQty, afterQty, `Hóa đơn #${invoiceNumber}`, agentId]
+      )
+    }
+  }
+
   return invoice
 }
 
