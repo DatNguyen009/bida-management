@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings } from './types'
 
 declare global {
   interface Window {
@@ -51,6 +51,10 @@ declare global {
         login(username: string, password: string): Promise<{ role: string; agentId: string | null }>
         logout(): Promise<void>
         getSession(): Promise<{ role: string; agentId: string | null } | null>
+      }
+      loyalty: {
+        getSettings(): Promise<LoyaltySettings>
+        saveSettings(settings: LoyaltySettings): Promise<LoyaltySettings>
       }
     }
   }

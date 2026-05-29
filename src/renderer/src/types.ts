@@ -101,3 +101,9 @@ export interface StockTransaction {
   note: string | null
   created_at: string
 }
+
+export interface LoyaltySettings {
+  pointsPer10k: number
+  vndPerPoint: number
+  minRedeemPoints: number
+}

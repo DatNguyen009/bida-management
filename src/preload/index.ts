@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -78,5 +78,11 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('auth:login', username, password),
     logout: () => ipcRenderer.invoke('auth:logout'),
     getSession: () => ipcRenderer.invoke('auth:getSession'),
+  },
+  loyalty: {
+    getSettings: (): Promise<LoyaltySettings> =>
+      ipcRenderer.invoke('loyalty:getSettings'),
+    saveSettings: (settings: LoyaltySettings): Promise<LoyaltySettings> =>
+      ipcRenderer.invoke('loyalty:saveSettings', settings),
   },
 })
