@@ -282,7 +282,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         <div className="flex gap-3 mt-6">
           <Button
             className="flex-1 bg-blue-600 hover:bg-blue-700"
-            disabled={checkoutMutation.isPending}
+            disabled={checkoutMutation.isPending || !!pointsError}
             onClick={() => checkoutMutation.mutate(true)}
           >
             In hóa đơn
@@ -290,7 +290,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
           <Button
             variant="outline"
             className="flex-1 border-gray-600"
-            disabled={checkoutMutation.isPending}
+            disabled={checkoutMutation.isPending || !!pointsError}
             onClick={() => checkoutMutation.mutate(false)}
           >
             Lưu không in
