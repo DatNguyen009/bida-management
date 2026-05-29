@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction } from './types'
 
 declare global {
   interface Window {
@@ -20,6 +20,7 @@ declare global {
         create(input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null>
         update(id: number, input: Partial<Product>): Promise<Product | null>
         adjustStock(id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null>
+        getStockHistory(input: { productId?: number; fromDate?: string; toDate?: string }): Promise<StockTransaction[]>
       }
       orderItems: {
         add(sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null>

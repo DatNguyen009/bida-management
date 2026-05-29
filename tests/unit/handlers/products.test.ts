@@ -14,6 +14,7 @@ import {
   getAllProducts,
   createProduct,
   adjustStock,
+  getStockHistory,
 } from '../../../src/main/handlers/products'
 
 describe('getAllProducts', () => {
@@ -108,6 +109,45 @@ describe('adjustStock', () => {
       2,
       expect.stringContaining('INSERT INTO cloud_stock_transactions'),
       expect.arrayContaining([1, 'out', 5, null, 20, 15, 'Bán hàng'])
+    )
+  })
+})
+
+describe('getStockHistory', () => {
+  it('returns all transactions when no filter applied', async () => {
+    const mockRows = [
+      { id: 1, product_id: 1, product_name: 'Bia Tiger', type: 'in', quantity: 24, before_qty: 6, after_qty: 30, note: 'Nhập kho', created_at: '2026-05-29T10:00:00Z' }
+    ]
+    vi.mocked(db.query).mockResolvedValue(mockRows)
+
+    const result = await getStockHistory({})
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('cloud_stock_transactions'),
+      expect.arrayContaining([null])
+    )
+    expect(result).toEqual(mockRows)
+  })
+
+  it('filters by productId when provided', async () => {
+    vi.mocked(db.query).mockResolvedValue([])
+
+    await getStockHistory({ productId: 5 })
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining([5])
+    )
+  })
+
+  it('filters by date range when provided', async () => {
+    vi.mocked(db.query).mockResolvedValue([])
+
+    await getStockHistory({ fromDate: '2026-05-01', toDate: '2026-05-31' })
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining(['2026-05-01', '2026-05-31'])
     )
   })
 })

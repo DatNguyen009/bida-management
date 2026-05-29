@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('products:update', id, input),
     adjustStock: (id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null> =>
       ipcRenderer.invoke('products:adjustStock', id, type, qty, note, costPrice),
+    getStockHistory: (input: { productId?: number; fromDate?: string; toDate?: string }): Promise<StockTransaction[]> =>
+      ipcRenderer.invoke('products:getStockHistory', input),
   },
   orderItems: {
     add: (sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null> =>

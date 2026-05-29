@@ -4,7 +4,13 @@ import { query, queryOne } from '../db'
 import { getAgentId } from '../lib/authStore'
 import type { Product } from '../../renderer/src/types'
 
-interface StockTransaction { id: number }
+interface StockTransactionRow { id: number }
+
+export interface StockHistoryInput {
+  productId?: number
+  fromDate?: string
+  toDate?: string
+}
 
 export async function getAllProducts(): Promise<Product[]> {
   const agentId = getAgentId()
@@ -64,7 +70,7 @@ export async function adjustStock(
   const afterQty = product.stock_quantity
   const beforeQty = type === 'out' ? afterQty + quantity : afterQty - quantity
 
-  await queryOne<StockTransaction>(
+  await queryOne<StockTransactionRow>(
     `INSERT INTO cloud_stock_transactions
        (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
@@ -74,6 +80,24 @@ export async function adjustStock(
   return product
 }
 
+export async function getStockHistory(input: StockHistoryInput) {
+  const agentId = getAgentId()
+  return query(
+    `SELECT st.id, st.product_id, p.name AS product_name,
+            st.type, st.quantity, st.before_qty, st.after_qty,
+            st.note, st.created_at
+     FROM cloud_stock_transactions st
+     JOIN cloud_products p ON p.id = st.product_id
+     WHERE st.agent_id = $1
+       AND ($2::int IS NULL OR st.product_id = $2)
+       AND ($3::date IS NULL OR DATE(st.created_at) >= $3)
+       AND ($4::date IS NULL OR DATE(st.created_at) <= $4)
+     ORDER BY st.created_at DESC
+     LIMIT 500`,
+    [agentId, input.productId ?? null, input.fromDate ?? null, input.toDate ?? null]
+  )
+}
+
 export function registerProductHandlers() {
   ipcMain.handle('products:getAll', () => getAllProducts())
   ipcMain.handle('products:create', (_e, input) => createProduct(input))
@@ -81,5 +105,8 @@ export function registerProductHandlers() {
   ipcMain.handle('products:adjustStock',
     (_e, id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null) =>
       adjustStock(id, type, qty, note, costPrice)
+  )
+  ipcMain.handle('products:getStockHistory',
+    (_e, input: StockHistoryInput) => getStockHistory(input)
   )
 }
