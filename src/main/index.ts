@@ -1,6 +1,3 @@
-import { config } from 'dotenv'
-config({ path: require('path').join(process.cwd(), '.env') })
-
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'

@@ -8,8 +8,8 @@ import * as path from 'path'
 types.setTypeParser(1700, (val: string) => parseFloat(val))
 
 function createPool(): Pool {
-  // DATABASE_URL format: postgresql://user:password@host/dbname (Render External Database URL)
-  const url = process.env.DATABASE_URL
+  // DATABASE_URL baked in at build time via MAIN_VITE_ prefix (electron-vite)
+  const url = import.meta.env.MAIN_VITE_DATABASE_URL as string | undefined
   if (url) {
     return new Pool({ connectionString: url, ssl: { rejectUnauthorized: false } })
   }
