@@ -15,6 +15,8 @@ export default function CustomersPage() {
   const [selected, setSelected] = useState<Customer | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' })
+  const [editMode, setEditMode] = useState(false)
+  const [editForm, setEditForm] = useState({ name: '', email: '', notes: '' })
 
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
@@ -36,6 +38,19 @@ export default function CustomersPage() {
       queryClient.invalidateQueries({ queryKey: ['customers'] })
       setShowCreate(false)
       setForm({ name: '', phone: '', email: '', notes: '' })
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: () => window.api.customers.update(selected!.id, {
+      name: editForm.name || undefined,
+      email: editForm.email || null,
+      notes: editForm.notes || null,
+    }),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] })
+      if (updated) setSelected(updated)
+      setEditMode(false)
     },
   })
 
@@ -68,7 +83,7 @@ export default function CustomersPage() {
                 ${selected?.id === customer.id
                   ? 'bg-green-900 border-green-500'
                   : 'bg-gray-900 border-gray-700 hover:bg-gray-800'}`}
-              onClick={() => setSelected(customer)}
+              onClick={() => { setSelected(customer); setEditMode(false) }}
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -93,9 +108,58 @@ export default function CustomersPage() {
       {selected && (
         <div className="w-80 flex-shrink-0">
           <div className="bg-gray-900 rounded-xl p-4 mb-4">
-            <h2 className="text-lg font-bold mb-1">{selected.name}</h2>
-            <p className="text-gray-400 text-sm">{selected.phone}</p>
-            {selected.email && <p className="text-gray-400 text-sm">{selected.email}</p>}
+            <div className="flex justify-between items-start mb-1">
+              <div className="flex-1 mr-2">
+                {editMode ? (
+                  <div className="space-y-2">
+                    <Input
+                      className="bg-gray-800 border-gray-600 text-sm"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      placeholder="Tên"
+                    />
+                    <Input
+                      className="bg-gray-800 border-gray-600 text-sm"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                      placeholder="Email"
+                    />
+                    <Input
+                      className="bg-gray-800 border-gray-600 text-sm"
+                      value={editForm.notes}
+                      onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                      placeholder="Ghi chú"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" className="bg-green-700 hover:bg-green-600"
+                        disabled={!editForm.name || updateMutation.isPending}
+                        onClick={() => updateMutation.mutate()}>
+                        Lưu
+                      </Button>
+                      <Button size="sm" variant="outline" className="border-gray-600"
+                        onClick={() => setEditMode(false)}>
+                        Huỷ
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-bold">{selected.name}</h2>
+                    <p className="text-gray-400 text-sm">{selected.phone}</p>
+                    {selected.email && <p className="text-gray-400 text-sm">{selected.email}</p>}
+                  </>
+                )}
+              </div>
+              {!editMode && (
+                <Button size="sm" variant="outline" className="border-gray-600 text-xs"
+                  onClick={() => {
+                    setEditForm({ name: selected.name, email: selected.email ?? '', notes: selected.notes ?? '' })
+                    setEditMode(true)
+                  }}>
+                  Sửa
+                </Button>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-3 mt-4 text-center">
               <div className="bg-gray-800 rounded-lg p-3">
