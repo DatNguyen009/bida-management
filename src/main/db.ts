@@ -5,20 +5,9 @@ import { Pool, types } from 'pg'
 types.setTypeParser(1700, (val: string) => parseFloat(val))
 
 function createPool(): Pool {
-  if (import.meta.env.PROD) {
-    // Production build: connect to cloud DB (URL baked in at build time)
-    return new Pool({
-      connectionString: import.meta.env.MAIN_VITE_DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    })
-  }
-  // Dev: use local PostgreSQL
   return new Pool({
-    host: 'localhost',
-    port: 5432,
-    database: 'bida_db',
-    user: process.env.PGUSER || '',
-    password: process.env.PGPASSWORD || '',
+    connectionString: import.meta.env.MAIN_VITE_DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
   })
 }
 

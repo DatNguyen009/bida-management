@@ -5,6 +5,10 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
 import * as db from '../../../src/main/db'
 import {
   findCustomerByPhone,
@@ -20,8 +24,8 @@ describe('findCustomerByPhone', () => {
     const result = await findCustomerByPhone('0901234567')
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      'SELECT * FROM customers WHERE phone = $1',
-      ['0901234567']
+      'SELECT * FROM cloud_customers WHERE phone = $1 AND agent_id = $2',
+      ['0901234567', null]
     )
     expect(result).toEqual(mockCustomer)
   })
@@ -42,7 +46,7 @@ describe('createCustomer', () => {
     const result = await createCustomer(input)
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO customers'),
+      expect.stringContaining('INSERT INTO cloud_customers'),
       expect.arrayContaining([input.name, input.phone])
     )
     expect(result).toEqual(mockCustomer)
@@ -60,7 +64,8 @@ describe('getAllCustomers', () => {
     const result = await getAllCustomers()
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('ORDER BY total_spent DESC')
+      expect.stringContaining('ORDER BY total_spent DESC'),
+      [null]
     )
     expect(result).toEqual(mockCustomers)
   })

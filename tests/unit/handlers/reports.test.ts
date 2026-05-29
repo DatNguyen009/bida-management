@@ -5,6 +5,10 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
 import * as db from '../../../src/main/db'
 import { getRevenueReport, getTableStats, getLowStockProducts } from '../../../src/main/handlers/reports'
 
@@ -19,7 +23,7 @@ describe('getRevenueReport', () => {
 
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('DATE(i.created_at)'),
-      ['2026-05-01', '2026-05-31']
+      ['2026-05-01', '2026-05-31', null]
     )
     expect(result).toEqual(mockData)
   })
@@ -36,7 +40,7 @@ describe('getTableStats', () => {
 
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('GROUP BY t.id'),
-      ['2026-05-01', '2026-05-31']
+      ['2026-05-01', '2026-05-31', null]
     )
     expect(result).toEqual(mockStats)
   })
@@ -50,7 +54,8 @@ describe('getLowStockProducts', () => {
     const result = await getLowStockProducts()
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('stock_quantity <= min_stock_alert')
+      expect.stringContaining('stock_quantity <= min_stock_alert'),
+      [null]
     )
     expect(result).toEqual(mockProducts)
   })

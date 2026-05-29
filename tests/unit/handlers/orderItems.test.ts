@@ -5,6 +5,10 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
 import * as db from '../../../src/main/db'
 import { addOrderItem, getOrderItems, removeOrderItem } from '../../../src/main/handlers/orderItems'
 
@@ -16,8 +20,8 @@ describe('addOrderItem', () => {
     const result = await addOrderItem(5, 3, 2, 30000)
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO order_items'),
-      [5, 3, 2, 30000, 60000]
+      expect.stringContaining('INSERT INTO cloud_order_items'),
+      [5, 3, 2, 30000, 60000, null]
     )
     expect(result).toEqual(mockItem)
   })
@@ -31,8 +35,8 @@ describe('getOrderItems', () => {
     const result = await getOrderItems(5)
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('JOIN products'),
-      [5]
+      expect.stringContaining('JOIN cloud_products'),
+      [5, null]
     )
     expect(result).toEqual(mockItems)
   })
@@ -45,8 +49,8 @@ describe('removeOrderItem', () => {
     await removeOrderItem(1)
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      'DELETE FROM order_items WHERE id = $1 RETURNING id',
-      [1]
+      'DELETE FROM cloud_order_items WHERE id = $1 AND agent_id = $2 RETURNING id',
+      [1, null]
     )
   })
 })

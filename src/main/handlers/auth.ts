@@ -2,7 +2,7 @@
 import { ipcMain } from 'electron'
 import { authStore, getAccessToken } from '../lib/authStore'
 
-const API_BASE = process.env.VITE_API_URL ?? 'http://localhost:4000/api/v1'
+const API_BASE = import.meta.env.MAIN_VITE_API_URL ?? 'http://localhost:4000/api/v1'
 
 async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
   const res = await fetch(`${API_BASE}${path}`, {

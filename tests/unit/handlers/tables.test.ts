@@ -6,6 +6,10 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
 import * as db from '../../../src/main/db'
 import { getAllTables, updateTableStatus } from '../../../src/main/handlers/tables'
 
@@ -19,7 +23,10 @@ describe('getAllTables', () => {
 
     const result = await getAllTables()
 
-    expect(db.query).toHaveBeenCalledWith('SELECT * FROM tables ORDER BY id')
+    expect(db.query).toHaveBeenCalledWith(
+      'SELECT * FROM cloud_tables WHERE agent_id = $1 ORDER BY id',
+      [null]
+    )
     expect(result).toEqual(mockTables)
   })
 })
@@ -32,8 +39,8 @@ describe('updateTableStatus', () => {
     const result = await updateTableStatus(1, 'playing')
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      'UPDATE tables SET status = $1 WHERE id = $2 RETURNING *',
-      ['playing', 1]
+      'UPDATE cloud_tables SET status = $1 WHERE id = $2 AND agent_id = $3 RETURNING *',
+      ['playing', 1, null]
     )
     expect(result).toEqual(updated)
   })

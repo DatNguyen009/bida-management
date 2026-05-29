@@ -1,9 +1,16 @@
-// tests/unit/handlers/sessions.test.ts
 import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('../../../src/main/db', () => ({
   query: vi.fn(),
   queryOne: vi.fn(),
+}))
+
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
+vi.mock('../../../src/main/handlers/tables', () => ({
+  updateTableStatus: vi.fn().mockResolvedValue(undefined),
 }))
 
 import * as db from '../../../src/main/db'
@@ -19,21 +26,14 @@ describe('createSession', () => {
       id: 1, table_id: 2, customer_id: null,
       start_time: '2026-05-26T10:00:00Z', status: 'open', play_amount: 0
     }
-    vi.mocked(db.queryOne)
-      .mockResolvedValueOnce(mockSession)
-      .mockResolvedValueOnce({ id: 2, status: 'playing' })
+    vi.mocked(db.queryOne).mockResolvedValueOnce(mockSession)
 
     const result = await createSession(2, null)
 
     expect(db.queryOne).toHaveBeenNthCalledWith(
       1,
-      'INSERT INTO sessions (table_id, customer_id) VALUES ($1, $2) RETURNING *',
-      [2, null]
-    )
-    expect(db.queryOne).toHaveBeenNthCalledWith(
-      2,
-      'UPDATE tables SET status = $1 WHERE id = $2 RETURNING *',
-      ['playing', 2]
+      'INSERT INTO cloud_sessions (table_id, customer_id, agent_id) VALUES ($1, $2, $3) RETURNING *',
+      [2, null, null]
     )
     expect(result).toEqual(mockSession)
   })
@@ -49,7 +49,8 @@ describe('getActiveSessions', () => {
     const result = await getActiveSessions()
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining("s.status = 'open'")
+      expect.stringContaining("s.status = 'open'"),
+      [null]
     )
     expect(result).toEqual(mockSessions)
   })
@@ -62,7 +63,6 @@ describe('closeSession', () => {
     vi.mocked(db.queryOne)
       .mockResolvedValueOnce(openSession)
       .mockResolvedValueOnce({ ...openSession, status: 'closed', duration_minutes: 90, play_amount: 75000 })
-      .mockResolvedValueOnce({ id: 3, status: 'idle' })
 
     const result = await closeSession(1, 75000)
 

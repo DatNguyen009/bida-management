@@ -5,6 +5,10 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
 import * as db from '../../../src/main/db'
 import {
   getAllProducts,
@@ -20,7 +24,8 @@ describe('getAllProducts', () => {
     const result = await getAllProducts()
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('is_active = TRUE')
+      expect.stringContaining('is_active = TRUE'),
+      [null]
     )
     expect(result).toEqual(mockProducts)
   })
@@ -35,7 +40,7 @@ describe('createProduct', () => {
     const result = await createProduct(input)
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO products'),
+      expect.stringContaining('INSERT INTO cloud_products'),
       expect.arrayContaining([input.name, input.price])
     )
     expect(result).toEqual(mockProduct)
@@ -46,57 +51,62 @@ describe('adjustStock', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('logs before_qty, after_qty and cost_price in transaction', async () => {
-    // queryOne called once: UPDATE RETURNING (returns afterQty)
     const updatedProduct = { id: 1, stock_quantity: 30, name: 'Test' }
-    vi.mocked(db.queryOne).mockResolvedValueOnce(updatedProduct)
-    vi.mocked(db.query).mockResolvedValue([])
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce(updatedProduct)
+      .mockResolvedValueOnce({ id: 1 })
 
     const result = await adjustStock(1, 'in', 10, 'Nhập kho test', 15000)
 
-    expect(db.queryOne).toHaveBeenCalledWith(
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      1,
       expect.stringContaining('stock_quantity + $1'),
       expect.arrayContaining([10, 1])
     )
-    // afterQty=30 (from RETURNING), beforeQty=30-10=20
-    expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO stock_transactions'),
+    // afterQty=30, beforeQty=30-10=20
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('INSERT INTO cloud_stock_transactions'),
       expect.arrayContaining([1, 'in', 10, 15000, 20, 30, 'Nhập kho test'])
     )
     expect(result).toEqual(updatedProduct)
   })
 
   it('accepts null cost_price', async () => {
-    vi.mocked(db.queryOne).mockResolvedValueOnce({ id: 1, stock_quantity: 8 })
-    vi.mocked(db.query).mockResolvedValue([])
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce({ id: 1, stock_quantity: 8 })
+      .mockResolvedValueOnce({ id: 1 })
 
     await adjustStock(1, 'in', 3, 'Nhập không có giá', null)
 
     // afterQty=8, beforeQty=8-3=5
-    expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO stock_transactions'),
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('INSERT INTO cloud_stock_transactions'),
       expect.arrayContaining([1, 'in', 3, null, 5, 8, 'Nhập không có giá'])
     )
   })
 
   it('returns null and skips transaction when product not found', async () => {
     vi.mocked(db.queryOne).mockResolvedValueOnce(null)
-    vi.mocked(db.query).mockResolvedValue([])
 
     const result = await adjustStock(999, 'in', 5, 'ghost', null)
 
     expect(result).toBeNull()
-    expect(db.query).not.toHaveBeenCalled()
+    expect(db.queryOne).toHaveBeenCalledTimes(1)
   })
 
   it('calculates before_qty correctly for out type', async () => {
-    vi.mocked(db.queryOne).mockResolvedValueOnce({ id: 1, stock_quantity: 15 })
-    vi.mocked(db.query).mockResolvedValue([])
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce({ id: 1, stock_quantity: 15 })
+      .mockResolvedValueOnce({ id: 1 })
 
     await adjustStock(1, 'out', 5, 'Bán hàng', null)
 
     // afterQty=15, beforeQty=15+5=20 for 'out' type
-    expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO stock_transactions'),
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('INSERT INTO cloud_stock_transactions'),
       expect.arrayContaining([1, 'out', 5, null, 20, 15, 'Bán hàng'])
     )
   })

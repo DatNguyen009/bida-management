@@ -5,6 +5,14 @@ vi.mock('../../../src/main/db', () => ({
   queryOne: vi.fn(),
 }))
 
+vi.mock('../../../src/main/lib/authStore', () => ({
+  getAgentId: vi.fn().mockReturnValue(null),
+}))
+
+vi.mock('../../../src/main/handlers/printer', () => ({
+  printInvoice: vi.fn().mockResolvedValue(undefined),
+}))
+
 import * as db from '../../../src/main/db'
 import { createInvoice, getNextInvoiceNumber } from '../../../src/main/handlers/invoices'
 
@@ -39,7 +47,7 @@ describe('createInvoice', () => {
     })
 
     expect(db.queryOne).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO invoices'),
+      expect.stringContaining('INSERT INTO cloud_invoices'),
       expect.any(Array)
     )
     expect(result).toEqual(mockInvoice)
