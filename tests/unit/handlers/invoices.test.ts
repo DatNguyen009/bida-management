@@ -14,7 +14,7 @@ vi.mock('../../../src/main/handlers/printer', () => ({
 }))
 
 import * as db from '../../../src/main/db'
-import { createInvoice, getNextInvoiceNumber } from '../../../src/main/handlers/invoices'
+import { createInvoice, getNextInvoiceNumber, getInvoiceList, getInvoiceOrderItems } from '../../../src/main/handlers/invoices'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -124,5 +124,56 @@ describe('createInvoice stock reduction', () => {
 
     expect(result).toEqual(mockInvoice)
     expect(db.queryOne).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('getInvoiceList', () => {
+  it('returns invoices with table and customer info', async () => {
+    const mockRows = [
+      {
+        id: 1, invoice_number: '00001', session_id: 1,
+        play_amount: 125000, items_amount: 75000, final_amount: 200000,
+        discount: 0, points_redeemed: 0, discount_from_points: 0,
+        points_earned: 20, printed_at: null, created_at: '2026-05-29T22:30:00Z',
+        table_name: 'Bàn 1', customer_name: 'Nguyễn A', customer_phone: '0901234567',
+      }
+    ]
+    vi.mocked(db.query).mockResolvedValue(mockRows)
+
+    const result = await getInvoiceList({})
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('cloud_invoices'),
+      expect.arrayContaining([null])
+    )
+    expect(result).toEqual(mockRows)
+  })
+
+  it('filters by date range when provided', async () => {
+    vi.mocked(db.query).mockResolvedValue([])
+
+    await getInvoiceList({ fromDate: '2026-05-01', toDate: '2026-05-31' })
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining(['2026-05-01', '2026-05-31'])
+    )
+  })
+})
+
+describe('getInvoiceOrderItems', () => {
+  it('returns order items for a session', async () => {
+    const mockItems = [
+      { product_name: 'Bia Tiger', quantity: 2, unit_price: 30000, subtotal: 60000 }
+    ]
+    vi.mocked(db.query).mockResolvedValue(mockItems)
+
+    const result = await getInvoiceOrderItems(1)
+
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining('cloud_order_items'),
+      expect.arrayContaining([1])
+    )
+    expect(result).toEqual(mockItems)
   })
 })
