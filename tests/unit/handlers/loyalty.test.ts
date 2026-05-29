@@ -48,4 +48,11 @@ describe('saveLoyaltySettings', () => {
       ['test-agent-id', 2, 150, 50]
     )
   })
+
+  it('throws on invalid values', async () => {
+    await expect(saveLoyaltySettings({ pointsPer10k: 0, vndPerPoint: 100, minRedeemPoints: 100 }))
+      .rejects.toThrow('invalid loyalty settings values')
+    await expect(saveLoyaltySettings({ pointsPer10k: 1, vndPerPoint: -1, minRedeemPoints: 100 }))
+      .rejects.toThrow('invalid loyalty settings values')
+  })
 })

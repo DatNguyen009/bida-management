@@ -28,7 +28,10 @@ export async function getLoyaltySettings(): Promise<LoyaltySettings> {
   }
 }
 
-export async function saveLoyaltySettings(s: LoyaltySettings): Promise<LoyaltySettings> {
+export async function saveLoyaltySettings(settings: LoyaltySettings): Promise<LoyaltySettings> {
+  if (settings.pointsPer10k <= 0 || settings.vndPerPoint <= 0 || settings.minRedeemPoints < 0) {
+    throw new Error('invalid loyalty settings values')
+  }
   const agentId = getAgentId()
   const row = await queryOne<{
     points_per_10k_vnd: number
@@ -42,14 +45,13 @@ export async function saveLoyaltySettings(s: LoyaltySettings): Promise<LoyaltySe
            vnd_per_point = EXCLUDED.vnd_per_point,
            min_redeem_points = EXCLUDED.min_redeem_points
      RETURNING points_per_10k_vnd, vnd_per_point, min_redeem_points`,
-    [agentId, s.pointsPer10k, s.vndPerPoint, s.minRedeemPoints]
+    [agentId, settings.pointsPer10k, settings.vndPerPoint, settings.minRedeemPoints]
   )
-  return row
-    ? { pointsPer10k: row.points_per_10k_vnd, vndPerPoint: row.vnd_per_point, minRedeemPoints: row.min_redeem_points }
-    : s
+  if (!row) throw new Error('loyalty settings upsert returned no row')
+  return { pointsPer10k: row.points_per_10k_vnd, vndPerPoint: row.vnd_per_point, minRedeemPoints: row.min_redeem_points }
 }
 
 export function registerLoyaltyHandlers(): void {
   ipcMain.handle('loyalty:getSettings', () => getLoyaltySettings())
-  ipcMain.handle('loyalty:saveSettings', (_e, s: LoyaltySettings) => saveLoyaltySettings(s))
+  ipcMain.handle('loyalty:saveSettings', (_e, settings: LoyaltySettings) => saveLoyaltySettings(settings))
 }
