@@ -46,15 +46,26 @@ router.get('/agents', async (_req: AuthRequest, res: Response) => {
     const { rows } = await pool.query(`
       SELECT
         a.id AS "agentId", a.name,
-        COUNT(CASE WHEN ct.status = 'playing' THEN 1 END)::int AS "tablesPlaying",
-        COUNT(ct.id)::int AS "totalTables",
-        COALESCE(SUM(CASE WHEN DATE(ci.created_at) = CURRENT_DATE THEN ci.final_amount ELSE 0 END), 0) AS "todayRevenue",
-        COUNT(CASE WHEN DATE(ci.created_at) = CURRENT_DATE THEN 1 END)::int AS "todayInvoices"
+        COALESCE(t.tables_playing, 0)::int AS "tablesPlaying",
+        COALESCE(t.total_tables, 0)::int AS "totalTables",
+        COALESCE(i.today_revenue, 0) AS "todayRevenue",
+        COALESCE(i.today_invoices, 0)::int AS "todayInvoices"
       FROM agents a
-      LEFT JOIN cloud_tables ct ON ct.agent_id = a.id
-      LEFT JOIN cloud_invoices ci ON ci.agent_id = a.id
-      GROUP BY a.id, a.name
-      ORDER BY "todayRevenue" DESC
+      LEFT JOIN (
+        SELECT agent_id,
+          COUNT(*) AS total_tables,
+          COUNT(CASE WHEN status = 'playing' THEN 1 END) AS tables_playing
+        FROM cloud_tables
+        GROUP BY agent_id
+      ) t ON t.agent_id = a.id
+      LEFT JOIN (
+        SELECT agent_id,
+          SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN final_amount ELSE 0 END) AS today_revenue,
+          COUNT(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 END) AS today_invoices
+        FROM cloud_invoices
+        GROUP BY agent_id
+      ) i ON i.agent_id = a.id
+      ORDER BY COALESCE(i.today_revenue, 0) DESC
     `)
     res.json(rows.map((r) => ({ ...r, todayRevenue: Number(r.todayRevenue) })))
   } catch {
