@@ -41,6 +41,12 @@ agentsRouter.post('/', async (req: AuthRequest, res: Response) => {
       'INSERT INTO accounts (username, password_hash, role, agent_id) VALUES ($1, $2, $3, $4)',
       [username, passwordHash, 'agent', agent.id]
     )
+    for (let i = 1; i <= 5; i++) {
+      await client.query(
+        'INSERT INTO cloud_tables (name, hourly_rate, agent_id) VALUES ($1, $2, $3)',
+        [`Bàn ${i}`, 50000, agent.id]
+      )
+    }
     await client.query('COMMIT')
     res.status(201).json({ agentId: agent.id, username, password })
   } catch (err: any) {
