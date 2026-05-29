@@ -8,12 +8,14 @@ import ReportsPage from './pages/Reports'
 import SettingsPage from './pages/Settings'
 import type { Session } from './types'
 import LoginPage from './pages/LoginPage'
+import StockHistoryPage from './pages/StockHistory'
 
 type View =
   | { page: 'dashboard' }
   | { page: 'session'; tableId: number }
   | { page: 'invoice'; session: Session & { table_name: string; hourly_rate: number }; playAmount: number }
   | { page: 'products' }
+  | { page: 'stock' }
   | { page: 'customers' }
   | { page: 'reports' }
   | { page: 'settings' }
@@ -61,6 +63,7 @@ export default function App() {
           🎱 Bida Manager
         </button>
         <button onClick={() => setView({ page: 'products' })} className="text-sm text-white hover:text-gray-200">Sản phẩm</button>
+        <button onClick={() => setView({ page: 'stock' })} className="text-sm text-white hover:text-gray-200">Kho</button>
         <button onClick={() => setView({ page: 'customers' })} className="text-sm text-white hover:text-gray-200">Khách hàng</button>
         <button onClick={() => setView({ page: 'reports' })} className="text-sm text-white hover:text-gray-200">Báo cáo</button>
         <button onClick={() => setView({ page: 'settings' })} className="text-sm text-white hover:text-gray-200 ml-auto">Cài đặt</button>
@@ -94,6 +97,7 @@ export default function App() {
           />
         )}
         {view.page === 'products' && <ProductsPage />}
+        {view.page === 'stock' && <StockHistoryPage />}
         {view.page === 'customers' && <CustomersPage />}
         {view.page === 'reports' && <ReportsPage />}
         {view.page === 'settings' && <SettingsPage />}
