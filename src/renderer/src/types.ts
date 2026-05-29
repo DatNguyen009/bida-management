@@ -107,3 +107,28 @@ export interface LoyaltySettings {
   vndPerPoint: number
   minRedeemPoints: number
 }
+
+export interface InvoiceListRow {
+  id: number
+  invoice_number: string
+  session_id: number
+  play_amount: number
+  items_amount: number
+  final_amount: number
+  discount: number
+  points_redeemed: number
+  discount_from_points: number
+  points_earned: number
+  printed_at: string | null
+  created_at: string
+  table_name: string | null
+  customer_name: string | null
+  customer_phone: string | null
+}
+
+export interface InvoiceOrderItem {
+  product_name: string
+  quantity: number
+  unit_price: number
+  subtotal: number
+}
