@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { StockTransaction } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Pagination from '../components/Pagination'
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -28,14 +29,16 @@ export default function StockHistoryPage() {
     fromDate: firstOfMonth(),
     toDate: today(),
   })
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
   const { data: allProducts = [] } = useQuery({
     queryKey: ['products'],
     queryFn: () => window.api.products.getAll(),
   })
 
-  const { data: transactions = [], isFetching } = useQuery({
-    queryKey: ['stockHistory', appliedFilter],
+  const { data: stockResult, isFetching } = useQuery({
+    queryKey: ['stockHistory', appliedFilter, page, pageSize],
     queryFn: () => {
       const matchedProduct = appliedFilter.productFilter
         ? allProducts.find((p) =>
@@ -46,12 +49,17 @@ export default function StockHistoryPage() {
         productId: matchedProduct?.id,
         fromDate: appliedFilter.fromDate || undefined,
         toDate: appliedFilter.toDate || undefined,
+        page,
+        pageSize,
       })
     },
   })
+  const transactions = stockResult?.data ?? []
+  const stockTotal = stockResult?.total ?? 0
 
   const handleFilter = () => {
     setAppliedFilter({ productFilter, fromDate, toDate })
+    setPage(1)
   }
 
   const typeBadge = (type: StockTransaction['type']) => {
@@ -143,9 +151,13 @@ export default function StockHistoryPage() {
         </table>
       </div>
 
-      {transactions.length === 500 && (
-        <p className="text-xs text-[#6b7280] mt-2 text-center">Hiển thị tối đa 500 bản ghi gần nhất</p>
-      )}
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={stockTotal}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
+      />
     </div>
   )
 }

@@ -17,10 +17,11 @@ declare global {
       }
       products: {
         getAll(): Promise<Product[]>
+        getPage(input: { page: number; pageSize: number }): Promise<{ data: Product[]; total: number }>
         create(input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null>
         update(id: number, input: Partial<Product>): Promise<Product | null>
         adjustStock(id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null>
-        getStockHistory(input: { productId?: number; fromDate?: string; toDate?: string }): Promise<StockTransaction[]>
+        getStockHistory(input: { productId?: number; fromDate?: string; toDate?: string; page?: number; pageSize?: number }): Promise<{ data: StockTransaction[]; total: number }>
       }
       orderItems: {
         add(sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null>
@@ -30,7 +31,7 @@ declare global {
       invoices: {
         create(input: InvoiceCreateInput): Promise<Invoice | null>
         print(invoiceId: number, input: InvoiceCreateInput, invoiceNumber: string, printerPath: string): Promise<void>
-        getList(input: { fromDate?: string; toDate?: string }): Promise<InvoiceListRow[]>
+        getList(input: { fromDate?: string; toDate?: string; page?: number; pageSize?: number }): Promise<{ data: InvoiceListRow[]; total: number }>
         getOrderItems(sessionId: number): Promise<InvoiceOrderItem[]>
       }
       settings: {
