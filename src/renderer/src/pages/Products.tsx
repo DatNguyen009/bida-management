@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import type { Product } from '../types'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
@@ -34,24 +35,28 @@ export default function ProductsPage() {
 
   const createMutation = useMutation({
     mutationFn: () => api().products.create({ ...form, price: Number(form.price), category: form.category as Product['category'] }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onSuccess: () => { toast.success('Đã tạo sản phẩm'); queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onError: () => toast.error('Tạo sản phẩm thất bại'),
   })
 
   const updateMutation = useMutation({
     mutationFn: () => selected ? api().products.update(selected.id, { ...form, price: Number(form.price), category: form.category as Product['category'] }) : Promise.resolve(null),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onSuccess: () => { toast.success('Đã cập nhật sản phẩm'); queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onError: () => toast.error('Cập nhật sản phẩm thất bại'),
   })
 
   const stockMutation = useMutation({
     mutationFn: () => selected
       ? api().products.adjustStock(selected.id, 'in', stockQty, stockNote, stockCostPrice === '' ? null : stockCostPrice)
       : Promise.resolve(null),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onSuccess: () => { toast.success('Đã nhập kho'); queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onError: () => toast.error('Nhập kho thất bại'),
   })
 
   const deactivateMutation = useMutation({
     mutationFn: (id: number) => api().products.update(id, { is_active: false }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+    onSuccess: () => { toast.success('Đã xoá sản phẩm'); queryClient.invalidateQueries({ queryKey: ['products'] }) },
+    onError: () => toast.error('Xoá sản phẩm thất bại'),
   })
 
   const lowStockProducts = products.filter((p) => p.stock_quantity <= p.min_stock_alert)
