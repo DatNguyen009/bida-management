@@ -66,7 +66,6 @@ export default function CustomerSearchInput({ onSelect }: Props) {
   const handleBlur = () => {
     setTimeout(() => {
       setIsOpen(false)
-      setShowCreate(false)
     }, 150)
   }
 
@@ -115,7 +114,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
         onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
       />
       {isLoading && <p className="text-xs text-[#6b7280] mt-1">Đang tìm...</p>}
-      {isOpen && (
+      {isOpen && !showCreate && (
         <div className="absolute z-50 w-full mt-1 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg overflow-auto max-h-64 shadow-lg">
           {results.map((c) => (
             <button
@@ -131,52 +130,45 @@ export default function CustomerSearchInput({ onSelect }: Props) {
             </button>
           ))}
           {results.length === 0 && input.length >= 3 && !isLoading && (
-            <div>
-              {!showCreate ? (
-                <button
-                  className="w-full text-left px-3 py-2 text-green-400 hover:bg-[#162a1a] text-sm"
-                  onMouseDown={() => setShowCreate(true)}
-                >
-                  + Thêm khách "{input}"
-                </button>
-              ) : (
-                <div className="p-3 space-y-2">
-                  <Input
-                    className="bg-[#162a1a] border-[#1e3d23] text-white text-sm"
-                    placeholder="Tên khách hàng..."
-                    value={createName}
-                    onChange={(e) => setCreateName(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === 'Enter' && createName && createMutation.mutate()
-                    }
-                    autoFocus
-                  />
-                  {createError && <p className="text-xs text-red-400">{createError}</p>}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-green-700 hover:bg-green-600 flex-1"
-                      disabled={!createName || createMutation.isPending}
-                      onMouseDown={() => createMutation.mutate()}
-                    >
-                      Tạo
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-[#1e3d23] text-[#6b7280]"
-                      onMouseDown={() => {
-                        setShowCreate(false)
-                        setCreateError('')
-                      }}
-                    >
-                      Huỷ
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              className="w-full text-left px-3 py-2 text-green-400 hover:bg-[#162a1a] text-sm"
+              onMouseDown={() => { setShowCreate(true); setIsOpen(false) }}
+            >
+              + Thêm khách "{input}"
+            </button>
           )}
+        </div>
+      )}
+      {showCreate && (
+        <div className="mt-2 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg p-3 space-y-2">
+          <p className="text-xs text-[#6b7280]">Tạo khách mới — SĐT: {input}</p>
+          <Input
+            className="bg-[#162a1a] border-[#1e3d23] text-white text-sm"
+            placeholder="Tên khách hàng..."
+            value={createName}
+            onChange={(e) => setCreateName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && createName && createMutation.mutate()}
+            autoFocus
+          />
+          {createError && <p className="text-xs text-red-400">{createError}</p>}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="bg-green-700 hover:bg-green-600 flex-1"
+              disabled={!createName || createMutation.isPending}
+              onClick={() => createMutation.mutate()}
+            >
+              Tạo
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-[#1e3d23] text-[#6b7280]"
+              onClick={() => { setShowCreate(false); setCreateError('') }}
+            >
+              Huỷ
+            </Button>
+          </div>
         </div>
       )}
     </div>
