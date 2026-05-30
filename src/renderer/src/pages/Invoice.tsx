@@ -22,8 +22,8 @@ interface Props {
 export default function InvoicePage({ session, playAmount, onComplete }: Props) {
   const queryClient = useQueryClient()
   const [discount, setDiscount] = useState(0)
-  const pointsToRedeem = 0
-  const pointsError = ''
+  const [pointsToRedeem, setPointsToRedeem] = useState(0)
+  const [pointsError, setPointsError] = useState('')
   const [showPicker, setShowPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
 
@@ -48,6 +48,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
   const VND_PER_POINT = loyaltySettings?.vndPerPoint ?? 100
   const POINTS_PER_10K = loyaltySettings?.pointsPer10k ?? 1
+  const MIN_REDEEM = loyaltySettings?.minRedeemPoints ?? 100
 
   const itemsAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
   const discountFromPoints = calcDiscountFromPoints(pointsToRedeem, VND_PER_POINT)
@@ -55,6 +56,17 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     playAmount, itemsAmount, discount, pointsRedeemed: pointsToRedeem, vndPerPoint: VND_PER_POINT,
   })
   const pointsEarned = calcPointsEarned(finalAmount, POINTS_PER_10K)
+
+  const handlePointsChange = (value: number) => {
+    setPointsError('')
+    if (!selectedCustomer) return
+    if (value > selectedCustomer.points_balance) {
+      setPointsError(`Không đủ điểm (có ${selectedCustomer.points_balance})`)
+    } else if (value > 0 && value < MIN_REDEEM) {
+      setPointsError(`Tối thiểu ${MIN_REDEEM} điểm`)
+    }
+    setPointsToRedeem(value)
+  }
 
   const shopName = settings?.find((s: { key: string }) => s.key === 'shop_name')?.value ?? 'Quán Bida'
   const shopAddress = settings?.find((s: { key: string }) => s.key === 'address')?.value ?? ''
@@ -119,7 +131,28 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
       {/* Customer Lookup */}
       <div className="col-span-full bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-2">
         <h3 className="font-semibold text-xs text-[#6b7280] uppercase tracking-widest mb-3">KHÁCH HÀNG (tùy chọn)</h3>
-        <CustomerSearchInput onSelect={setSelectedCustomer} />
+        <CustomerSearchInput onSelect={(c) => { setSelectedCustomer(c); setPointsToRedeem(0); setPointsError('') }} />
+        {selectedCustomer && selectedCustomer.points_balance > 0 && (
+          <div className="mt-3">
+            <Label className="text-[#d4af37] text-xs">Dùng điểm (1 điểm = {formatCurrency(VND_PER_POINT)})</Label>
+            <Input
+              type="number"
+              min={0}
+              max={selectedCustomer.points_balance}
+              className="mt-1 bg-[#0a1a0d] border-[#1e3d23] text-white"
+              value={pointsToRedeem || ''}
+              onChange={(e) => handlePointsChange(Number(e.target.value))}
+            />
+            {pointsError && <p className="text-xs text-red-400 mt-1">{pointsError}</p>}
+            {pointsToRedeem > 0 && !pointsError && (
+              <p className="text-xs text-green-400 mt-1">
+                Giảm {formatCurrency(pointsToRedeem * VND_PER_POINT)} •
+                Sau TT: +{calcPointsEarned(finalAmount, POINTS_PER_10K)} điểm,
+                còn {selectedCustomer.points_balance - pointsToRedeem + calcPointsEarned(finalAmount, POINTS_PER_10K)} điểm
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div>
