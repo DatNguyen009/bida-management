@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS order_items (
   unit_price DECIMAL(10,0) NOT NULL,
   subtotal DECIMAL(10,0) NOT NULL,
   agent_id UUID NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT uq_order_items_session_product_agent UNIQUE (session_id, product_id, agent_id)
 );
 
 CREATE TABLE IF NOT EXISTS loyalty_settings (

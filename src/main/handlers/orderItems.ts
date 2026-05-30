@@ -14,7 +14,12 @@ export async function addOrderItem(
   const subtotal = quantity * unitPrice
   return queryOne<OrderItem>(
     `INSERT INTO cloud_order_items (session_id, product_id, quantity, unit_price, subtotal, agent_id)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+     VALUES ($1, $2, $3, $4, $5, $6)
+     ON CONFLICT (session_id, product_id, agent_id)
+     DO UPDATE SET
+       quantity = cloud_order_items.quantity + EXCLUDED.quantity,
+       subtotal = cloud_order_items.subtotal + EXCLUDED.subtotal
+     RETURNING *`,
     [sessionId, productId, quantity, unitPrice, subtotal, agentId]
   )
 }
