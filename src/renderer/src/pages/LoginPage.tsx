@@ -25,24 +25,50 @@ export default function LoginPage({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-700 p-8 rounded-lg w-80 space-y-4">
-        <h1 className="text-xl font-bold text-center text-green-400">🎱 Bida Manager</h1>
-        {error && <p className="text-red-400 text-sm">{error}</p>}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Username</label>
-          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white"
-            required autoFocus />
+    <div className="min-h-screen flex items-center justify-center bg-[#0d1f12]">
+      <form onSubmit={handleSubmit} className="bg-[#0a1a0d] border-2 border-[#d4af37] p-8 rounded-2xl w-96 space-y-5 shadow-2xl">
+        <div className="text-center mb-6">
+          <div className="text-4xl mb-2">🎱</div>
+          <h1 className="text-2xl font-bold text-[#d4af37]">Bida Manager</h1>
+          <p className="text-[#6b7280] text-sm mt-1">Đăng nhập để tiếp tục</p>
         </div>
+
+        {error && (
+          <div className="bg-[#2d1515] border border-red-800 text-red-400 text-sm px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm text-white"
-            required />
+          <label className="text-[#d4af37] text-xs uppercase tracking-widest block mb-1.5">Tài khoản</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoFocus
+            className="w-full bg-[#162a1a] border border-[#1e3d23] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            placeholder="Nhập tên đăng nhập"
+          />
         </div>
-        <button type="submit" disabled={loading}
-          className="w-full bg-green-600 text-white py-2 rounded text-sm font-medium hover:bg-green-700 disabled:opacity-50">
+
+        <div>
+          <label className="text-[#d4af37] text-xs uppercase tracking-widest block mb-1.5">Mật khẩu</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full bg-[#162a1a] border border-[#1e3d23] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#d4af37] text-[#0d1f12] font-bold py-3 rounded-xl text-sm hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>

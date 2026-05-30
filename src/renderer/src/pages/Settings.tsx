@@ -74,52 +74,52 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-6">Cài đặt</h1>
+      <h1 className="text-xl font-bold text-[#d4af37] mb-6">Cài đặt</h1>
 
-      <div className="space-y-6">
-        <section className="bg-gray-900 rounded-xl p-4 space-y-3">
-          <h2 className="font-semibold text-green-400">Thông tin quán</h2>
-          <div><Label>Tên quán</Label>
-            <Input className="mt-1 bg-gray-800 border-gray-600" value={shopName}
+      <div className="space-y-4">
+        <section className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-5 space-y-4">
+          <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Thông tin quán</h2>
+          <div><Label className="text-[#6b7280] text-xs">Tên quán</Label>
+            <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={shopName}
               onChange={(e) => setShopName(e.target.value)} /></div>
-          <div><Label>Địa chỉ</Label>
-            <Input className="mt-1 bg-gray-800 border-gray-600" value={address}
+          <div><Label className="text-[#6b7280] text-xs">Địa chỉ</Label>
+            <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={address}
               onChange={(e) => setAddress(e.target.value)} /></div>
-          <div><Label>Số điện thoại</Label>
-            <Input className="mt-1 bg-gray-800 border-gray-600" value={phone}
+          <div><Label className="text-[#6b7280] text-xs">Số điện thoại</Label>
+            <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={phone}
               onChange={(e) => setPhone(e.target.value)} /></div>
-          <div><Label>Giá mặc định (đồng/giờ)</Label>
-            <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={defaultRate}
+          <div><Label className="text-[#6b7280] text-xs">Giá mặc định (đồng/giờ)</Label>
+            <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={defaultRate}
               onChange={(e) => setDefaultRate(e.target.value)} /></div>
         </section>
 
-        <section className="bg-gray-900 rounded-xl p-4 space-y-3">
-          <h2 className="font-semibold text-blue-400">Máy in nhiệt</h2>
+        <section className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-5 space-y-4">
+          <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Máy in nhiệt</h2>
           <div>
-            <Label>Đường dẫn máy in (USB / Serial)</Label>
-            <Input className="mt-1 bg-gray-800 border-gray-600" value={printerPath}
+            <Label className="text-[#6b7280] text-xs">Đường dẫn máy in (USB / Serial)</Label>
+            <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={printerPath}
               onChange={(e) => setPrinterPath(e.target.value)}
               placeholder="USB001 hoặc COM3" />
-            <p className="text-xs text-gray-500 mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
+            <p className="text-xs text-[#6b7280] mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
           </div>
         </section>
 
-        <section className="bg-gray-900 rounded-xl p-4 space-y-3">
-          <h2 className="font-semibold text-yellow-400">Tích điểm khách hàng</h2>
-          <div><Label>Điểm nhận được khi chi 10.000đ</Label>
-            <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={pointsPer10k}
+        <section className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-5 space-y-4">
+          <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tích điểm khách hàng</h2>
+          <div><Label className="text-[#6b7280] text-xs">Điểm nhận được khi chi 10.000đ</Label>
+            <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={pointsPer10k}
               onChange={(e) => setPointsPer10k(e.target.value)} /></div>
-          <div><Label>1 điểm = ? đồng giảm giá</Label>
-            <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={vndPerPoint}
+          <div><Label className="text-[#6b7280] text-xs">1 điểm = ? đồng giảm giá</Label>
+            <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]" value={vndPerPoint}
               onChange={(e) => setVndPerPoint(e.target.value)} /></div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[#6b7280]">
             VD: Chi 200,000đ = {Math.floor(200000 / 10000) * Number(pointsPer10k || 1)} điểm.
             Đổi 100 điểm = {100 * Number(vndPerPoint || 100)}đ giảm giá.
           </p>
         </section>
 
         <Button
-          className={`w-full ${saved ? 'bg-blue-600' : 'bg-green-700 hover:bg-green-600'}`}
+          className={saved ? 'bg-green-700 text-white w-full font-bold' : 'bg-[#d4af37] text-[#0d1f12] font-bold w-full hover:bg-yellow-400'}
           onClick={() => saveMutation.mutate()}
           disabled={saveMutation.isPending}
         >
