@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { api } from '../lib/ipc'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,7 +30,6 @@ export default function SettingsPage() {
   const [printerPath, setPrinterPath] = useState('')
   const [pointsPer10k, setPointsPer10k] = useState('')
   const [vndPerPoint, setVndPerPoint] = useState('')
-  const [saved, setSaved] = useState(false)
   const [bankId, setBankId] = useState('')
   const [bankAccount, setBankAccount] = useState('')
   const [bankAccountName, setBankAccountName] = useState('')
@@ -76,9 +76,9 @@ export default function SettingsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings'] })
       queryClient.invalidateQueries({ queryKey: ['loyalty', 'settings'] })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      toast.success('Đã lưu cài đặt')
     },
+    onError: () => toast.error('Lưu cài đặt thất bại'),
   })
 
   return (
@@ -162,11 +162,11 @@ export default function SettingsPage() {
         </section>
 
         <Button
-          className={saved ? 'bg-green-700 text-white w-full font-bold' : 'bg-[#d4af37] text-[#0d1f12] font-bold w-full hover:bg-yellow-400'}
+          className="bg-[#d4af37] text-[#0d1f12] font-bold w-full hover:bg-yellow-400"
           onClick={() => saveMutation.mutate()}
           disabled={saveMutation.isPending}
         >
-          {saved ? '✓ Đã lưu' : saveMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt'}
+          {saveMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt'}
         </Button>
       </div>
     </div>
