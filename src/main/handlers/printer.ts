@@ -80,7 +80,7 @@ export async function printInvoice(
 
   if (input.paymentMethod === 'bank_transfer' && input.bankId && input.bankAccount) {
     const qrUrl = `https://img.vietqr.io/image/${input.bankId}-${input.bankAccount}-compact2.png` +
-      `?amount=${input.finalAmount}&addInfo=HD${String(input.sessionId).padStart(5,'0')}` +
+      `?amount=${input.finalAmount}&addInfo=${encodeURIComponent('HD' + String(input.sessionId).padStart(5,'0'))}` +
       `&accountName=${encodeURIComponent(input.bankAccountName ?? '')}`
     printer.alignCenter()
     printer.printQR(qrUrl, { cellSize: 6, correction: 'M', model: 2 })

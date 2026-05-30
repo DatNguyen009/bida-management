@@ -361,6 +361,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                   })}
                   alt="QR Chuyển khoản"
                   className="mx-auto w-48 h-48 rounded-lg"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                 />
                 <p className="text-sm text-[#6b7280] mt-2">{bankId} • {bankAccount}</p>
                 <p className="text-sm text-white font-medium">{bankAccountName}</p>
