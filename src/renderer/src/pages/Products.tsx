@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { Product } from '../types'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Pagination from '../components/Pagination'
 import TableSkeleton from '../components/TableSkeleton'
 
@@ -23,6 +24,7 @@ export default function ProductsPage() {
   const [stockQty, setStockQty] = useState(0)
   const [stockNote, setStockNote] = useState('')
   const [stockCostPrice, setStockCostPrice] = useState<number | ''>('')
+  const [recipeItems, setRecipeItems] = useState<{ ingredientId: number; ingredientName: string; quantity: number }[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
 
@@ -33,15 +35,49 @@ export default function ProductsPage() {
   const products = productResult?.data ?? []
   const productTotal = productResult?.total ?? 0
 
+  const { data: existingRecipe = [] } = useQuery({
+    queryKey: ['recipe', selected?.id],
+    queryFn: () => selected ? window.api.recipes.get(selected.id) : Promise.resolve([]),
+    enabled: !!selected && selected.product_type === 'composite',
+  })
+
+  useEffect(() => {
+    if (mode === 'edit' && selected?.product_type === 'composite' && existingRecipe.length > 0) {
+      setRecipeItems(existingRecipe.map((r) => ({
+        ingredientId: r.ingredient_id,
+        ingredientName: r.ingredient_name,
+        quantity: r.quantity,
+      })))
+    }
+    if (mode === 'create') {
+      setRecipeItems([])
+    }
+  }, [mode, existingRecipe])
+
   const createMutation = useMutation({
     mutationFn: () => api().products.create({ ...form, price: Number(form.price), category: form.category as Product['category'], product_type: form.product_type }),
-    onSuccess: () => { toast.success('Đã tạo sản phẩm'); queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onSuccess: async (product) => {
+      if (product && form.product_type === 'composite' && recipeItems.length > 0) {
+        await window.api.recipes.save(product.id, recipeItems.map((r) => ({ ingredientId: r.ingredientId, quantity: r.quantity })))
+      }
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      setMode(null)
+      toast.success('Đã tạo sản phẩm')
+    },
     onError: () => toast.error('Tạo sản phẩm thất bại'),
   })
 
   const updateMutation = useMutation({
     mutationFn: () => selected ? api().products.update(selected.id, { ...form, price: Number(form.price), category: form.category as Product['category'], product_type: form.product_type }) : Promise.resolve(null),
-    onSuccess: () => { toast.success('Đã cập nhật sản phẩm'); queryClient.invalidateQueries({ queryKey: ['products'] }); setMode(null) },
+    onSuccess: async () => {
+      if (selected && form.product_type === 'composite') {
+        await window.api.recipes.save(selected.id, recipeItems.map((r) => ({ ingredientId: r.ingredientId, quantity: r.quantity })))
+      }
+      queryClient.invalidateQueries({ queryKey: ['products', selected?.id] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      setMode(null)
+      toast.success('Đã cập nhật sản phẩm')
+    },
     onError: () => toast.error('Cập nhật sản phẩm thất bại'),
   })
 
@@ -195,6 +231,60 @@ export default function ProductsPage() {
               <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.min_stock_alert}
                 onChange={(e) => setForm({ ...form, min_stock_alert: Number(e.target.value) })} /></div>
           </div>
+          {form.product_type === 'composite' && (
+            <div className="border-t border-[#1e3d23] pt-3 mt-1">
+              <Label className="text-[#d4af37] text-sm font-semibold">Nguyên liệu</Label>
+              <div className="space-y-2 mt-2">
+                {recipeItems.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-sm text-white flex-1">{item.ingredientName}</span>
+                    <input
+                      type="number"
+                      min={0.01}
+                      step={0.01}
+                      className="w-20 bg-[#0a1a0d] border border-[#1e3d23] text-white rounded px-2 py-1 text-sm"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const updated = [...recipeItems]
+                        updated[idx] = { ...updated[idx], quantity: Number(e.target.value) }
+                        setRecipeItems(updated)
+                      }}
+                    />
+                    <button
+                      className="text-red-400 hover:text-red-300 px-1"
+                      onClick={() => setRecipeItems(recipeItems.filter((_, i) => i !== idx))}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Select
+                  value=""
+                  onValueChange={(productId) => {
+                    const p = products.find((pr) => pr.id === Number(productId))
+                    if (p && !recipeItems.find((r) => r.ingredientId === p.id)) {
+                      setRecipeItems([...recipeItems, { ingredientId: p.id, ingredientName: p.name, quantity: 1 }])
+                    }
+                  }}
+                >
+                  <SelectTrigger className="flex-1 bg-[#0a1a0d] border-[#1e3d23] text-white text-sm h-8">
+                    <SelectValue placeholder="+ Thêm nguyên liệu..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0a1a0d] border-[#1e3d23]">
+                    {products
+                      .filter((p) => p.product_type === 'stock' && !recipeItems.find((r) => r.ingredientId === p.id))
+                      .map((p) => (
+                        <SelectItem key={p.id} value={String(p.id)} className="text-white hover:bg-[#162a1a]">
+                          {p.name} (tồn: {p.stock_quantity} {p.unit})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
             <Button className="bg-[#d4af37] text-[#0d1f12] font-bold"
