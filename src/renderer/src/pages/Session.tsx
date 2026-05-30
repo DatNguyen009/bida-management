@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/ipc'
 import { formatCurrency, calcPlayAmount, elapsedSeconds, formatDuration } from '../lib/utils'
 import type { Session as SessionType } from '../types'
+import OrderList from '../components/OrderList'
+import ProductPicker from '../components/ProductPicker'
 
 interface Props {
   tableId: number
@@ -12,6 +14,8 @@ interface Props {
 
 export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
   const [seconds, setSeconds] = useState(0)
+  const [showPicker, setShowPicker] = useState(false)
+  const queryClient = useQueryClient()
 
   const { data: sessions = [] } = useQuery({
     queryKey: ['sessions', 'active'],
@@ -19,6 +23,23 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
   })
 
   const session = sessions.find((s) => s.table_id === tableId)
+
+  const { data: orderItems = [] } = useQuery({
+    queryKey: ['orderItems', session?.id],
+    queryFn: () => session ? api().orderItems.get(session.id) : Promise.resolve([]),
+    enabled: !!session,
+  })
+
+  const addItemMutation = useMutation({
+    mutationFn: ({ productId, quantity, price }: { productId: number; quantity: number; price: number }) =>
+      api().orderItems.add(session!.id, productId, quantity, price),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session?.id] }),
+  })
+
+  const removeItemMutation = useMutation({
+    mutationFn: (itemId: number) => api().orderItems.remove(itemId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session?.id] }),
+  })
 
   useEffect(() => {
     if (!session) return
@@ -39,6 +60,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
   }
 
   const playAmount = calcPlayAmount(seconds / 60, session.hourly_rate)
+  const itemsAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -54,12 +76,45 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
         <p className="text-xs text-[#6b7280] mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
       </div>
 
+      {/* Order section */}
+      <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-semibold text-[#e2e8f0] text-sm">Đồ uống / thức ăn</h3>
+          <button
+            className="bg-[#d4af37] text-[#0d1f12] font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-400"
+            onClick={() => setShowPicker(true)}
+          >
+            + Gọi
+          </button>
+        </div>
+        <OrderList items={orderItems} onRemove={(id) => removeItemMutation.mutate(id)} />
+        {itemsAmount > 0 && (
+          <div className="mt-3 pt-3 border-t border-[#1e3d23] flex justify-between text-sm">
+            <span className="text-[#6b7280]">Tổng đồ uống:</span>
+            <span className="text-[#d4af37] font-bold">{formatCurrency(itemsAmount)}</span>
+          </div>
+        )}
+      </div>
+
       <button
         className="w-full bg-[#d4af37] text-[#0d1f12] font-bold py-4 rounded-xl text-base hover:bg-yellow-400 transition-colors"
         onClick={() => onCheckout(session, playAmount)}
       >
         Kết thúc & Thanh toán — {formatCurrency(playAmount)}
       </button>
+
+      <ProductPicker
+        open={showPicker}
+        onClose={() => setShowPicker(false)}
+        onSelect={async (product, qty) => {
+          await addItemMutation.mutateAsync({
+            productId: product.id,
+            quantity: qty,
+            price: product.price,
+          })
+          setShowPicker(false)
+        }}
+      />
     </div>
   )
 }
