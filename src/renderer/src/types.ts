@@ -53,6 +53,7 @@ export interface Invoice {
   discount_from_points: number
   final_amount: number
   points_earned: number
+  payment_method: 'cash' | 'bank_transfer'
   printed_at: string | null
   created_at: string
 }
@@ -65,6 +66,7 @@ export interface InvoiceCreateInput {
   discount: number
   pointsRedeemed: number
   pointsEarned: number
+  paymentMethod: 'cash' | 'bank_transfer'
   discountFromPoints: number
   finalAmount: number
   shopName: string
