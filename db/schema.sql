@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS order_items (
   CONSTRAINT uq_order_items_session_product_agent UNIQUE (session_id, product_id, agent_id)
 );
 
+CREATE TABLE IF NOT EXISTS product_recipes (
+  id SERIAL PRIMARY KEY,
+  product_id INT NOT NULL,
+  ingredient_id INT NOT NULL,
+  quantity DECIMAL(10,2) NOT NULL,
+  agent_id UUID NULL,
+  CONSTRAINT uq_recipe UNIQUE (product_id, ingredient_id, agent_id)
+);
+
 CREATE TABLE IF NOT EXISTS loyalty_settings (
   id SERIAL PRIMARY KEY,
   points_per_10k_vnd INT NOT NULL DEFAULT 1,
