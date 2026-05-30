@@ -1,6 +1,5 @@
 import type { OrderItem } from '../types'
 import { formatCurrency } from '../lib/utils'
-import { Button } from '@/components/ui/button'
 
 interface Props {
   items: (OrderItem & { product_name: string })[]
@@ -22,21 +21,19 @@ export default function OrderList({ items, onRemove, onAdjust, readOnly = false 
           <div className="flex items-center gap-2">
             {!readOnly && onAdjust && (
               <div className="flex items-center gap-1">
-                <Button
-                  size="sm" variant="ghost"
-                  className="text-[#6b7280] hover:text-white h-6 w-6 p-0 text-base leading-none"
+                <button
+                  className="text-[#6b7280] hover:text-white hover:bg-[#1e3d23] h-6 w-6 rounded flex items-center justify-center text-base transition-colors"
                   onClick={() => onAdjust(item.id, -1)}
                 >
                   −
-                </Button>
+                </button>
                 <span className="text-sm text-white w-6 text-center">x{item.quantity}</span>
-                <Button
-                  size="sm" variant="ghost"
-                  className="text-[#6b7280] hover:text-white h-6 w-6 p-0 text-base leading-none"
+                <button
+                  className="text-[#6b7280] hover:text-white hover:bg-[#1e3d23] h-6 w-6 rounded flex items-center justify-center text-base transition-colors"
                   onClick={() => onAdjust(item.id, 1)}
                 >
                   +
-                </Button>
+                </button>
               </div>
             )}
             {(readOnly || !onAdjust) && (
@@ -44,13 +41,12 @@ export default function OrderList({ items, onRemove, onAdjust, readOnly = false 
             )}
             <span className="text-green-400 text-sm w-20 text-right">{formatCurrency(item.subtotal)}</span>
             {!readOnly && (
-              <Button
-                size="sm" variant="ghost"
-                className="text-red-400 hover:text-red-300 h-6 w-6 p-0"
+              <button
+                className="text-red-400 hover:text-red-300 hover:bg-[#2d1515] h-6 w-6 rounded flex items-center justify-center transition-colors"
                 onClick={() => onRemove(item.id)}
               >
                 ×
-              </Button>
+              </button>
             )}
           </div>
         </div>
