@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -44,6 +44,12 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('orderItems:remove', itemId),
     adjustQty: (itemId: number, delta: number): Promise<void> =>
       ipcRenderer.invoke('orderItems:adjustQty', itemId, delta),
+  },
+  recipes: {
+    get: (productId: number): Promise<RecipeItem[]> =>
+      ipcRenderer.invoke('recipes:get', productId),
+    save: (productId: number, items: { ingredientId: number; quantity: number }[]): Promise<void> =>
+      ipcRenderer.invoke('recipes:save', productId, items),
   },
   invoices: {
     create: (input: InvoiceCreateInput): Promise<Invoice | null> =>

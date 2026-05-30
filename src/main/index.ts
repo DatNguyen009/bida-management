@@ -11,6 +11,7 @@ import { registerCustomerHandlers } from './handlers/customers'
 import { registerReportHandlers } from './handlers/reports'
 import { registerAuthHandlers } from './handlers/auth'
 import { registerLoyaltyHandlers } from './handlers/loyalty'
+import { registerRecipeHandlers } from './handlers/recipes'
 
 function createWindow(): void {
   // Create the browser window.
@@ -71,6 +72,7 @@ app.whenReady().then(() => {
   registerReportHandlers()
   registerAuthHandlers()
   registerLoyaltyHandlers()
+  registerRecipeHandlers()
 
   createWindow()
 
