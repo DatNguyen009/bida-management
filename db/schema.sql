@@ -34,15 +34,23 @@ CREATE TABLE IF NOT EXISTS sessions (
   status VARCHAR(20) NOT NULL DEFAULT 'open'
 );
 
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  icon VARCHAR(10) NOT NULL DEFAULT '📦',
+  agent_id UUID NULL,
+  CONSTRAINT uq_category_name UNIQUE (name, agent_id)
+);
+
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  category VARCHAR(50) NOT NULL DEFAULT 'drink',
   price DECIMAL(10,0) NOT NULL,
   stock_quantity INT NOT NULL DEFAULT 0,
   min_stock_alert INT NOT NULL DEFAULT 5,
   unit VARCHAR(20) NOT NULL DEFAULT 'cái',
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  category_id INT NULL,
   product_type VARCHAR(20) NOT NULL DEFAULT 'stock',
   agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
