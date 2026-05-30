@@ -46,12 +46,13 @@ export async function createProduct(input: {
   price: number
   unit: string
   min_stock_alert: number
+  product_type: 'stock' | 'composite'
 }): Promise<Product | null> {
   const agentId = getAgentId()
   return queryOne<Product>(
-    `INSERT INTO cloud_products (name, category, price, unit, min_stock_alert, agent_id)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [input.name, input.category, input.price, input.unit, input.min_stock_alert, agentId]
+    `INSERT INTO cloud_products (name, category, price, unit, min_stock_alert, product_type, agent_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [input.name, input.category, input.price, input.unit, input.min_stock_alert, input.product_type, agentId]
   )
 }
 
@@ -60,7 +61,7 @@ export async function updateProduct(
   input: Partial<Omit<Product, 'id' | 'created_at'>>
 ): Promise<Product | null> {
   const agentId = getAgentId()
-  const ALLOWED = new Set(['name', 'category', 'price', 'unit', 'min_stock_alert', 'is_active', 'stock_quantity'])
+  const ALLOWED = new Set(['name', 'category', 'price', 'unit', 'min_stock_alert', 'is_active', 'stock_quantity', 'product_type'])
   const fields = Object.keys(input).filter((f) => ALLOWED.has(f))
   if (fields.length === 0) return null
   const values = fields.map((f) => (input as any)[f])

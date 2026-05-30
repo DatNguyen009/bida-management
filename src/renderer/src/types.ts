@@ -27,6 +27,7 @@ export interface Product {
   min_stock_alert: number
   unit: string
   is_active: boolean
+  product_type: 'stock' | 'composite'
   created_at: string
 }
 
