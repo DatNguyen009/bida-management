@@ -12,6 +12,7 @@ import { registerReportHandlers } from './handlers/reports'
 import { registerAuthHandlers } from './handlers/auth'
 import { registerLoyaltyHandlers } from './handlers/loyalty'
 import { registerRecipeHandlers } from './handlers/recipes'
+import { registerCategoryHandlers } from './handlers/categories'
 
 function createWindow(): void {
   // Create the browser window.
@@ -73,6 +74,7 @@ app.whenReady().then(() => {
   registerAuthHandlers()
   registerLoyaltyHandlers()
   registerRecipeHandlers()
+  registerCategoryHandlers()
 
   createWindow()
 

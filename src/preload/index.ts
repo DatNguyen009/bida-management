@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -26,7 +26,7 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('products:getAll'),
     getPage: (input: { page: number; pageSize: number }): Promise<PageResult<Product>> =>
       ipcRenderer.invoke('products:getPage', input),
-    create: (input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null> =>
+    create: (input: { name: string; category_id: number; price: number; unit: string; min_stock_alert: number; product_type: 'stock' | 'composite' }): Promise<Product | null> =>
       ipcRenderer.invoke('products:create', input),
     update: (id: number, input: Partial<Product>): Promise<Product | null> =>
       ipcRenderer.invoke('products:update', id, input),
@@ -50,6 +50,16 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('recipes:get', productId),
     save: (productId: number, items: { ingredientId: number; quantity: number }[]): Promise<void> =>
       ipcRenderer.invoke('recipes:save', productId, items),
+  },
+  categories: {
+    getAll: (): Promise<Category[]> =>
+      ipcRenderer.invoke('categories:getAll'),
+    create: (input: { name: string; icon: string }): Promise<Category | null> =>
+      ipcRenderer.invoke('categories:create', input),
+    update: (id: number, input: { name: string; icon: string }): Promise<Category | null> =>
+      ipcRenderer.invoke('categories:update', id, input),
+    delete: (id: number): Promise<{ success: boolean; productCount: number }> =>
+      ipcRenderer.invoke('categories:delete', id),
   },
   invoices: {
     create: (input: InvoiceCreateInput): Promise<Invoice | null> =>

@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category } from './types'
 
 declare global {
   interface Window {
@@ -18,7 +18,7 @@ declare global {
       products: {
         getAll(): Promise<Product[]>
         getPage(input: { page: number; pageSize: number }): Promise<{ data: Product[]; total: number }>
-        create(input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null>
+        create(input: { name: string; category_id: number; price: number; unit: string; min_stock_alert: number; product_type: 'stock' | 'composite' }): Promise<Product | null>
         update(id: number, input: Partial<Product>): Promise<Product | null>
         adjustStock(id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null>
         getStockHistory(input: { productId?: number; fromDate?: string; toDate?: string; page?: number; pageSize?: number }): Promise<{ data: StockTransaction[]; total: number }>
@@ -32,6 +32,12 @@ declare global {
       recipes: {
         get(productId: number): Promise<RecipeItem[]>
         save(productId: number, items: { ingredientId: number; quantity: number }[]): Promise<void>
+      }
+      categories: {
+        getAll(): Promise<Category[]>
+        create(input: { name: string; icon: string }): Promise<Category | null>
+        update(id: number, input: { name: string; icon: string }): Promise<Category | null>
+        delete(id: number): Promise<{ success: boolean; productCount: number }>
       }
       invoices: {
         create(input: InvoiceCreateInput): Promise<Invoice | null>
