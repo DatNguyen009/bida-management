@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import type { Customer } from '../types'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
@@ -38,7 +39,9 @@ export default function CustomersPage() {
       queryClient.invalidateQueries({ queryKey: ['customers'] })
       setShowCreate(false)
       setForm({ name: '', phone: '', email: '', notes: '' })
+      toast.success('Đã tạo khách hàng')
     },
+    onError: () => toast.error('Tạo khách hàng thất bại'),
   })
 
   const updateMutation = useMutation({
@@ -51,7 +54,9 @@ export default function CustomersPage() {
       queryClient.invalidateQueries({ queryKey: ['customers'] })
       if (updated) setSelected(updated)
       setEditMode(false)
+      toast.success('Đã cập nhật khách hàng')
     },
+    onError: () => toast.error('Cập nhật khách hàng thất bại'),
   })
 
   const filtered = customers.filter(
