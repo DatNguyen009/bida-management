@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react'
+import { toast } from 'sonner'
 
 interface Props {
   onLogin: () => void
@@ -7,18 +8,17 @@ interface Props {
 export default function LoginPage({ onLogin }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       await window.api.auth.login(username, password)
+      toast.success('Đăng nhập thành công')
       onLogin()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
+      toast.error(err instanceof Error ? err.message : 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
     } finally {
       setLoading(false)
     }
@@ -32,12 +32,6 @@ export default function LoginPage({ onLogin }: Props) {
           <h1 className="text-2xl font-bold text-[#d4af37]">Bida Manager</h1>
           <p className="text-[#6b7280] text-sm mt-1">Đăng nhập để tiếp tục</p>
         </div>
-
-        {error && (
-          <div className="bg-[#2d1515] border border-red-800 text-red-400 text-sm px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
 
         <div>
           <label className="text-[#d4af37] text-xs uppercase tracking-widest block mb-1.5">Tài khoản</label>
