@@ -143,3 +143,11 @@ export interface PageResult<T> {
   data: T[]
   total: number
 }
+
+export interface RecipeItem {
+  id: number
+  product_id: number
+  ingredient_id: number
+  ingredient_name: string
+  quantity: number
+}
