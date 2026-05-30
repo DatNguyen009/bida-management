@@ -22,14 +22,14 @@ export default function OrderList({ items, onRemove, onAdjust, readOnly = false 
             {!readOnly && onAdjust && (
               <div className="flex items-center gap-1">
                 <button
-                  className="text-[#6b7280] hover:text-white hover:bg-[#1e3d23] h-6 w-6 rounded flex items-center justify-center text-base transition-colors"
+                  className="text-red-400 hover:text-white hover:bg-[#2d1515] h-6 w-6 rounded flex items-center justify-center text-base font-bold transition-colors"
                   onClick={() => onAdjust(item.id, -1)}
                 >
                   −
                 </button>
                 <span className="text-sm text-white w-6 text-center">x{item.quantity}</span>
                 <button
-                  className="text-[#6b7280] hover:text-white hover:bg-[#1e3d23] h-6 w-6 rounded flex items-center justify-center text-base transition-colors"
+                  className="text-green-400 hover:text-white hover:bg-[#14532d] h-6 w-6 rounded flex items-center justify-center text-base font-bold transition-colors"
                   onClick={() => onAdjust(item.id, 1)}
                 >
                   +
