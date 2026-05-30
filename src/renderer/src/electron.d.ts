@@ -39,6 +39,7 @@ declare global {
       }
       customers: {
         findByPhone(phone: string): Promise<Customer | null>
+        searchByPhone(prefix: string): Promise<Customer[]>
         getAll(): Promise<Customer[]>
         create(input: { name: string; phone: string; email: string | null; notes: string | null }): Promise<Customer | null>
         update(id: number, input: Partial<Customer>): Promise<Customer | null>
