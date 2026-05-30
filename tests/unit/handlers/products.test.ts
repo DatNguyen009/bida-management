@@ -120,19 +120,19 @@ describe('getStockHistory', () => {
     ]
     vi.mocked(db.query).mockResolvedValue(mockRows)
 
-    const result = await getStockHistory({})
+    const result = await getStockHistory({ page: 1, pageSize: 20 })
 
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('cloud_stock_transactions'),
       expect.arrayContaining([null])
     )
-    expect(result).toEqual(mockRows)
+    expect(result).toEqual({ data: mockRows, total: 0 })
   })
 
   it('filters by productId when provided', async () => {
     vi.mocked(db.query).mockResolvedValue([])
 
-    await getStockHistory({ productId: 5 })
+    await getStockHistory({ productId: 5, page: 1, pageSize: 20 })
 
     expect(db.query).toHaveBeenCalledWith(
       expect.any(String),
@@ -143,7 +143,7 @@ describe('getStockHistory', () => {
   it('filters by date range when provided', async () => {
     vi.mocked(db.query).mockResolvedValue([])
 
-    await getStockHistory({ fromDate: '2026-05-01', toDate: '2026-05-31' })
+    await getStockHistory({ fromDate: '2026-05-01', toDate: '2026-05-31', page: 1, pageSize: 20 })
 
     expect(db.query).toHaveBeenCalledWith(
       expect.any(String),

@@ -140,19 +140,19 @@ describe('getInvoiceList', () => {
     ]
     vi.mocked(db.query).mockResolvedValue(mockRows)
 
-    const result = await getInvoiceList({})
+    const result = await getInvoiceList({ page: 1, pageSize: 20 })
 
     expect(db.query).toHaveBeenCalledWith(
       expect.stringContaining('cloud_invoices'),
       expect.arrayContaining([null])
     )
-    expect(result).toEqual(mockRows)
+    expect(result).toEqual({ data: mockRows, total: 0 })
   })
 
   it('filters by date range when provided', async () => {
     vi.mocked(db.query).mockResolvedValue([])
 
-    await getInvoiceList({ fromDate: '2026-05-01', toDate: '2026-05-31' })
+    await getInvoiceList({ fromDate: '2026-05-01', toDate: '2026-05-31', page: 1, pageSize: 20 })
 
     expect(db.query).toHaveBeenCalledWith(
       expect.any(String),
