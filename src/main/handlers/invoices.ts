@@ -22,14 +22,16 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
   const invoice = await queryOne<Invoice>(
     `INSERT INTO cloud_invoices
        (session_id, invoice_number, play_amount, items_amount, total_amount,
-        discount, points_redeemed, discount_from_points, final_amount, points_earned, agent_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+        discount, points_redeemed, discount_from_points, final_amount, points_earned,
+        payment_method, agent_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
     [
       input.sessionId, invoiceNumber,
       input.playAmount, input.itemsAmount,
       input.playAmount + input.itemsAmount,
       input.discount, input.pointsRedeemed, input.discountFromPoints,
-      input.finalAmount, input.pointsEarned, agentId,
+      input.finalAmount, input.pointsEarned,
+      input.paymentMethod ?? 'cash', agentId,
     ]
   )
 
