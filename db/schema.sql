@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS products (
   min_stock_alert INT NOT NULL DEFAULT 5,
   unit VARCHAR(20) NOT NULL DEFAULT 'cái',
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  product_type VARCHAR(20) NOT NULL DEFAULT 'stock',
   agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
