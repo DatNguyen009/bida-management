@@ -38,7 +38,7 @@ export default function App() {
 
   if (authState === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-bida-bg">
         <p className="text-gray-500 text-sm">Đang tải...</p>
       </div>
     )
@@ -55,33 +55,70 @@ export default function App() {
     setView({ page: 'invoice', session, playAmount })
   }
 
+  type NavPage = Exclude<View['page'], 'session' | 'invoice'>
+  const navItems: { page: NavPage; label: string; icon: string }[] = [
+    { page: 'dashboard', label: 'Dashboard', icon: '🏠' },
+    { page: 'products', label: 'Sản phẩm', icon: '📦' },
+    { page: 'stock', label: 'Kho', icon: '🏪' },
+    { page: 'invoices', label: 'Hóa đơn', icon: '🧾' },
+    { page: 'customers', label: 'Khách hàng', icon: '👥' },
+    { page: 'reports', label: 'Báo cáo', icon: '📊' },
+  ]
+
+  const currentPage: string = view.page === 'session' || view.page === 'invoice' ? 'dashboard' : view.page
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <nav className="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center gap-6">
-        <button
-          className="text-xl font-bold text-green-400"
-          onClick={() => setView({ page: 'dashboard' })}
-        >
-          🎱 Bida Manager
-        </button>
-        <button onClick={() => setView({ page: 'products' })} className="text-sm text-white hover:text-gray-200">Sản phẩm</button>
-        <button onClick={() => setView({ page: 'stock' })} className="text-sm text-white hover:text-gray-200">Kho</button>
-        <button onClick={() => setView({ page: 'invoices' })} className="text-sm text-white hover:text-gray-200">Hóa đơn</button>
-        <button onClick={() => setView({ page: 'customers' })} className="text-sm text-white hover:text-gray-200">Khách hàng</button>
-        <button onClick={() => setView({ page: 'reports' })} className="text-sm text-white hover:text-gray-200">Báo cáo</button>
-        <button onClick={() => setView({ page: 'settings' })} className="text-sm text-white hover:text-gray-200 ml-auto">Cài đặt</button>
-        <button
-          onClick={async () => {
-            await window.api.auth.logout()
-            setAuthState('unauthenticated')
-            setView({ page: 'dashboard' })
-          }}
-          className="text-sm text-red-400 hover:text-red-300"
-        >
-          Đăng xuất
-        </button>
-      </nav>
-      <main className="p-6">
+    <div className="flex h-screen bg-bida-bg text-white overflow-hidden">
+      {/* Sidebar */}
+      <aside className="w-40 flex-shrink-0 bg-bida-sidebar border-r-2 border-[#d4af37] flex flex-col">
+        <div className="px-4 py-4 border-b border-bida-border">
+          <div className="text-[#d4af37] font-bold text-base">🎱 Bida</div>
+          <div className="text-[#4b7a52] text-[10px] mt-0.5">Manager</div>
+        </div>
+
+        <nav className="flex-1 py-3 px-2 flex flex-col gap-0.5 overflow-y-auto">
+          {navItems.map(({ page, label, icon }) => (
+            <button
+              key={page}
+              onClick={() => setView({ page: page as NavPage } as View)}
+              className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors flex items-center gap-2
+                ${currentPage === page
+                  ? 'bg-[#1e3d23] text-green-400 border-l-[3px] border-green-400 font-semibold'
+                  : 'text-[#6b7280] hover:bg-bida-card hover:text-white border-l-[3px] border-transparent'
+                }`}
+            >
+              <span>{icon}</span>
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="py-3 px-2 border-t border-bida-border flex flex-col gap-0.5">
+          <button
+            onClick={() => setView({ page: 'settings' })}
+            className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors flex items-center gap-2
+              ${currentPage === 'settings'
+                ? 'bg-[#1e3d23] text-green-400 border-l-[3px] border-green-400 font-semibold'
+                : 'text-[#6b7280] hover:bg-bida-card hover:text-white border-l-[3px] border-transparent'
+              }`}
+          >
+            <span>⚙</span><span>Cài đặt</span>
+          </button>
+          <button
+            onClick={async () => {
+              await window.api.auth.logout()
+              setAuthState('unauthenticated')
+              setView({ page: 'dashboard' })
+            }}
+            className="w-full text-left px-3 py-2 rounded-md text-xs text-red-400 hover:bg-[#2d1515] hover:text-red-300 transition-colors flex items-center gap-2 border-l-[3px] border-transparent"
+          >
+            <span>↩</span><span>Đăng xuất</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 overflow-auto p-6">
         {view.page === 'dashboard' && (
           <Dashboard onViewSession={(tableId) => setView({ page: 'session', tableId })} />
         )}
