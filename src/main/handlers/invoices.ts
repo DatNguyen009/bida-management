@@ -2,7 +2,7 @@
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
 import { getAgentId } from '../lib/authStore'
-import type { Invoice, InvoiceCreateInput } from '../../renderer/src/types'
+import type { Invoice, InvoiceCreateInput, PageResult, InvoiceListRow } from '../../renderer/src/types'
 import { printInvoice } from './printer'
 
 export async function getNextInvoiceNumber(): Promise<string> {
@@ -92,29 +92,45 @@ export async function printAndMarkInvoice(
 export interface InvoiceListInput {
   fromDate?: string
   toDate?: string
+  page: number
+  pageSize: number
 }
 
-export async function getInvoiceList(input: InvoiceListInput) {
+export async function getInvoiceList(input: InvoiceListInput): Promise<PageResult<InvoiceListRow>> {
   const agentId = getAgentId()
-  return query(
-    `SELECT i.id, i.invoice_number, i.session_id,
-            i.play_amount, i.items_amount, i.final_amount,
-            i.discount, i.points_redeemed, i.discount_from_points,
-            i.points_earned, i.printed_at, i.created_at,
-            t.name AS table_name,
-            c.name AS customer_name,
-            c.phone AS customer_phone
-     FROM cloud_invoices i
-     LEFT JOIN cloud_sessions s ON s.id = i.session_id
-     LEFT JOIN cloud_tables t ON t.id = s.table_id
-     LEFT JOIN cloud_customers c ON c.id = s.customer_id
-     WHERE i.agent_id = $1
-       AND ($2::date IS NULL OR DATE(i.created_at) >= $2)
-       AND ($3::date IS NULL OR DATE(i.created_at) <= $3)
-     ORDER BY i.created_at DESC
-     LIMIT 300`,
-    [agentId, input.fromDate ?? null, input.toDate ?? null]
-  )
+  const offset = (input.page - 1) * input.pageSize
+
+  const [rows, countRows] = await Promise.all([
+    query<InvoiceListRow>(
+      `SELECT i.id, i.invoice_number, i.session_id,
+              i.play_amount, i.items_amount, i.final_amount,
+              i.discount, i.points_redeemed, i.discount_from_points,
+              i.points_earned, i.printed_at, i.created_at,
+              t.name AS table_name,
+              c.name AS customer_name,
+              c.phone AS customer_phone
+       FROM cloud_invoices i
+       LEFT JOIN cloud_sessions s ON s.id = i.session_id
+       LEFT JOIN cloud_tables t ON t.id = s.table_id
+       LEFT JOIN cloud_customers c ON c.id = s.customer_id
+       WHERE i.agent_id = $1
+         AND ($2::date IS NULL OR DATE(i.created_at) >= $2)
+         AND ($3::date IS NULL OR DATE(i.created_at) <= $3)
+       ORDER BY i.created_at DESC
+       LIMIT $4 OFFSET $5`,
+      [agentId, input.fromDate ?? null, input.toDate ?? null, input.pageSize, offset]
+    ),
+    query<{ count: string }>(
+      `SELECT COUNT(*) AS count
+       FROM cloud_invoices i
+       WHERE i.agent_id = $1
+         AND ($2::date IS NULL OR DATE(i.created_at) >= $2)
+         AND ($3::date IS NULL OR DATE(i.created_at) <= $3)`,
+      [agentId, input.fromDate ?? null, input.toDate ?? null]
+    ),
+  ])
+
+  return { data: rows, total: parseInt(countRows[0]?.count ?? '0', 10) }
 }
 
 export async function getInvoiceOrderItems(sessionId: number) {
