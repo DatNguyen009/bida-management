@@ -2,7 +2,7 @@
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
 import { getAgentId } from '../lib/authStore'
-import type { Product } from '../../renderer/src/types'
+import type { PageResult, Product, StockTransaction } from '../../renderer/src/types'
 
 interface StockTransactionRow { id: number }
 
@@ -10,6 +10,8 @@ export interface StockHistoryInput {
   productId?: number
   fromDate?: string
   toDate?: string
+  page: number
+  pageSize: number
 }
 
 export async function getAllProducts(): Promise<Product[]> {
@@ -18,6 +20,24 @@ export async function getAllProducts(): Promise<Product[]> {
     'SELECT * FROM cloud_products WHERE is_active = TRUE AND agent_id = $1 ORDER BY category, name',
     [agentId]
   )
+}
+
+export async function getProductPage(input: { page: number; pageSize: number }): Promise<PageResult<Product>> {
+  const agentId = getAgentId()
+  const offset = (input.page - 1) * input.pageSize
+
+  const [rows, countRows] = await Promise.all([
+    query<Product>(
+      'SELECT * FROM cloud_products WHERE is_active = TRUE AND agent_id = $1 ORDER BY category, name LIMIT $2 OFFSET $3',
+      [agentId, input.pageSize, offset]
+    ),
+    query<{ count: string }>(
+      'SELECT COUNT(*) AS count FROM cloud_products WHERE is_active = TRUE AND agent_id = $1',
+      [agentId]
+    ),
+  ])
+
+  return { data: rows, total: parseInt(countRows[0]?.count ?? '0', 10) }
 }
 
 export async function createProduct(input: {
@@ -80,26 +100,42 @@ export async function adjustStock(
   return product
 }
 
-export async function getStockHistory(input: StockHistoryInput) {
+export async function getStockHistory(input: StockHistoryInput): Promise<PageResult<StockTransaction>> {
   const agentId = getAgentId()
-  return query(
-    `SELECT st.id, st.product_id, p.name AS product_name,
-            st.type, st.quantity, st.before_qty, st.after_qty,
-            st.note, st.created_at
-     FROM cloud_stock_transactions st
-     JOIN cloud_products p ON p.id = st.product_id
-     WHERE st.agent_id = $1
-       AND ($2::int IS NULL OR st.product_id = $2)
-       AND ($3::date IS NULL OR DATE(st.created_at) >= $3)
-       AND ($4::date IS NULL OR DATE(st.created_at) <= $4)
-     ORDER BY st.created_at DESC
-     LIMIT 500`,
-    [agentId, input.productId ?? null, input.fromDate ?? null, input.toDate ?? null]
-  )
+  const offset = (input.page - 1) * input.pageSize
+
+  const [rows, countRows] = await Promise.all([
+    query<StockTransaction>(
+      `SELECT st.id, st.product_id, p.name AS product_name,
+              st.type, st.quantity, st.before_qty, st.after_qty,
+              st.note, st.created_at
+       FROM cloud_stock_transactions st
+       JOIN cloud_products p ON p.id = st.product_id
+       WHERE st.agent_id = $1
+         AND ($2::int IS NULL OR st.product_id = $2)
+         AND ($3::date IS NULL OR DATE(st.created_at) >= $3)
+         AND ($4::date IS NULL OR DATE(st.created_at) <= $4)
+       ORDER BY st.created_at DESC
+       LIMIT $5 OFFSET $6`,
+      [agentId, input.productId ?? null, input.fromDate ?? null, input.toDate ?? null, input.pageSize, offset]
+    ),
+    query<{ count: string }>(
+      `SELECT COUNT(*) AS count
+       FROM cloud_stock_transactions st
+       WHERE st.agent_id = $1
+         AND ($2::int IS NULL OR st.product_id = $2)
+         AND ($3::date IS NULL OR DATE(st.created_at) >= $3)
+         AND ($4::date IS NULL OR DATE(st.created_at) <= $4)`,
+      [agentId, input.productId ?? null, input.fromDate ?? null, input.toDate ?? null]
+    ),
+  ])
+
+  return { data: rows, total: parseInt(countRows[0]?.count ?? '0', 10) }
 }
 
 export function registerProductHandlers() {
   ipcMain.handle('products:getAll', () => getAllProducts())
+  ipcMain.handle('products:getPage', (_e, input: { page: number; pageSize: number }) => getProductPage(input))
   ipcMain.handle('products:create', (_e, input) => createProduct(input))
   ipcMain.handle('products:update', (_e, id: number, input) => updateProduct(id, input))
   ipcMain.handle('products:adjustStock',
