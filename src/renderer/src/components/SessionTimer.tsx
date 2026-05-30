@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { elapsedMinutes, formatDuration, calcPlayAmount, formatCurrency } from '../lib/utils'
+import { elapsedSeconds, formatDuration, calcPlayAmount, formatCurrency } from '../lib/utils'
 
 interface Props {
   startTime: string
@@ -7,20 +7,20 @@ interface Props {
 }
 
 export default function SessionTimer({ startTime, hourlyRate }: Props) {
-  const [minutes, setMinutes] = useState(() => elapsedMinutes(startTime))
+  const [seconds, setSeconds] = useState(() => elapsedSeconds(startTime))
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setMinutes(elapsedMinutes(startTime))
-    }, 60000)
+      setSeconds(elapsedSeconds(startTime))
+    }, 1000)
     return () => clearInterval(timer)
   }, [startTime])
 
-  const amount = calcPlayAmount(minutes, hourlyRate)
+  const amount = calcPlayAmount(seconds / 60, hourlyRate)
 
   return (
     <div className="text-center">
-      <p className="text-lg font-mono text-yellow-400">{formatDuration(minutes)}</p>
+      <p className="text-lg font-mono text-yellow-400">{formatDuration(seconds)}</p>
       <p className="text-sm text-green-400">{formatCurrency(amount)}</p>
     </div>
   )

@@ -10,10 +10,11 @@ describe('formatCurrency', () => {
 })
 
 describe('formatDuration', () => {
-  it('formats minutes into hours and minutes', () => {
-    expect(formatDuration(90)).toBe('1 giờ 30 phút')
-    expect(formatDuration(60)).toBe('1 giờ 0 phút')
-    expect(formatDuration(45)).toBe('0 giờ 45 phút')
+  it('formats seconds into HH:MM:SS', () => {
+    expect(formatDuration(0)).toBe('00:00:00')
+    expect(formatDuration(90)).toBe('00:01:30')
+    expect(formatDuration(3600)).toBe('01:00:00')
+    expect(formatDuration(5400)).toBe('01:30:00')
   })
 })
 
