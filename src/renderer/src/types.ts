@@ -137,3 +137,8 @@ export interface InvoiceOrderItem {
   unit_price: number
   subtotal: number
 }
+
+export interface PageResult<T> {
+  data: T[]
+  total: number
+}
