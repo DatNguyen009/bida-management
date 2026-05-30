@@ -17,7 +17,15 @@ export interface StockHistoryInput {
 export async function getAllProducts(): Promise<Product[]> {
   const agentId = getAgentId()
   return query<Product>(
-    'SELECT * FROM cloud_products WHERE is_active = TRUE AND agent_id = $1 ORDER BY category, name',
+    `SELECT p.id, p.name, p.category_id,
+            COALESCE(c.name, 'Khác') AS category_name,
+            COALESCE(c.icon, '📦') AS category_icon,
+            p.price, p.stock_quantity, p.min_stock_alert,
+            p.unit, p.is_active, p.product_type, p.created_at
+     FROM cloud_products p
+     LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id
+     WHERE p.is_active = TRUE AND p.agent_id = $1
+     ORDER BY category_name, p.name`,
     [agentId]
   )
 }
@@ -28,7 +36,16 @@ export async function getProductPage(input: { page: number; pageSize: number }):
 
   const [rows, countRows] = await Promise.all([
     query<Product>(
-      'SELECT * FROM cloud_products WHERE is_active = TRUE AND agent_id = $1 ORDER BY category, name LIMIT $2 OFFSET $3',
+      `SELECT p.id, p.name, p.category_id,
+              COALESCE(c.name, 'Khác') AS category_name,
+              COALESCE(c.icon, '📦') AS category_icon,
+              p.price, p.stock_quantity, p.min_stock_alert,
+              p.unit, p.is_active, p.product_type, p.created_at
+       FROM cloud_products p
+       LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id
+       WHERE p.is_active = TRUE AND p.agent_id = $1
+       ORDER BY category_name, p.name
+       LIMIT $2 OFFSET $3`,
       [agentId, input.pageSize, offset]
     ),
     query<{ count: string }>(
@@ -42,18 +59,32 @@ export async function getProductPage(input: { page: number; pageSize: number }):
 
 export async function createProduct(input: {
   name: string
-  category: Product['category']
+  category_id: number
   price: number
   unit: string
   min_stock_alert: number
   product_type: 'stock' | 'composite'
 }): Promise<Product | null> {
   const agentId = getAgentId()
-  return queryOne<Product>(
-    `INSERT INTO cloud_products (name, category, price, unit, min_stock_alert, product_type, agent_id)
+  const row = await queryOne<{
+    id: number; name: string; category_id: number; price: number;
+    stock_quantity: number; min_stock_alert: number; unit: string;
+    is_active: boolean; product_type: string; created_at: string
+  }>(
+    `INSERT INTO cloud_products (name, category_id, price, unit, min_stock_alert, product_type, agent_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [input.name, input.category, input.price, input.unit, input.min_stock_alert, input.product_type, agentId]
+    [input.name, input.category_id, input.price, input.unit, input.min_stock_alert, input.product_type, agentId]
   )
+  if (!row) return null
+  const cat = await queryOne<{ name: string; icon: string }>(
+    'SELECT name, icon FROM cloud_categories WHERE id = $1 AND agent_id = $2',
+    [input.category_id, agentId]
+  )
+  return {
+    ...row,
+    category_name: cat?.name ?? 'Khác',
+    category_icon: cat?.icon ?? '📦',
+  } as Product
 }
 
 export async function updateProduct(
@@ -61,7 +92,7 @@ export async function updateProduct(
   input: Partial<Omit<Product, 'id' | 'created_at'>>
 ): Promise<Product | null> {
   const agentId = getAgentId()
-  const ALLOWED = new Set(['name', 'category', 'price', 'unit', 'min_stock_alert', 'is_active', 'stock_quantity', 'product_type'])
+  const ALLOWED = new Set(['name', 'category_id', 'price', 'unit', 'min_stock_alert', 'is_active', 'stock_quantity', 'product_type'])
   const fields = Object.keys(input).filter((f) => ALLOWED.has(f))
   if (fields.length === 0) return null
   const values = fields.map((f) => (input as any)[f])

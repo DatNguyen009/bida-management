@@ -18,14 +18,14 @@ import {
 } from '../../../src/main/handlers/products'
 
 describe('getAllProducts', () => {
-  it('returns active products ordered by name', async () => {
-    const mockProducts = [{ id: 1, name: 'Bia Tiger', is_active: true }]
+  it('returns active products with joined category fields', async () => {
+    const mockProducts = [{ id: 1, name: 'Bia Tiger', category_id: 1, category_name: 'Đồ uống', category_icon: '🥤', is_active: true }]
     vi.mocked(db.query).mockResolvedValue(mockProducts)
 
     const result = await getAllProducts()
 
     expect(db.query).toHaveBeenCalledWith(
-      expect.stringContaining('is_active = TRUE'),
+      expect.stringContaining('LEFT JOIN cloud_categories'),
       [null]
     )
     expect(result).toEqual(mockProducts)
@@ -33,18 +33,22 @@ describe('getAllProducts', () => {
 })
 
 describe('createProduct', () => {
-  it('inserts a new product and returns it', async () => {
-    const input = { name: 'Bia Tiger', category: 'drink' as const, price: 30000, unit: 'lon', min_stock_alert: 10 }
-    const mockProduct = { id: 1, ...input, stock_quantity: 0, is_active: true }
-    vi.mocked(db.queryOne).mockResolvedValue(mockProduct)
+  it('inserts product with category_id and returns with category fields', async () => {
+    const input = { name: 'Bia Tiger', category_id: 1, price: 30000, unit: 'lon', min_stock_alert: 10, product_type: 'stock' as const }
+    const mockRow = { id: 1, name: 'Bia Tiger', category_id: 1, price: 30000, stock_quantity: 0, min_stock_alert: 10, unit: 'lon', is_active: true, product_type: 'stock', created_at: '2026-01-01' }
+    const mockCat = { name: 'Đồ uống', icon: '🥤' }
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce(mockRow)
+      .mockResolvedValueOnce(mockCat)
 
     const result = await createProduct(input)
 
-    expect(db.queryOne).toHaveBeenCalledWith(
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      1,
       expect.stringContaining('INSERT INTO cloud_products'),
-      expect.arrayContaining([input.name, input.price])
+      expect.arrayContaining([input.name, 1, input.price])
     )
-    expect(result).toEqual(mockProduct)
+    expect(result).toMatchObject({ category_name: 'Đồ uống', category_icon: '🥤' })
   })
 })
 
