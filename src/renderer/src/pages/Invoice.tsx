@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency } from '../lib/utils'
+import { buildVietQRUrl, isBankConfigured } from '../lib/vietqr'
 
 interface Props {
   session: Session & { table_name: string; hourly_rate: number }
@@ -27,6 +28,10 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const [searchState, setSearchState] = useState<'idle' | 'found' | 'notfound'>('idle')
   const [quickName, setQuickName] = useState('')
   const [pointsError, setPointsError] = useState('')
+
+  type PaymentStep = 'select' | 'cash' | 'bank'
+  const [paymentStep, setPaymentStep] = useState<PaymentStep>('select')
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash')
 
   const { data: orderItems = [] } = useQuery({
     queryKey: ['orderItems', session.id],
@@ -58,6 +63,10 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const shopAddress = settings?.find((s: { key: string }) => s.key === 'address')?.value ?? ''
   const shopPhone = settings?.find((s: { key: string }) => s.key === 'phone')?.value ?? ''
   const printerPath = settings?.find((s: { key: string }) => s.key === 'printer_path')?.value ?? 'USB001'
+  const bankId = settings?.find((s: { key: string }) => s.key === 'bank_id')?.value ?? ''
+  const bankAccount = settings?.find((s: { key: string }) => s.key === 'bank_account')?.value ?? ''
+  const bankAccountName = settings?.find((s: { key: string }) => s.key === 'bank_account_name')?.value ?? ''
+  const bankConfigured = isBankConfigured(bankId, bankAccount, bankAccountName)
 
   const invoiceInput: InvoiceCreateInput = {
     sessionId: session.id,
@@ -74,6 +83,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     customerName: selectedCustomer?.name,
     customerPhone: selectedCustomer?.phone,
     customerPoints: selectedCustomer?.points_balance,
+    paymentMethod,
   }
 
   const findCustomerMutation = useMutation({
@@ -126,7 +136,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   })
 
   const checkoutMutation = useMutation({
-    mutationFn: async (print: boolean) => {
+    mutationFn: async ({ print }: { print: boolean }) => {
       await api().sessions.close(session.id, playAmount)
       const invoice = await api().invoices.create(invoiceInput)
       if (print && invoice) {
@@ -279,22 +289,105 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         <h3 className="font-semibold mb-3 text-center">Preview hóa đơn</h3>
         <InvoicePreview input={invoiceInput} invoiceNumber={invoiceNumber} />
 
-        <div className="flex gap-3 mt-6">
-          <Button
-            className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
-            disabled={checkoutMutation.isPending || !!pointsError}
-            onClick={() => checkoutMutation.mutate(true)}
-          >
-            In hóa đơn
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
-            disabled={checkoutMutation.isPending || !!pointsError}
-            onClick={() => checkoutMutation.mutate(false)}
-          >
-            Lưu không in
-          </Button>
+        <div className="mt-6">
+          {paymentStep === 'select' && (
+            <div className="space-y-3">
+              <p className="text-xs text-[#6b7280] uppercase tracking-widest text-center mb-2">Phương thức thanh toán</p>
+              <div className="flex gap-3">
+                <Button
+                  className="flex-1 bg-[#162a1a] border border-[#1e3d23] text-white hover:bg-[#1e3d23] font-bold py-6 text-base"
+                  onClick={() => { setPaymentMethod('cash'); setPaymentStep('cash') }}
+                >
+                  💵 Tiền mặt
+                </Button>
+                <Button
+                  className="flex-1 bg-[#162a1a] border border-[#1e3d23] text-white hover:bg-[#1e3d23] font-bold py-6 text-base disabled:opacity-40"
+                  disabled={!bankConfigured}
+                  title={!bankConfigured ? 'Chưa cấu hình tài khoản ngân hàng trong Cài đặt' : undefined}
+                  onClick={() => { setPaymentMethod('bank_transfer'); setPaymentStep('bank') }}
+                >
+                  🏦 Chuyển khoản
+                </Button>
+              </div>
+              {!bankConfigured && (
+                <p className="text-xs text-[#6b7280] text-center">
+                  Vào Cài đặt → Tài khoản ngân hàng để bật thanh toán chuyển khoản
+                </p>
+              )}
+            </div>
+          )}
+
+          {paymentStep === 'cash' && (
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <Button
+                  className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+                  disabled={checkoutMutation.isPending || !!pointsError}
+                  onClick={() => checkoutMutation.mutate({ print: true })}
+                >
+                  In hóa đơn
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
+                  disabled={checkoutMutation.isPending || !!pointsError}
+                  onClick={() => checkoutMutation.mutate({ print: false })}
+                >
+                  Lưu không in
+                </Button>
+              </div>
+              <button
+                className="w-full text-xs text-[#6b7280] hover:text-white text-center mt-1"
+                onClick={() => setPaymentStep('select')}
+              >
+                ← Quay lại chọn phương thức
+              </button>
+            </div>
+          )}
+
+          {paymentStep === 'bank' && (
+            <div className="space-y-4">
+              <div className="bg-[#0a1a0d] border border-[#1e3d23] rounded-xl p-4 text-center">
+                <img
+                  src={buildVietQRUrl({
+                    bankId,
+                    bankAccount,
+                    bankAccountName,
+                    amount: finalAmount,
+                    invoiceNumber: `HD${String(session.id).padStart(5, '0')}`,
+                  })}
+                  alt="QR Chuyển khoản"
+                  className="mx-auto w-48 h-48 rounded-lg"
+                />
+                <p className="text-sm text-[#6b7280] mt-2">{bankId} • {bankAccount}</p>
+                <p className="text-sm text-white font-medium">{bankAccountName}</p>
+                <p className="text-[#d4af37] font-bold text-lg mt-1">{formatCurrency(finalAmount)}</p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+                  disabled={checkoutMutation.isPending || !!pointsError}
+                  onClick={() => checkoutMutation.mutate({ print: true })}
+                >
+                  Đã nhận tiền + In HĐ
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
+                  disabled={checkoutMutation.isPending || !!pointsError}
+                  onClick={() => checkoutMutation.mutate({ print: false })}
+                >
+                  Đã nhận tiền
+                </Button>
+              </div>
+              <button
+                className="w-full text-xs text-[#6b7280] hover:text-white text-center"
+                onClick={() => setPaymentStep('select')}
+              >
+                ← Quay lại chọn phương thức
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
