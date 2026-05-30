@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog'
+import Pagination from '../components/Pagination'
 
 type ModalMode = 'create' | 'edit' | 'stock' | null
 
@@ -20,11 +21,15 @@ export default function ProductsPage() {
   const [stockQty, setStockQty] = useState(0)
   const [stockNote, setStockNote] = useState('')
   const [stockCostPrice, setStockCostPrice] = useState<number | ''>('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => api().products.getAll(),
+  const { data: productResult } = useQuery({
+    queryKey: ['products', page, pageSize],
+    queryFn: () => api().products.getPage({ page, pageSize }),
   })
+  const products = productResult?.data ?? []
+  const productTotal = productResult?.total ?? 0
 
   const createMutation = useMutation({
     mutationFn: () => api().products.create({ ...form, price: Number(form.price), category: form.category as Product['category'] }),
@@ -118,6 +123,14 @@ export default function ProductsPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        total={productTotal}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
+      />
 
       <Dialog open={mode === 'create' || mode === 'edit'} onOpenChange={(o) => !o && setMode(null)}>
         <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
