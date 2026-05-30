@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import type { StockTransaction } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -56,25 +55,25 @@ export default function StockHistoryPage() {
   }
 
   const typeBadge = (type: StockTransaction['type']) => {
-    if (type === 'in') return <Badge className="bg-green-700 text-green-100 text-xs">Nhập</Badge>
-    if (type === 'out') return <Badge className="bg-red-700 text-red-100 text-xs">Xuất</Badge>
-    return <Badge className="bg-yellow-700 text-yellow-100 text-xs">Điều chỉnh</Badge>
+    if (type === 'in') return <span className="bg-[#14532d] text-green-400 text-xs border-0 px-2 py-0.5 rounded-full">Nhập</span>
+    if (type === 'out') return <span className="bg-[#7f1d1d] text-red-400 text-xs border-0 px-2 py-0.5 rounded-full">Xuất</span>
+    return <span className="bg-[#292524] text-yellow-400 text-xs border-0 px-2 py-0.5 rounded-full">Điều chỉnh</span>
   }
 
   const qtyDisplay = (type: StockTransaction['type'], qty: number) => {
-    if (type === 'out') return <span className="text-red-400">−{qty}</span>
-    return <span className="text-green-400">+{qty}</span>
+    if (type === 'out') return <span className="text-red-400 font-mono">−{qty}</span>
+    return <span className="text-green-400 font-mono">+{qty}</span>
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Lịch sử kho</h1>
+      <h1 className="text-2xl font-bold text-[#d4af37] mb-6">Lịch sử kho</h1>
 
       <div className="flex flex-wrap gap-3 mb-6 items-end">
         <div>
-          <p className="text-xs text-gray-400 mb-1">Sản phẩm</p>
+          <p className="text-xs text-[#6b7280] mb-1">Sản phẩm</p>
           <Input
-            className="bg-gray-800 border-gray-600 w-48"
+            className="bg-[#162a1a] border-[#1e3d23] text-white w-48"
             placeholder="Tìm tên sản phẩm..."
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
@@ -82,25 +81,25 @@ export default function StockHistoryPage() {
           />
         </div>
         <div>
-          <p className="text-xs text-gray-400 mb-1">Từ ngày</p>
+          <p className="text-xs text-[#6b7280] mb-1">Từ ngày</p>
           <Input
             type="date"
-            className="bg-gray-800 border-gray-600 w-40"
+            className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
           />
         </div>
         <div>
-          <p className="text-xs text-gray-400 mb-1">Đến ngày</p>
+          <p className="text-xs text-[#6b7280] mb-1">Đến ngày</p>
           <Input
             type="date"
-            className="bg-gray-800 border-gray-600 w-40"
+            className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
           />
         </div>
         <Button
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
           onClick={handleFilter}
           disabled={isFetching}
         >
@@ -108,34 +107,34 @@ export default function StockHistoryPage() {
         </Button>
       </div>
 
-      <div className="bg-gray-900 rounded-xl overflow-hidden">
+      <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400">
-              <th className="text-left p-3">Thời gian</th>
-              <th className="text-left p-3">Sản phẩm</th>
-              <th className="text-left p-3">Loại</th>
-              <th className="text-right p-3">Số lượng</th>
-              <th className="text-right p-3">Trước</th>
-              <th className="text-right p-3">Sau</th>
-              <th className="text-left p-3">Ghi chú</th>
+            <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thời gian</th>
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Sản phẩm</th>
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Số lượng</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Trước</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Sau</th>
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Ghi chú</th>
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id} className="border-b border-gray-800 hover:bg-gray-800">
-                <td className="p-3 text-gray-400 whitespace-nowrap">{formatDateTime(t.created_at)}</td>
-                <td className="p-3 font-medium">{t.product_name}</td>
-                <td className="p-3">{typeBadge(t.type)}</td>
-                <td className="p-3 text-right font-mono">{qtyDisplay(t.type, t.quantity)}</td>
-                <td className="p-3 text-right text-gray-400">{t.before_qty}</td>
-                <td className="p-3 text-right">{t.after_qty}</td>
-                <td className="p-3 text-gray-400 text-xs">{t.note ?? '—'}</td>
+            {transactions.map((t, i) => (
+              <tr key={t.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                <td className="px-4 py-3 text-[#6b7280] whitespace-nowrap">{formatDateTime(t.created_at)}</td>
+                <td className="px-4 py-3 font-medium text-[#e2e8f0]">{t.product_name}</td>
+                <td className="px-4 py-3">{typeBadge(t.type)}</td>
+                <td className="px-4 py-3 text-right">{qtyDisplay(t.type, t.quantity)}</td>
+                <td className="px-4 py-3 text-right text-[#6b7280]">{t.before_qty}</td>
+                <td className="px-4 py-3 text-right text-[#e2e8f0]">{t.after_qty}</td>
+                <td className="px-4 py-3 text-[#6b7280] text-xs">{t.note ?? '—'}</td>
               </tr>
             ))}
             {transactions.length === 0 && !isFetching && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-gray-500">
+                <td colSpan={7} className="p-8 text-center text-[#6b7280]">
                   Không có giao dịch nào trong khoảng thời gian này
                 </td>
               </tr>
@@ -145,7 +144,7 @@ export default function StockHistoryPage() {
       </div>
 
       {transactions.length === 500 && (
-        <p className="text-xs text-gray-500 mt-2 text-center">Hiển thị tối đa 500 bản ghi gần nhất</p>
+        <p className="text-xs text-[#6b7280] mt-2 text-center">Hiển thị tối đa 500 bản ghi gần nhất</p>
       )}
     </div>
   )

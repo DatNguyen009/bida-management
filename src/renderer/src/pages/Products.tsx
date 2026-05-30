@@ -6,7 +6,6 @@ import { formatCurrency } from '../lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog'
@@ -54,51 +53,54 @@ export default function ProductsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
+        <h1 className="text-xl font-bold text-[#d4af37]">Quản lý sản phẩm</h1>
         <Button onClick={() => { setForm({ name: '', category: 'drink', price: 0, unit: 'lon', min_stock_alert: 5 }); setMode('create') }}
-          className="bg-green-700 hover:bg-green-600">
+          className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors">
           + Thêm sản phẩm
         </Button>
       </div>
 
       {lowStockProducts.length > 0 && (
-        <div className="bg-red-900 border border-red-500 rounded-lg p-3 mb-4">
-          <p className="text-red-300 font-medium">⚠️ Sắp hết hàng: {lowStockProducts.map((p) => p.name).join(', ')}</p>
+        <div className="bg-[#2d1515] border border-red-800 rounded-xl p-3 mb-4 text-red-400 font-medium">
+          ⚠️ Sắp hết hàng: {lowStockProducts.map((p) => p.name).join(', ')}
         </div>
       )}
 
-      <div className="bg-gray-900 rounded-xl overflow-hidden">
+      <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400">
-              <th className="text-left p-3">Tên</th>
-              <th className="text-left p-3">Loại</th>
-              <th className="text-right p-3">Giá</th>
-              <th className="text-right p-3">Tồn kho</th>
-              <th className="text-right p-3">Thao tác</th>
+            <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
+              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-800">
-                <td className="p-3">{p.name}</td>
-                <td className="p-3">
-                  <Badge variant="outline" className="text-xs">
-                    {p.category === 'drink' ? '🥤 Đồ uống' : p.category === 'food' ? '🍜 Đồ ăn' : 'Khác'}
-                  </Badge>
+            {products.map((p, i) => (
+              <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                <td className="px-4 py-3 text-[#e2e8f0]">{p.name}</td>
+                <td className="px-4 py-3">
+                  {p.category === 'drink'
+                    ? <span className="bg-[#14532d] text-green-400 text-xs px-2 py-0.5 rounded-full border-0">🥤 Đồ uống</span>
+                    : p.category === 'food'
+                    ? <span className="bg-[#292524] text-orange-400 text-xs px-2 py-0.5 rounded-full border-0">🍜 Đồ ăn</span>
+                    : <span className="bg-[#1e3d23] text-gray-400 text-xs px-2 py-0.5 rounded-full border-0">Khác</span>
+                  }
                 </td>
-                <td className="p-3 text-right text-green-400">{formatCurrency(p.price)}</td>
-                <td className="p-3 text-right">
-                  <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400' : ''}>
+                <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
+                <td className="px-4 py-3 text-right">
+                  <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
                     {p.stock_quantity} {p.unit}
                   </span>
                 </td>
-                <td className="p-3 text-right space-x-2">
-                  <Button size="sm" variant="outline" className="border-gray-600 h-7 text-xs"
+                <td className="px-4 py-3 text-right space-x-1">
+                  <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
                     onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
                     Nhập kho
                   </Button>
-                  <Button size="sm" variant="outline" className="border-gray-600 h-7 text-xs"
+                  <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
                     onClick={() => {
                       setSelected(p)
                       setForm({ name: p.name, category: p.category, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert })
@@ -106,7 +108,7 @@ export default function ProductsPage() {
                     }}>
                     Sửa
                   </Button>
-                  <Button size="sm" variant="ghost" className="text-red-400 h-7 text-xs"
+                  <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
                     onClick={() => deactivateMutation.mutate(p.id)}>
                     Xoá
                   </Button>
@@ -118,27 +120,27 @@ export default function ProductsPage() {
       </div>
 
       <Dialog open={mode === 'create' || mode === 'edit'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
           <DialogHeader>
             <DialogTitle>{mode === 'create' ? 'Thêm sản phẩm' : 'Sửa sản phẩm'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div><Label>Tên</Label>
-              <Input className="mt-1 bg-gray-800 border-gray-600" value={form.name}
+              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div><Label>Giá (đồng)</Label>
-              <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={form.price}
+              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.price}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} /></div>
             <div><Label>Đơn vị</Label>
-              <Input className="mt-1 bg-gray-800 border-gray-600" value={form.unit}
+              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.unit}
                 onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
             <div><Label>Cảnh báo tồn dưới</Label>
-              <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={form.min_stock_alert}
+              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.min_stock_alert}
                 onChange={(e) => setForm({ ...form, min_stock_alert: Number(e.target.value) })} /></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-gray-600">Huỷ</Button>
-            <Button className="bg-green-700 hover:bg-green-600"
+            <Button variant="outline" onClick={() => setMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
+            <Button className="bg-[#d4af37] text-[#0d1f12] font-bold"
               onClick={() => mode === 'create' ? createMutation.mutate() : updateMutation.mutate()}>
               Lưu
             </Button>
@@ -147,29 +149,29 @@ export default function ProductsPage() {
       </Dialog>
 
       <Dialog open={mode === 'stock'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
           <DialogHeader>
             <DialogTitle>Nhập kho — {selected?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[#6b7280]">
               Tồn hiện tại: <span className="text-white">{selected?.stock_quantity} {selected?.unit}</span>
             </p>
             <div>
               <Label>Số lượng nhập thêm</Label>
-              <Input type="number" className="mt-1 bg-gray-800 border-gray-600" value={stockQty}
+              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={stockQty}
                 onChange={(e) => setStockQty(Number(e.target.value))} />
             </div>
             <div>
               <Label>Giá nhập (đ/đơn vị) — tuỳ chọn</Label>
-              <Input type="number" className="mt-1 bg-gray-800 border-gray-600"
+              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1"
                 placeholder="Để trống nếu không cần theo dõi"
                 value={stockCostPrice}
                 onChange={(e) => setStockCostPrice(e.target.value === '' ? '' : Number(e.target.value))} />
             </div>
             <div>
               <Label>Ghi chú</Label>
-              <Input className="mt-1 bg-gray-800 border-gray-600" value={stockNote}
+              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={stockNote}
                 onChange={(e) => setStockNote(e.target.value)} />
             </div>
             {stockQty > 0 && (
@@ -179,8 +181,8 @@ export default function ProductsPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-gray-600">Huỷ</Button>
-            <Button className="bg-green-700 hover:bg-green-600" onClick={() => stockMutation.mutate()}>
+            <Button variant="outline" onClick={() => setMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
+            <Button className="bg-[#d4af37] text-[#0d1f12] font-bold" onClick={() => stockMutation.mutate()}>
               Nhập kho
             </Button>
           </DialogFooter>
