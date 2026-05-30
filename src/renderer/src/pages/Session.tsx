@@ -41,6 +41,12 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session?.id] }),
   })
 
+  const adjustQtyMutation = useMutation({
+    mutationFn: ({ itemId, delta }: { itemId: number; delta: number }) =>
+      api().orderItems.adjustQty(itemId, delta),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session?.id] }),
+  })
+
   useEffect(() => {
     if (!session) return
     setSeconds(elapsedSeconds(session.start_time))
@@ -87,7 +93,11 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
             + Gọi
           </button>
         </div>
-        <OrderList items={orderItems} onRemove={(id) => removeItemMutation.mutate(id)} />
+        <OrderList
+          items={orderItems}
+          onRemove={(id) => removeItemMutation.mutate(id)}
+          onAdjust={(id, delta) => adjustQtyMutation.mutate({ itemId: id, delta })}
+        />
         {itemsAmount > 0 && (
           <div className="mt-3 pt-3 border-t border-[#1e3d23] flex justify-between text-sm">
             <span className="text-[#6b7280]">Tổng đồ uống:</span>

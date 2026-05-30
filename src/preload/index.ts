@@ -42,6 +42,8 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('orderItems:get', sessionId),
     remove: (itemId: number): Promise<void> =>
       ipcRenderer.invoke('orderItems:remove', itemId),
+    adjustQty: (itemId: number, delta: number): Promise<void> =>
+      ipcRenderer.invoke('orderItems:adjustQty', itemId, delta),
   },
   invoices: {
     create: (input: InvoiceCreateInput): Promise<Invoice | null> =>

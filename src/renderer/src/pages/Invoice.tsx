@@ -110,6 +110,12 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session.id] }),
   })
 
+  const adjustQtyMutation = useMutation({
+    mutationFn: ({ itemId, delta }: { itemId: number; delta: number }) =>
+      api().orderItems.adjustQty(itemId, delta),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orderItems', session.id] }),
+  })
+
   const checkoutMutation = useMutation({
     mutationFn: async ({ print }: { print: boolean }) => {
       await api().sessions.close(session.id, playAmount)
@@ -176,7 +182,11 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               + Thêm
             </Button>
           </div>
-          <OrderList items={orderItems} onRemove={(id) => removeItemMutation.mutate(id)} />
+          <OrderList
+            items={orderItems}
+            onRemove={(id) => removeItemMutation.mutate(id)}
+            onAdjust={(id, delta) => adjustQtyMutation.mutate({ itemId: id, delta })}
+          />
         </div>
 
         <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 space-y-3">

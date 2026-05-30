@@ -46,6 +46,24 @@ export async function removeOrderItem(itemId: number): Promise<void> {
   )
 }
 
+export async function adjustOrderItemQty(itemId: number, delta: number): Promise<void> {
+  const agentId = getAgentId()
+  const item = await queryOne<{ quantity: number; unit_price: number }>(
+    'SELECT quantity, unit_price FROM cloud_order_items WHERE id = $1 AND agent_id = $2',
+    [itemId, agentId]
+  )
+  if (!item) return
+  const newQty = item.quantity + delta
+  if (newQty <= 0) {
+    await queryOne('DELETE FROM cloud_order_items WHERE id = $1 AND agent_id = $2 RETURNING id', [itemId, agentId])
+  } else {
+    await queryOne(
+      'UPDATE cloud_order_items SET quantity = $1, subtotal = $2 WHERE id = $3 AND agent_id = $4 RETURNING id',
+      [newQty, newQty * item.unit_price, itemId, agentId]
+    )
+  }
+}
+
 export async function getOrderTotal(sessionId: number): Promise<number> {
   const agentId = getAgentId()
   const result = await queryOne<{ total: string }>(
@@ -62,5 +80,6 @@ export function registerOrderItemHandlers() {
   )
   ipcMain.handle('orderItems:get', (_e, sessionId: number) => getOrderItems(sessionId))
   ipcMain.handle('orderItems:remove', (_e, itemId: number) => removeOrderItem(itemId))
+  ipcMain.handle('orderItems:adjustQty', (_e, itemId: number, delta: number) => adjustOrderItemQty(itemId, delta))
   ipcMain.handle('orderItems:total', (_e, sessionId: number) => getOrderTotal(sessionId))
 }

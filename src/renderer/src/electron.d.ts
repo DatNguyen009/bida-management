@@ -27,6 +27,7 @@ declare global {
         add(sessionId: number, productId: number, quantity: number, unitPrice: number): Promise<OrderItem | null>
         get(sessionId: number): Promise<(OrderItem & { product_name: string })[]>
         remove(itemId: number): Promise<void>
+        adjustQty(itemId: number, delta: number): Promise<void>
       }
       invoices: {
         create(input: InvoiceCreateInput): Promise<Invoice | null>
