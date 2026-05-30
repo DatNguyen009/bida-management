@@ -4,6 +4,7 @@ import type { StockTransaction } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Pagination from '../components/Pagination'
+import TableSkeleton from '../components/TableSkeleton'
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -37,7 +38,7 @@ export default function StockHistoryPage() {
     queryFn: () => window.api.products.getAll(),
   })
 
-  const { data: stockResult, isFetching } = useQuery({
+  const { data: stockResult, isFetching, isLoading } = useQuery({
     queryKey: ['stockHistory', appliedFilter, page, pageSize],
     queryFn: () => {
       const matchedProduct = appliedFilter.productFilter
@@ -129,23 +130,33 @@ export default function StockHistoryPage() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t, i) => (
-              <tr key={t.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
-                <td className="px-4 py-3 text-[#6b7280] whitespace-nowrap">{formatDateTime(t.created_at)}</td>
-                <td className="px-4 py-3 font-medium text-[#e2e8f0]">{t.product_name}</td>
-                <td className="px-4 py-3">{typeBadge(t.type)}</td>
-                <td className="px-4 py-3 text-right">{qtyDisplay(t.type, t.quantity)}</td>
-                <td className="px-4 py-3 text-right text-[#6b7280]">{t.before_qty}</td>
-                <td className="px-4 py-3 text-right text-[#e2e8f0]">{t.after_qty}</td>
-                <td className="px-4 py-3 text-[#6b7280] text-xs">{t.note ?? '—'}</td>
-              </tr>
-            ))}
-            {transactions.length === 0 && !isFetching && (
+            {isLoading ? (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-[#6b7280]">
-                  Không có giao dịch nào trong khoảng thời gian này
+                <td colSpan={7}>
+                  <TableSkeleton rows={pageSize} cols={5} />
                 </td>
               </tr>
+            ) : (
+              <>
+                {transactions.map((t, i) => (
+                  <tr key={t.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                    <td className="px-4 py-3 text-[#6b7280] whitespace-nowrap">{formatDateTime(t.created_at)}</td>
+                    <td className="px-4 py-3 font-medium text-[#e2e8f0]">{t.product_name}</td>
+                    <td className="px-4 py-3">{typeBadge(t.type)}</td>
+                    <td className="px-4 py-3 text-right">{qtyDisplay(t.type, t.quantity)}</td>
+                    <td className="px-4 py-3 text-right text-[#6b7280]">{t.before_qty}</td>
+                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{t.after_qty}</td>
+                    <td className="px-4 py-3 text-[#6b7280] text-xs">{t.note ?? '—'}</td>
+                  </tr>
+                ))}
+                {transactions.length === 0 && !isFetching && (
+                  <tr>
+                    <td colSpan={7} className="p-8 text-center text-[#6b7280]">
+                      Không có giao dịch nào trong khoảng thời gian này
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>

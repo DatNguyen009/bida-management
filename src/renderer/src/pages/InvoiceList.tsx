@@ -4,6 +4,7 @@ import type { InvoiceListRow, InvoiceOrderItem } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Pagination from '../components/Pagination'
+import TableSkeleton from '../components/TableSkeleton'
 import { formatCurrency } from '../lib/utils'
 
 function today(): string {
@@ -29,7 +30,7 @@ export default function InvoiceListPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
 
-  const { data: invoiceResult, isFetching } = useQuery({
+  const { data: invoiceResult, isFetching, isLoading } = useQuery({
     queryKey: ['invoiceList', appliedFilter, page, pageSize],
     queryFn: () => window.api.invoices.getList({
       fromDate: appliedFilter.fromDate || undefined,
@@ -77,50 +78,54 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">#</th>
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thời gian</th>
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Bàn</th>
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Khách hàng</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Chơi</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Đồ uống</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tổng</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Điểm</th>
-                <th className="text-center px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">In</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map((inv, i) => (
-                <tr
-                  key={inv.id}
-                  className={`border-b border-[#1e3d23] cursor-pointer transition-colors
-                    ${selected?.id === inv.id
-                      ? 'bg-[#1e3d23]'
-                      : `hover:bg-[#162a1a] ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}`}
-                  onClick={() => setSelected(inv)}
-                >
-                  <td className="px-4 py-3 font-mono text-[#6b7280]">{inv.invoice_number}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-[#e2e8f0]">{formatDateTime(inv.created_at)}</td>
-                  <td className="px-4 py-3 text-[#e2e8f0]">{inv.table_name ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#e2e8f0]">{inv.customer_name ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.play_amount)}</td>
-                  <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.items_amount)}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-green-400">{formatCurrency(inv.final_amount)}</td>
-                  <td className="px-4 py-3 text-right text-[#d4af37]">+{inv.points_earned}</td>
-                  <td className="px-4 py-3 text-center text-[#e2e8f0]">{inv.printed_at ? '✓' : '—'}</td>
+          {isLoading ? (
+            <TableSkeleton rows={pageSize} cols={5} />
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">#</th>
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thời gian</th>
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Bàn</th>
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Khách hàng</th>
+                  <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Chơi</th>
+                  <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Đồ uống</th>
+                  <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tổng</th>
+                  <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Điểm</th>
+                  <th className="text-center px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">In</th>
                 </tr>
-              ))}
-              {invoices.length === 0 && !isFetching && (
-                <tr>
-                  <td colSpan={9} className="p-8 text-center text-[#6b7280]">
-                    Không có hóa đơn nào trong khoảng thời gian này
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {invoices.map((inv, i) => (
+                  <tr
+                    key={inv.id}
+                    className={`border-b border-[#1e3d23] cursor-pointer transition-colors
+                      ${selected?.id === inv.id
+                        ? 'bg-[#1e3d23]'
+                        : `hover:bg-[#162a1a] ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}`}
+                    onClick={() => setSelected(inv)}
+                  >
+                    <td className="px-4 py-3 font-mono text-[#6b7280]">{inv.invoice_number}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-[#e2e8f0]">{formatDateTime(inv.created_at)}</td>
+                    <td className="px-4 py-3 text-[#e2e8f0]">{inv.table_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-[#e2e8f0]">{inv.customer_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.play_amount)}</td>
+                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.items_amount)}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-green-400">{formatCurrency(inv.final_amount)}</td>
+                    <td className="px-4 py-3 text-right text-[#d4af37]">+{inv.points_earned}</td>
+                    <td className="px-4 py-3 text-center text-[#e2e8f0]">{inv.printed_at ? '✓' : '—'}</td>
+                  </tr>
+                ))}
+                {invoices.length === 0 && !isFetching && (
+                  <tr>
+                    <td colSpan={9} className="p-8 text-center text-[#6b7280]">
+                      Không có hóa đơn nào trong khoảng thời gian này
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <Pagination

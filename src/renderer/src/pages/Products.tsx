@@ -10,6 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from '@/components/ui/dialog'
 import Pagination from '../components/Pagination'
+import TableSkeleton from '../components/TableSkeleton'
 
 type ModalMode = 'create' | 'edit' | 'stock' | null
 
@@ -24,7 +25,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
 
-  const { data: productResult } = useQuery({
+  const { data: productResult, isLoading } = useQuery({
     queryKey: ['products', page, pageSize],
     queryFn: () => api().products.getPage({ page, pageSize }),
   })
@@ -72,56 +73,60 @@ export default function ProductsPage() {
       )}
 
       <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
-              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
-              <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
-              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
-              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
-              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p, i) => (
-              <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
-                <td className="px-4 py-3 text-[#e2e8f0]">{p.name}</td>
-                <td className="px-4 py-3">
-                  {p.category === 'drink'
-                    ? <span className="bg-[#14532d] text-green-400 text-xs px-2 py-0.5 rounded-full border-0">🥤 Đồ uống</span>
-                    : p.category === 'food'
-                    ? <span className="bg-[#292524] text-orange-400 text-xs px-2 py-0.5 rounded-full border-0">🍜 Đồ ăn</span>
-                    : <span className="bg-[#1e3d23] text-gray-400 text-xs px-2 py-0.5 rounded-full border-0">Khác</span>
-                  }
-                </td>
-                <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
-                <td className="px-4 py-3 text-right">
-                  <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
-                    {p.stock_quantity} {p.unit}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right space-x-1">
-                  <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
-                    onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
-                    Nhập kho
-                  </Button>
-                  <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
-                    onClick={() => {
-                      setSelected(p)
-                      setForm({ name: p.name, category: p.category, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert })
-                      setMode('edit')
-                    }}>
-                    Sửa
-                  </Button>
-                  <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
-                    onClick={() => deactivateMutation.mutate(p.id)}>
-                    Xoá
-                  </Button>
-                </td>
+        {isLoading ? (
+          <TableSkeleton rows={pageSize} cols={5} />
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
+                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
+                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
+                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
+                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.map((p, i) => (
+                <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                  <td className="px-4 py-3 text-[#e2e8f0]">{p.name}</td>
+                  <td className="px-4 py-3">
+                    {p.category === 'drink'
+                      ? <span className="bg-[#14532d] text-green-400 text-xs px-2 py-0.5 rounded-full border-0">🥤 Đồ uống</span>
+                      : p.category === 'food'
+                      ? <span className="bg-[#292524] text-orange-400 text-xs px-2 py-0.5 rounded-full border-0">🍜 Đồ ăn</span>
+                      : <span className="bg-[#1e3d23] text-gray-400 text-xs px-2 py-0.5 rounded-full border-0">Khác</span>
+                    }
+                  </td>
+                  <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
+                      {p.stock_quantity} {p.unit}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right space-x-1">
+                    <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
+                      onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
+                      Nhập kho
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                      onClick={() => {
+                        setSelected(p)
+                        setForm({ name: p.name, category: p.category, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert })
+                        setMode('edit')
+                      }}>
+                      Sửa
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
+                      onClick={() => deactivateMutation.mutate(p.id)}>
+                      Xoá
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <Pagination
