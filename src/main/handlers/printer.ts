@@ -70,6 +70,24 @@ export async function printInvoice(
   printer.bold(false)
   printer.setTextNormal()
 
+  printer.drawLine()
+  printer.alignLeft()
+  if (input.paymentMethod === 'bank_transfer') {
+    printer.println('Thanh toan: Chuyen khoan')
+  } else {
+    printer.println('Thanh toan: Tien mat')
+  }
+
+  if (input.paymentMethod === 'bank_transfer' && input.bankId && input.bankAccount) {
+    const qrUrl = `https://img.vietqr.io/image/${input.bankId}-${input.bankAccount}-compact2.png` +
+      `?amount=${input.finalAmount}&addInfo=HD${String(input.sessionId).padStart(5,'0')}` +
+      `&accountName=${encodeURIComponent(input.bankAccountName ?? '')}`
+    printer.alignCenter()
+    printer.printQR(qrUrl, { cellSize: 6, correction: 'M', model: 2 })
+    printer.println(`${input.bankId} - ${input.bankAccount}`)
+    printer.setTextNormal()
+  }
+
   if (input.pointsEarned > 0 && input.customerName) {
     printer.drawLine()
     printer.println(`Diem tich them: +${input.pointsEarned} diem`)

@@ -78,6 +78,9 @@ export interface InvoiceCreateInput {
   customerName?: string
   customerPhone?: string
   customerPoints?: number
+  bankId?: string
+  bankAccount?: string
+  bankAccountName?: string
 }
 
 export interface Customer {

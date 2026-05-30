@@ -84,6 +84,9 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     customerPhone: selectedCustomer?.phone,
     customerPoints: selectedCustomer?.points_balance,
     paymentMethod,
+    bankId,
+    bankAccount,
+    bankAccountName,
   }
 
   const findCustomerMutation = useMutation({
