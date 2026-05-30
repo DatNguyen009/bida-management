@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS invoices (
   discount_from_points DECIMAL(10,0) NOT NULL DEFAULT 0,
   final_amount DECIMAL(10,0) NOT NULL,
   points_earned INT NOT NULL DEFAULT 0,
+  payment_method VARCHAR(20) NOT NULL DEFAULT 'cash',
   printed_at TIMESTAMPTZ NULL,
   agent_id UUID NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
