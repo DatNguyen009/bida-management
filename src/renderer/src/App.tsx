@@ -39,14 +39,22 @@ export default function App() {
 
   if (authState === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bida-bg">
-        <p className="text-gray-500 text-sm">Đang tải...</p>
-      </div>
+      <>
+        <Toaster position="top-right" richColors theme="dark" />
+        <div className="min-h-screen flex items-center justify-center bg-bida-bg">
+          <p className="text-gray-500 text-sm">Đang tải...</p>
+        </div>
+      </>
     )
   }
 
   if (authState === 'unauthenticated') {
-    return <LoginPage onLogin={() => setAuthState('authenticated')} />
+    return (
+      <>
+        <Toaster position="top-right" richColors theme="dark" />
+        <LoginPage onLogin={() => setAuthState('authenticated')} />
+      </>
+    )
   }
 
   const handleCheckout = (
