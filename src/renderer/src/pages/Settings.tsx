@@ -30,6 +30,9 @@ export default function SettingsPage() {
   const [pointsPer10k, setPointsPer10k] = useState('')
   const [vndPerPoint, setVndPerPoint] = useState('')
   const [saved, setSaved] = useState(false)
+  const [bankId, setBankId] = useState('')
+  const [bankAccount, setBankAccount] = useState('')
+  const [bankAccountName, setBankAccountName] = useState('')
 
   useEffect(() => {
     setShopName(getVal('shop_name'))
@@ -37,6 +40,9 @@ export default function SettingsPage() {
     setPhone(getVal('phone'))
     setDefaultRate(getVal('default_hourly_rate'))
     setPrinterPath(getVal('printer_path') || 'USB001')
+    setBankId(getVal('bank_id'))
+    setBankAccount(getVal('bank_account'))
+    setBankAccountName(getVal('bank_account_name'))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings])
 
@@ -54,6 +60,9 @@ export default function SettingsPage() {
         ['phone', phone],
         ['default_hourly_rate', defaultRate],
         ['printer_path', printerPath],
+        ['bank_id', bankId],
+        ['bank_account', bankAccount],
+        ['bank_account_name', bankAccountName],
       ]
       for (const [key, value] of pairs) {
         await api().settings.set(key, value)
@@ -101,6 +110,40 @@ export default function SettingsPage() {
               onChange={(e) => setPrinterPath(e.target.value)}
               placeholder="USB001 hoặc COM3" />
             <p className="text-xs text-[#6b7280] mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
+          </div>
+        </section>
+
+        <section className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-5 space-y-4">
+          <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tài khoản ngân hàng</h2>
+          <div>
+            <Label className="text-[#6b7280] text-xs">Mã ngân hàng (VietQR)</Label>
+            <Input
+              className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]"
+              value={bankId}
+              onChange={(e) => setBankId(e.target.value.toUpperCase())}
+              placeholder="VD: MB, VCB, TCB, ACB, TPB"
+            />
+            <p className="text-xs text-[#6b7280] mt-1">
+              Tra cứu mã tại: img.vietqr.io/danh-sach-ngan-hang
+            </p>
+          </div>
+          <div>
+            <Label className="text-[#6b7280] text-xs">Số tài khoản</Label>
+            <Input
+              className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]"
+              value={bankAccount}
+              onChange={(e) => setBankAccount(e.target.value)}
+              placeholder="VD: 1234567890"
+            />
+          </div>
+          <div>
+            <Label className="text-[#6b7280] text-xs">Tên chủ tài khoản</Label>
+            <Input
+              className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 focus:border-[#d4af37]"
+              value={bankAccountName}
+              onChange={(e) => setBankAccountName(e.target.value.toUpperCase())}
+              placeholder="VD: NGUYEN VAN A"
+            />
           </div>
         </section>
 
