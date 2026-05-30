@@ -1,6 +1,7 @@
 // src/main/handlers/auth.ts
 import { ipcMain } from 'electron'
 import { authStore, getAccessToken } from '../lib/authStore'
+import { ensureDefaultCategories } from './categories'
 
 const API_BASE = import.meta.env.MAIN_VITE_API_URL ?? 'http://localhost:4000/api/v1'
 
@@ -34,6 +35,9 @@ export function registerAuthHandlers(): void {
     authStore.set('expiresAt', parseExpiry(data.accessToken))
     authStore.set('role', data.role)
     authStore.set('agentId', data.agentId)
+    if (data.agentId) {
+      await ensureDefaultCategories(data.agentId)
+    }
     return { role: data.role, agentId: data.agentId }
   })
 

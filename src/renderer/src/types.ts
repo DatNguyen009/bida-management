@@ -21,7 +21,9 @@ export interface Session {
 export interface Product {
   id: number
   name: string
-  category: 'drink' | 'food' | 'other'
+  category_id: number
+  category_name: string
+  category_icon: string
   price: number
   stock_quantity: number
   min_stock_alert: number
@@ -150,4 +152,10 @@ export interface RecipeItem {
   ingredient_id: number
   ingredient_name: string
   quantity: number
+}
+
+export interface Category {
+  id: number
+  name: string
+  icon: string
 }
