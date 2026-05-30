@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Toaster } from 'sonner'
 import Dashboard from './pages/Dashboard'
 import SessionPage from './pages/Session'
 import InvoicePage from './pages/Invoice'
@@ -39,22 +38,14 @@ export default function App() {
 
   if (authState === 'checking') {
     return (
-      <>
-        <Toaster position="top-right" richColors theme="dark" />
-        <div className="min-h-screen flex items-center justify-center bg-bida-bg">
-          <p className="text-gray-500 text-sm">Đang tải...</p>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-bida-bg">
+        <p className="text-gray-500 text-sm">Đang tải...</p>
+      </div>
     )
   }
 
   if (authState === 'unauthenticated') {
-    return (
-      <>
-        <Toaster position="top-right" richColors theme="dark" />
-        <LoginPage onLogin={() => setAuthState('authenticated')} />
-      </>
-    )
+    return <LoginPage onLogin={() => setAuthState('authenticated')} />
   }
 
   const handleCheckout = (
@@ -78,7 +69,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-bida-bg text-white overflow-hidden">
-      <Toaster position="top-right" richColors theme="dark" />
       {/* Sidebar */}
       <aside className="w-40 flex-shrink-0 bg-bida-sidebar border-r-2 border-[#d4af37] flex flex-col">
         <div className="px-4 py-4 border-b border-bida-border">
