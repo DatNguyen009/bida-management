@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -24,13 +24,15 @@ contextBridge.exposeInMainWorld('api', {
   products: {
     getAll: (): Promise<Product[]> =>
       ipcRenderer.invoke('products:getAll'),
+    getPage: (input: { page: number; pageSize: number }): Promise<PageResult<Product>> =>
+      ipcRenderer.invoke('products:getPage', input),
     create: (input: Omit<Product, 'id' | 'created_at' | 'stock_quantity' | 'is_active'>): Promise<Product | null> =>
       ipcRenderer.invoke('products:create', input),
     update: (id: number, input: Partial<Product>): Promise<Product | null> =>
       ipcRenderer.invoke('products:update', id, input),
     adjustStock: (id: number, type: 'in' | 'out' | 'adjust', qty: number, note: string, costPrice: number | null): Promise<Product | null> =>
       ipcRenderer.invoke('products:adjustStock', id, type, qty, note, costPrice),
-    getStockHistory: (input: { productId?: number; fromDate?: string; toDate?: string }): Promise<StockTransaction[]> =>
+    getStockHistory: (input: { productId?: number; fromDate?: string; toDate?: string; page: number; pageSize: number }): Promise<PageResult<StockTransaction>> =>
       ipcRenderer.invoke('products:getStockHistory', input),
   },
   orderItems: {
@@ -46,7 +48,7 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('invoices:create', input),
     print: (invoiceId: number, input: InvoiceCreateInput, invoiceNumber: string, printerPath: string): Promise<void> =>
       ipcRenderer.invoke('invoices:print', invoiceId, input, invoiceNumber, printerPath),
-    getList: (input: { fromDate?: string; toDate?: string }): Promise<InvoiceListRow[]> =>
+    getList: (input: { fromDate?: string; toDate?: string; page: number; pageSize: number }): Promise<PageResult<InvoiceListRow>> =>
       ipcRenderer.invoke('invoices:getList', input),
     getOrderItems: (sessionId: number): Promise<InvoiceOrderItem[]> =>
       ipcRenderer.invoke('invoices:getOrderItems', sessionId),
