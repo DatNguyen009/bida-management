@@ -12,6 +12,14 @@ export async function findCustomerByPhone(phone: string): Promise<Customer | nul
   )
 }
 
+export async function searchCustomersByPhone(prefix: string): Promise<Customer[]> {
+  const agentId = getAgentId()
+  return query<Customer>(
+    'SELECT * FROM cloud_customers WHERE phone LIKE $1 AND agent_id = $2 ORDER BY total_spent DESC',
+    [prefix + '%', agentId]
+  )
+}
+
 export async function getAllCustomers(): Promise<Customer[]> {
   const agentId = getAgentId()
   return query<Customer>(
@@ -66,6 +74,7 @@ export async function getCustomerInvoices(customerId: number) {
 
 export function registerCustomerHandlers() {
   ipcMain.handle('customers:findByPhone', (_e, phone: string) => findCustomerByPhone(phone))
+  ipcMain.handle('customers:searchByPhone', (_e, prefix: string) => searchCustomersByPhone(prefix))
   ipcMain.handle('customers:getAll', () => getAllCustomers())
   ipcMain.handle('customers:create', (_e, input) => createCustomer(input))
   ipcMain.handle('customers:update', (_e, id: number, input) => updateCustomer(id, input))

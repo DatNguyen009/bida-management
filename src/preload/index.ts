@@ -60,6 +60,8 @@ contextBridge.exposeInMainWorld('api', {
   customers: {
     findByPhone: (phone: string): Promise<Customer | null> =>
       ipcRenderer.invoke('customers:findByPhone', phone),
+    searchByPhone: (prefix: string): Promise<Customer[]> =>
+      ipcRenderer.invoke('customers:searchByPhone', prefix),
     getAll: (): Promise<Customer[]> =>
       ipcRenderer.invoke('customers:getAll'),
     create: (input: { name: string; phone: string; email: string | null; notes: string | null }): Promise<Customer | null> =>
