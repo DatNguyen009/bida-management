@@ -53,22 +53,51 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
     )
 
     for (const item of orderItems) {
-      const updated = await queryOne<{ stock_quantity: number }>(
-        `UPDATE cloud_products SET stock_quantity = stock_quantity - $1
-         WHERE id = $2 AND agent_id = $3 RETURNING stock_quantity`,
-        [item.quantity, item.product_id, agentId]
+      const product = await queryOne<{ product_type: string }>(
+        'SELECT product_type FROM cloud_products WHERE id = $1 AND agent_id = $2',
+        [item.product_id, agentId]
       )
-      if (!updated) continue
 
-      const afterQty = updated.stock_quantity
-      const beforeQty = afterQty + item.quantity
-
-      await queryOne(
-        `INSERT INTO cloud_stock_transactions
-           (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-        [item.product_id, 'out', item.quantity, null, beforeQty, afterQty, `Hóa đơn #${invoiceNumber}`, agentId]
-      )
+      if (product?.product_type === 'composite') {
+        // Trừ kho từng nguyên liệu theo công thức × số lượng bán
+        const recipe = await query<{ ingredient_id: number; quantity: number }>(
+          'SELECT ingredient_id, quantity FROM cloud_product_recipes WHERE product_id = $1 AND agent_id = $2',
+          [item.product_id, agentId]
+        )
+        for (const ing of recipe) {
+          const deductQty = ing.quantity * item.quantity
+          const ingUpdated = await queryOne<{ stock_quantity: number }>(
+            `UPDATE cloud_products SET stock_quantity = stock_quantity - $1
+             WHERE id = $2 AND agent_id = $3 RETURNING stock_quantity`,
+            [deductQty, ing.ingredient_id, agentId]
+          )
+          if (!ingUpdated) continue
+          const ingAfterQty = ingUpdated.stock_quantity
+          const ingBeforeQty = ingAfterQty + deductQty
+          await queryOne(
+            `INSERT INTO cloud_stock_transactions
+               (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+            [ing.ingredient_id, 'out', deductQty, null, ingBeforeQty, ingAfterQty, `Hóa đơn #${invoiceNumber} (chế biến)`, agentId]
+          )
+        }
+      } else {
+        // Hàng nhập: trừ kho bình thường
+        const updated = await queryOne<{ stock_quantity: number }>(
+          `UPDATE cloud_products SET stock_quantity = stock_quantity - $1
+           WHERE id = $2 AND agent_id = $3 RETURNING stock_quantity`,
+          [item.quantity, item.product_id, agentId]
+        )
+        if (!updated) continue
+        const afterQty = updated.stock_quantity
+        const beforeQty = afterQty + item.quantity
+        await queryOne(
+          `INSERT INTO cloud_stock_transactions
+             (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+          [item.product_id, 'out', item.quantity, null, beforeQty, afterQty, `Hóa đơn #${invoiceNumber}`, agentId]
+        )
+      }
     }
   }
 
