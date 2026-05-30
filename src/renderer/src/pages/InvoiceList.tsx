@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { InvoiceListRow, InvoiceOrderItem } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Pagination from '../components/Pagination'
 import { formatCurrency } from '../lib/utils'
 
 function today(): string {
@@ -25,14 +26,20 @@ export default function InvoiceListPage() {
   const [toDate, setToDate] = useState(today())
   const [appliedFilter, setAppliedFilter] = useState({ fromDate: firstOfMonth(), toDate: today() })
   const [selected, setSelected] = useState<InvoiceListRow | null>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
-  const { data: invoices = [], isFetching } = useQuery({
-    queryKey: ['invoiceList', appliedFilter],
+  const { data: invoiceResult, isFetching } = useQuery({
+    queryKey: ['invoiceList', appliedFilter, page, pageSize],
     queryFn: () => window.api.invoices.getList({
       fromDate: appliedFilter.fromDate || undefined,
       toDate: appliedFilter.toDate || undefined,
+      page,
+      pageSize,
     }),
   })
+  const invoices = invoiceResult?.data ?? []
+  const invoiceTotal = invoiceResult?.total ?? 0
 
   const { data: orderItems = [] } = useQuery({
     queryKey: ['invoiceOrderItems', selected?.session_id],
@@ -45,6 +52,7 @@ export default function InvoiceListPage() {
   const handleFilter = () => {
     setAppliedFilter({ fromDate, toDate })
     setSelected(null)
+    setPage(1)
   }
 
   return (
@@ -115,9 +123,13 @@ export default function InvoiceListPage() {
           </table>
         </div>
 
-        {invoices.length === 300 && (
-          <p className="text-xs text-[#6b7280] mt-2 text-center">Hiển thị tối đa 300 hóa đơn gần nhất</p>
-        )}
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={invoiceTotal}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
+        />
       </div>
 
       {selected && (
