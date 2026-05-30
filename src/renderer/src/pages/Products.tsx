@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { Product } from '../types'
+import type { Product, Category } from '../types'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
 import { Button } from '@/components/ui/button'
@@ -18,9 +18,10 @@ type ModalMode = 'create' | 'edit' | 'stock' | null
 
 export default function ProductsPage() {
   const queryClient = useQueryClient()
+  const [tab, setTab] = useState<'products' | 'categories'>('products')
   const [mode, setMode] = useState<ModalMode>(null)
   const [selected, setSelected] = useState<Product | null>(null)
-  const [form, setForm] = useState({ name: '', category: 'drink', price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' as 'stock' | 'composite' })
+  const [form, setForm] = useState({ name: '', category_id: 0, price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' as 'stock' | 'composite' })
   const [stockQty, setStockQty] = useState(0)
   const [stockNote, setStockNote] = useState('')
   const [stockCostPrice, setStockCostPrice] = useState<number | ''>('')
@@ -28,12 +29,21 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
 
+  const [catForm, setCatForm] = useState({ name: '', icon: '📦' })
+  const [catMode, setCatMode] = useState<'create' | 'edit' | null>(null)
+  const [selectedCat, setSelectedCat] = useState<Category | null>(null)
+
   const { data: productResult, isLoading } = useQuery({
     queryKey: ['products', page, pageSize],
     queryFn: () => api().products.getPage({ page, pageSize }),
   })
   const products = productResult?.data ?? []
   const productTotal = productResult?.total ?? 0
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => window.api.categories.getAll(),
+  })
 
   const { data: existingRecipe = [] } = useQuery({
     queryKey: ['recipe', selected?.id],
@@ -55,7 +65,7 @@ export default function ProductsPage() {
   }, [mode, existingRecipe])
 
   const createMutation = useMutation({
-    mutationFn: () => api().products.create({ ...form, price: Number(form.price), category: form.category as Product['category'], product_type: form.product_type }),
+    mutationFn: () => api().products.create({ ...form, price: Number(form.price), product_type: form.product_type }),
     onSuccess: async (product) => {
       if (product && form.product_type === 'composite' && recipeItems.length > 0) {
         await window.api.recipes.save(product.id, recipeItems.map((r) => ({ ingredientId: r.ingredientId, quantity: r.quantity })))
@@ -68,7 +78,7 @@ export default function ProductsPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: () => selected ? api().products.update(selected.id, { ...form, price: Number(form.price), category: form.category as Product['category'], product_type: form.product_type }) : Promise.resolve(null),
+    mutationFn: () => selected ? api().products.update(selected.id, { ...form, price: Number(form.price), product_type: form.product_type }) : Promise.resolve(null),
     onSuccess: async () => {
       if (selected && form.product_type === 'composite') {
         await window.api.recipes.save(selected.id, recipeItems.map((r) => ({ ingredientId: r.ingredientId, quantity: r.quantity })))
@@ -95,97 +105,213 @@ export default function ProductsPage() {
     onError: () => toast.error('Xoá sản phẩm thất bại'),
   })
 
+  const createCatMutation = useMutation({
+    mutationFn: () => window.api.categories.create(catForm),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['categories'] }); setCatMode(null); toast.success('Đã tạo category') },
+    onError: () => toast.error('Tên category đã tồn tại'),
+  })
+
+  const updateCatMutation = useMutation({
+    mutationFn: () => selectedCat ? window.api.categories.update(selectedCat.id, catForm) : Promise.resolve(null),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['categories'] }); queryClient.invalidateQueries({ queryKey: ['products'] }); setCatMode(null); toast.success('Đã cập nhật category') },
+    onError: () => toast.error('Tên category đã tồn tại'),
+  })
+
+  const deleteCatMutation = useMutation({
+    mutationFn: (id: number) => window.api.categories.delete(id),
+    onSuccess: (res) => {
+      if (res.success) {
+        queryClient.invalidateQueries({ queryKey: ['categories'] })
+        toast.success('Đã xoá category')
+      } else {
+        toast.error(`Có ${res.productCount} sản phẩm đang dùng category này, không thể xoá`)
+      }
+    },
+  })
+
   const lowStockProducts = products.filter((p) => p.stock_quantity <= p.min_stock_alert)
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-[#d4af37]">Quản lý sản phẩm</h1>
-        <Button onClick={() => { setForm({ name: '', category: 'drink', price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' }); setMode('create') }}
-          className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors">
-          + Thêm sản phẩm
-        </Button>
+        <div className="flex gap-1 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg p-1">
+          <button
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'products' ? 'bg-[#d4af37] text-[#0d1f12] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            onClick={() => setTab('products')}
+          >
+            Danh sách
+          </button>
+          <button
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'categories' ? 'bg-[#d4af37] text-[#0d1f12] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            onClick={() => setTab('categories')}
+          >
+            Category
+          </button>
+        </div>
       </div>
 
-      {lowStockProducts.length > 0 && (
-        <div className="bg-[#2d1515] border border-red-800 rounded-xl p-3 mb-4 text-red-400 font-medium">
-          ⚠️ Sắp hết hàng: {lowStockProducts.map((p) => p.name).join(', ')}
+      {tab === 'products' && (
+        <div>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => { setForm({ name: '', category_id: categories[0]?.id ?? 0, price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' }); setMode('create') }}
+              className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+            >
+              + Thêm sản phẩm
+            </Button>
+          </div>
+
+          {lowStockProducts.length > 0 && (
+            <div className="bg-[#2d1515] border border-red-800 rounded-xl p-3 mb-4 text-red-400 font-medium">
+              ⚠️ Sắp hết hàng: {lowStockProducts.map((p) => p.name).join(', ')}
+            </div>
+          )}
+
+          <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+            {isLoading ? (
+              <TableSkeleton rows={pageSize} cols={5} />
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                    <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
+                    <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
+                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
+                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
+                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((p, i) => (
+                    <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                      <td className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#e2e8f0]">{p.name}</span>
+                          {p.product_type === 'composite' && (
+                            <span className="text-xs bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 px-1.5 py-0.5 rounded">
+                              Chế biến
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="bg-[#1e3d23] text-[#e2e8f0] text-xs px-2 py-0.5 rounded-full">
+                          {p.category_icon} {p.category_name}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
+                          {p.stock_quantity} {p.unit}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right space-x-1">
+                        <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
+                          onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
+                          Nhập kho
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                          onClick={() => {
+                            setSelected(p)
+                            setForm({ name: p.name, category_id: p.category_id, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert, product_type: p.product_type ?? 'stock' })
+                            setMode('edit')
+                          }}>
+                          Sửa
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
+                          onClick={() => deactivateMutation.mutate(p.id)}>
+                          Xoá
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={productTotal}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
+          />
         </div>
       )}
 
-      <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
-        {isLoading ? (
-          <TableSkeleton rows={pageSize} cols={5} />
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
-                <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
-                <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p, i) => (
-                <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
-                  <td className="px-4 py-3 font-medium">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#e2e8f0]">{p.name}</span>
-                      {p.product_type === 'composite' && (
-                        <span className="text-xs bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 px-1.5 py-0.5 rounded">
-                          Chế biến
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {p.category === 'drink'
-                      ? <span className="bg-[#14532d] text-green-400 text-xs px-2 py-0.5 rounded-full border-0">🥤 Đồ uống</span>
-                      : p.category === 'food'
-                      ? <span className="bg-[#292524] text-orange-400 text-xs px-2 py-0.5 rounded-full border-0">🍜 Đồ ăn</span>
-                      : <span className="bg-[#1e3d23] text-gray-400 text-xs px-2 py-0.5 rounded-full border-0">Khác</span>
-                    }
-                  </td>
-                  <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
-                      {p.stock_quantity} {p.unit}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-1">
-                    <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
-                      onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
-                      Nhập kho
-                    </Button>
-                    <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
-                      onClick={() => {
-                        setSelected(p)
-                        setForm({ name: p.name, category: p.category, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert, product_type: p.product_type ?? 'stock' })
-                        setMode('edit')
-                      }}>
-                      Sửa
-                    </Button>
-                    <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
-                      onClick={() => deactivateMutation.mutate(p.id)}>
-                      Xoá
-                    </Button>
-                  </td>
+      {tab === 'categories' && (
+        <div>
+          <div className="flex justify-end mb-4">
+            <Button
+              className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+              onClick={() => { setCatForm({ name: '', icon: '📦' }); setSelectedCat(null); setCatMode('create') }}
+            >
+              + Thêm category
+            </Button>
+          </div>
+          <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Icon</th>
+                  <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
+                  <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {categories.map((cat, i) => (
+                  <tr key={cat.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                    <td className="px-4 py-3 text-2xl">{cat.icon}</td>
+                    <td className="px-4 py-3 text-[#e2e8f0] font-medium">{cat.name}</td>
+                    <td className="px-4 py-3 text-right space-x-1">
+                      <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                        onClick={() => { setSelectedCat(cat); setCatForm({ name: cat.name, icon: cat.icon }); setCatMode('edit') }}>
+                        Sửa
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
+                        onClick={() => deleteCatMutation.mutate(cat.id)}>
+                        Xoá
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {categories.length === 0 && (
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-[#6b7280]">Chưa có category nào</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      <Pagination
-        page={page}
-        pageSize={pageSize}
-        total={productTotal}
-        onPageChange={setPage}
-        onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
-      />
+          <Dialog open={catMode === 'create' || catMode === 'edit'} onOpenChange={(o) => !o && setCatMode(null)}>
+            <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
+              <DialogHeader>
+                <DialogTitle>{catMode === 'create' ? 'Thêm category' : 'Sửa category'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label>Icon (gõ 1 emoji)</Label>
+                  <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 text-2xl" value={catForm.icon}
+                    onChange={(e) => setCatForm({ ...catForm, icon: e.target.value })} maxLength={2} />
+                </div>
+                <div>
+                  <Label>Tên category</Label>
+                  <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={catForm.name}
+                    onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCatMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
+                <Button className="bg-[#d4af37] text-[#0d1f12] font-bold"
+                  onClick={() => catMode === 'create' ? createCatMutation.mutate() : updateCatMutation.mutate()}>
+                  Lưu
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
 
       <Dialog open={mode === 'create' || mode === 'edit'} onOpenChange={(o) => !o && setMode(null)}>
         <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
@@ -217,6 +343,18 @@ export default function ProductsPage() {
                   <span className="text-sm text-white">Chế biến</span>
                 </label>
               </div>
+            </div>
+            <div>
+              <Label>Category</Label>
+              <select
+                className="w-full mt-1 bg-[#0a1a0d] border border-[#1e3d23] text-white rounded-md px-3 py-2 text-sm"
+                value={form.category_id}
+                onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
+              >
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                ))}
+              </select>
             </div>
             <div><Label>Tên</Label>
               <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.name}
