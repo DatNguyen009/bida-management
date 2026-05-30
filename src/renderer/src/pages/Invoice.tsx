@@ -145,13 +145,13 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
       {/* Customer Lookup */}
-      <div className="col-span-full bg-gray-900 rounded-xl p-4 mb-2">
-        <h3 className="font-semibold text-sm text-gray-400 uppercase mb-3">Khách hàng (tùy chọn)</h3>
+      <div className="col-span-full bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-2">
+        <h3 className="font-semibold text-xs text-[#6b7280] uppercase tracking-widest mb-3">KHÁCH HÀNG (tùy chọn)</h3>
 
         {searchState === 'idle' && (
           <div className="flex gap-2">
             <Input
-              className="bg-gray-800 border-gray-600 flex-1"
+              className="bg-[#0a1a0d] border-[#1e3d23] text-white flex-1"
               placeholder="Nhập số điện thoại..."
               value={phoneInput}
               onChange={(e) => setPhoneInput(e.target.value)}
@@ -159,7 +159,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             />
             <Button
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-700 hover:bg-blue-600"
               disabled={!phoneInput || findCustomerMutation.isPending}
               onClick={() => findCustomerMutation.mutate(phoneInput)}
             >
@@ -173,12 +173,12 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium text-green-400">✓ {selectedCustomer.name}</p>
-                <p className="text-sm text-gray-400">{selectedCustomer.phone}</p>
+                <p className="text-sm text-[#6b7280]">{selectedCustomer.phone}</p>
               </div>
               <div className="text-right">
-                <p className="text-yellow-400 font-bold">{selectedCustomer.points_balance} điểm</p>
+                <p className="text-[#d4af37] font-bold">{selectedCustomer.points_balance} điểm</p>
                 <button
-                  className="text-xs text-gray-500 hover:text-gray-300"
+                  className="text-xs text-[#6b7280] hover:text-white"
                   onClick={() => { setSearchState('idle'); setSelectedCustomer(null); setPointsToRedeem(0); setPointsError('') }}
                 >
                   ✕ Xóa
@@ -187,12 +187,12 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             </div>
             {selectedCustomer.points_balance > 0 && (
               <div>
-                <Label className="text-xs">Dùng điểm (1 điểm = {formatCurrency(VND_PER_POINT)})</Label>
+                <Label className="text-[#d4af37] text-xs">Dùng điểm (1 điểm = {formatCurrency(VND_PER_POINT)})</Label>
                 <Input
                   type="number"
                   min={0}
                   max={selectedCustomer.points_balance}
-                  className="mt-1 bg-gray-800 border-gray-600"
+                  className="mt-1 bg-[#0a1a0d] border-[#1e3d23] text-white"
                   value={pointsToRedeem || ''}
                   onChange={(e) => handlePointsChange(Number(e.target.value))}
                 />
@@ -214,7 +214,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             <p className="text-sm text-red-400">✗ Không tìm thấy SĐT "{phoneInput}"</p>
             <div className="flex gap-2 items-center">
               <Input
-                className="bg-gray-800 border-gray-600 flex-1"
+                className="bg-[#0a1a0d] border-[#1e3d23] text-white flex-1"
                 placeholder="Tên khách hàng..."
                 value={quickName}
                 onChange={(e) => setQuickName(e.target.value)}
@@ -228,7 +228,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 + Tạo mới
               </Button>
               <button
-                className="text-xs text-gray-500 hover:text-gray-300 ml-1"
+                className="text-xs text-[#6b7280] hover:text-white ml-1"
                 onClick={() => { setSearchState('idle'); setPhoneInput('') }}
               >
                 Huỷ
@@ -241,35 +241,35 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
       <div>
         <h2 className="text-xl font-bold mb-4">Bàn {session.table_name}</h2>
 
-        <div className="bg-gray-900 rounded-xl p-4 mb-4">
+        <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold">Đồ uống / thức ăn</h3>
+            <h3 className="font-semibold text-[#e2e8f0]">Đồ uống / thức ăn</h3>
             <Button size="sm" onClick={() => setShowPicker(true)}
-              className="bg-green-700 hover:bg-green-600">
+              className="bg-[#d4af37] text-[#0d1f12] font-bold text-xs hover:bg-yellow-400">
               + Thêm
             </Button>
           </div>
           <OrderList items={orderItems} onRemove={(id) => removeItemMutation.mutate(id)} />
         </div>
 
-        <div className="bg-gray-900 rounded-xl p-4 space-y-3">
+        <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 space-y-3">
           <div>
-            <Label>Giảm giá (đồng)</Label>
-            <Input type="number" className="mt-1 bg-gray-800 border-gray-600"
+            <Label className="text-[#6b7280] text-xs">Giảm giá (đồng)</Label>
+            <Input type="number" className="mt-1 bg-[#0a1a0d] border-[#1e3d23] text-white"
               value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
           </div>
-          <div className="pt-2 border-t border-gray-700 space-y-1 text-sm">
+          <div className="pt-2 border-t border-[#1e3d23] space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-400">Tổng chơi:</span>
+              <span className="text-[#6b7280]">Tổng chơi:</span>
               <span>{formatCurrency(playAmount)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Tổng hàng:</span>
+              <span className="text-[#6b7280]">Tổng hàng:</span>
               <span>{formatCurrency(itemsAmount)}</span>
             </div>
             <div className="flex justify-between font-bold text-base">
               <span>Tổng cộng:</span>
-              <span className="text-green-400">{formatCurrency(finalAmount)}</span>
+              <span className="text-[#d4af37] font-bold text-lg">{formatCurrency(finalAmount)}</span>
             </div>
           </div>
         </div>
@@ -281,7 +281,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
         <div className="flex gap-3 mt-6">
           <Button
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
+            className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
             disabled={checkoutMutation.isPending || !!pointsError}
             onClick={() => checkoutMutation.mutate(true)}
           >
@@ -289,7 +289,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
           </Button>
           <Button
             variant="outline"
-            className="flex-1 border-gray-600"
+            className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
             disabled={checkoutMutation.isPending || !!pointsError}
             onClick={() => checkoutMutation.mutate(false)}
           >

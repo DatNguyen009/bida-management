@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/ipc'
-import { formatCurrency, calcPlayAmount, elapsedMinutes, formatDuration } from '../lib/utils'
-import { Button } from '@/components/ui/button'
+import { formatCurrency, calcPlayAmount, elapsedSeconds, formatDuration } from '../lib/utils'
 import type { Session as SessionType } from '../types'
 
 interface Props {
@@ -12,7 +11,7 @@ interface Props {
 }
 
 export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
-  const [minutes, setMinutes] = useState(0)
+  const [seconds, setSeconds] = useState(0)
 
   const { data: sessions = [] } = useQuery({
     queryKey: ['sessions', 'active'],
@@ -23,44 +22,44 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
 
   useEffect(() => {
     if (!session) return
-    setMinutes(elapsedMinutes(session.start_time))
+    setSeconds(elapsedSeconds(session.start_time))
     const timer = setInterval(() => {
-      setMinutes(elapsedMinutes(session.start_time))
-    }, 30000)
+      setSeconds(elapsedSeconds(session.start_time))
+    }, 1000)
     return () => clearInterval(timer)
   }, [session?.start_time])
 
   if (!session) {
     return (
       <div className="p-6">
-        <Button variant="outline" onClick={onBack}>← Quay lại</Button>
-        <p className="mt-4 text-gray-400">Không tìm thấy phiên chơi.</p>
+        <button onClick={onBack} className="text-[#6b7280] hover:text-white text-sm flex items-center gap-1 mb-4">← Quay lại</button>
+        <p className="text-[#6b7280]">Không tìm thấy phiên chơi.</p>
       </div>
     )
   }
 
-  const playAmount = calcPlayAmount(minutes, session.hourly_rate)
+  const playAmount = calcPlayAmount(seconds / 60, session.hourly_rate)
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={onBack} className="border-gray-600">← Quay lại</Button>
-        <h1 className="text-2xl font-bold">{session.table_name}</h1>
+        <button onClick={onBack} className="text-[#6b7280] hover:text-white text-sm flex items-center gap-1">← Quay lại</button>
+        <h1 className="text-xl font-bold text-[#d4af37]">{session.table_name}</h1>
       </div>
-      <div className="bg-gray-900 rounded-xl p-6 mb-4 text-center">
-        <p className="text-gray-400 mb-1">Thời gian chơi</p>
-        <p className="text-5xl font-mono font-bold text-yellow-400">{formatDuration(minutes)}</p>
-        <p className="text-2xl text-green-400 mt-2">{formatCurrency(playAmount)}</p>
-        <p className="text-xs text-gray-500 mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
+
+      <div className="bg-[#2d1515] border border-[#7f1d1d] rounded-xl p-8 mb-4 text-center">
+        <p className="text-[#6b7280] text-[10px] uppercase tracking-widest mb-3">Thời gian chơi</p>
+        <p className="text-6xl font-mono font-bold text-red-400 tracking-wider">{formatDuration(seconds)}</p>
+        <p className="text-2xl font-bold text-red-400 mt-3">{formatCurrency(playAmount)}</p>
+        <p className="text-xs text-[#6b7280] mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
       </div>
-      <div className="flex gap-4">
-        <Button
-          className="flex-1 bg-green-600 hover:bg-green-700 py-6 text-lg"
-          onClick={() => onCheckout(session, playAmount)}
-        >
-          Kết thúc & Thanh toán
-        </Button>
-      </div>
+
+      <button
+        className="w-full bg-[#d4af37] text-[#0d1f12] font-bold py-4 rounded-xl text-base hover:bg-yellow-400 transition-colors"
+        onClick={() => onCheckout(session, playAmount)}
+      >
+        Kết thúc & Thanh toán — {formatCurrency(playAmount)}
+      </button>
     </div>
   )
 }
