@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency } from '../lib/utils'
 import { buildVietQRUrl, isBankConfigured } from '../lib/vietqr'
+import { toast } from 'sonner'
 
 interface Props {
   session: Session & { table_name: string; hourly_rate: number }
@@ -116,11 +117,20 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
       if (print && invoice) {
         await api().invoices.print(invoice.id, invoiceInput, invoice.invoice_number, printerPath)
       }
+      return { invoice, print }
     },
-    onSuccess: () => {
+    onSuccess: ({ invoice, print }) => {
       queryClient.invalidateQueries({ queryKey: ['tables'] })
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      if (print) {
+        toast.success(`Đã in hoá đơn #${invoice?.invoice_number ?? ''}`)
+      } else {
+        toast.success(`Đã lưu hoá đơn #${invoice?.invoice_number ?? ''}`)
+      }
       onComplete()
+    },
+    onError: () => {
+      toast.error('Lưu hoá đơn thất bại')
     },
   })
 
