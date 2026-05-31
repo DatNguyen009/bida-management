@@ -129,7 +129,10 @@ export default function ProductsPage() {
     },
   })
 
-  const lowStockProducts = products.filter((p) => p.stock_quantity <= p.min_stock_alert)
+  const lowStockProducts = products.filter((p) => {
+    const qty = p.product_type === 'composite' ? (p.effective_stock ?? 0) : p.stock_quantity
+    return qty <= p.min_stock_alert
+  })
 
   return (
     <div>
@@ -206,9 +209,16 @@ export default function ProductsPage() {
                       </td>
                       <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
                       <td className="px-4 py-3 text-right">
-                        <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
-                          {p.stock_quantity} {p.unit}
-                        </span>
+                        {p.product_type === 'composite' ? (
+                          <span className={`${(p.effective_stock ?? 0) <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}`}>
+                            {p.effective_stock != null ? p.effective_stock : '—'} {p.unit}
+                            <span className="ml-1 text-[10px] text-[#6b7280]">có thể làm</span>
+                          </span>
+                        ) : (
+                          <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
+                            {p.stock_quantity} {p.unit}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right space-x-1">
                         <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"

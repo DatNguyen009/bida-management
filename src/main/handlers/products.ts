@@ -20,7 +20,17 @@ export async function getAllProducts(): Promise<Product[]> {
     `SELECT p.id, p.name, p.category_id,
             COALESCE(c.name, 'Khác') AS category_name,
             COALESCE(c.icon, '📦') AS category_icon,
-            p.price, p.cost_price, p.stock_quantity, p.min_stock_alert,
+            p.price, p.cost_price,
+            CASE
+              WHEN p.product_type = 'composite' THEN (
+                SELECT FLOOR(MIN(ing.stock_quantity::numeric / r.quantity))
+                FROM cloud_product_recipes r
+                JOIN cloud_products ing ON ing.id = r.ingredient_id AND ing.agent_id = r.agent_id
+                WHERE r.product_id = p.id AND r.agent_id = p.agent_id
+              )
+              ELSE p.stock_quantity::numeric
+            END AS effective_stock,
+            p.stock_quantity, p.min_stock_alert,
             p.unit, p.is_active, p.product_type, p.created_at
      FROM cloud_products p
      LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id
@@ -39,7 +49,17 @@ export async function getProductPage(input: { page: number; pageSize: number }):
       `SELECT p.id, p.name, p.category_id,
               COALESCE(c.name, 'Khác') AS category_name,
               COALESCE(c.icon, '📦') AS category_icon,
-              p.price, p.cost_price, p.stock_quantity, p.min_stock_alert,
+              p.price, p.cost_price,
+              CASE
+                WHEN p.product_type = 'composite' THEN (
+                  SELECT FLOOR(MIN(ing.stock_quantity::numeric / r.quantity))
+                  FROM cloud_product_recipes r
+                  JOIN cloud_products ing ON ing.id = r.ingredient_id AND ing.agent_id = r.agent_id
+                  WHERE r.product_id = p.id AND r.agent_id = p.agent_id
+                )
+                ELSE p.stock_quantity::numeric
+              END AS effective_stock,
+              p.stock_quantity, p.min_stock_alert,
               p.unit, p.is_active, p.product_type, p.created_at
        FROM cloud_products p
        LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id

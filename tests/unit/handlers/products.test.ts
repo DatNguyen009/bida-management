@@ -19,7 +19,7 @@ import {
 
 describe('getAllProducts', () => {
   it('returns active products with joined category fields', async () => {
-    const mockProducts = [{ id: 1, name: 'Bia Tiger', category_id: 1, category_name: 'Đồ uống', category_icon: '🥤', cost_price: 20000, is_active: true }]
+    const mockProducts = [{ id: 1, name: 'Bia Tiger', category_id: 1, category_name: 'Đồ uống', category_icon: '🥤', cost_price: 20000, effective_stock: 30, is_active: true }]
     vi.mocked(db.query).mockResolvedValue(mockProducts)
 
     const result = await getAllProducts()
