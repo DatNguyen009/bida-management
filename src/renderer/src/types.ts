@@ -106,6 +106,7 @@ export interface StockTransaction {
   quantity: number
   before_qty: number
   after_qty: number
+  cost_price: number | null
   note: string | null
   created_at: string
 }

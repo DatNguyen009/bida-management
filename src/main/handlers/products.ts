@@ -140,7 +140,7 @@ export async function getStockHistory(input: StockHistoryInput): Promise<PageRes
     query<StockTransaction>(
       `SELECT st.id, st.product_id, p.name AS product_name,
               st.type, st.quantity, st.before_qty, st.after_qty,
-              st.note, st.created_at
+              st.cost_price, st.note, st.created_at
        FROM cloud_stock_transactions st
        JOIN cloud_products p ON p.id = st.product_id
        WHERE st.agent_id = $1

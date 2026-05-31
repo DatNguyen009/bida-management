@@ -120,7 +120,7 @@ describe('adjustStock', () => {
 describe('getStockHistory', () => {
   it('returns all transactions when no filter applied', async () => {
     const mockRows = [
-      { id: 1, product_id: 1, product_name: 'Bia Tiger', type: 'in', quantity: 24, before_qty: 6, after_qty: 30, note: 'Nhập kho', created_at: '2026-05-29T10:00:00Z' }
+      { id: 1, product_id: 1, product_name: 'Bia Tiger', type: 'in', quantity: 24, before_qty: 6, after_qty: 30, cost_price: 15000, note: 'Nhập kho', created_at: '2026-05-29T10:00:00Z' }
     ]
     vi.mocked(db.query).mockResolvedValue(mockRows)
 

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { StockTransaction } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { formatCurrency } from '../lib/utils'
 import Pagination from '../components/Pagination'
 import TableSkeleton from '../components/TableSkeleton'
 
@@ -126,13 +127,14 @@ export default function StockHistoryPage() {
               <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Số lượng</th>
               <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Trước</th>
               <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Sau</th>
+              <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá nhập</th>
               <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Ghi chú</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={8}>
                   <TableSkeleton rows={pageSize} cols={5} />
                 </td>
               </tr>
@@ -146,12 +148,15 @@ export default function StockHistoryPage() {
                     <td className="px-4 py-3 text-right">{qtyDisplay(t.type, t.quantity)}</td>
                     <td className="px-4 py-3 text-right text-[#6b7280]">{t.before_qty}</td>
                     <td className="px-4 py-3 text-right text-[#e2e8f0]">{t.after_qty}</td>
+                    <td className="px-4 py-3 text-right text-[#e2e8f0] font-mono text-xs">
+                      {t.cost_price != null ? formatCurrency(t.cost_price) : '—'}
+                    </td>
                     <td className="px-4 py-3 text-[#6b7280] text-xs">{t.note ?? '—'}</td>
                   </tr>
                 ))}
                 {transactions.length === 0 && !isFetching && (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-[#6b7280]">
+                    <td colSpan={8} className="p-8 text-center text-[#6b7280]">
                       Không có giao dịch nào trong khoảng thời gian này
                     </td>
                   </tr>
