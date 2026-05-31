@@ -162,3 +162,11 @@ export interface Category {
   name: string
   icon: string
 }
+
+export interface StaffMember {
+  id: number
+  username: string
+  allowed_screens: string[]
+  is_active: boolean
+  created_at: string
+}
