@@ -81,6 +81,13 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
             [ing.ingredient_id, 'out', deductQty, null, ingBeforeQty, ingAfterQty, `Hóa đơn #${invoiceNumber} (chế biến)`, agentId]
           )
         }
+        // Ghi log xuất cho bản thân sản phẩm chế biến để thống kê sau
+        await queryOne(
+          `INSERT INTO cloud_stock_transactions
+             (product_id, type, quantity, cost_price, before_qty, after_qty, note, agent_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+          [item.product_id, 'out', item.quantity, null, 0, 0, `Hóa đơn #${invoiceNumber}`, agentId]
+        )
       } else {
         // Hàng nhập: trừ kho bình thường
         const updated = await queryOne<{ stock_quantity: number }>(
