@@ -42,6 +42,17 @@ CREATE TABLE IF NOT EXISTS categories (
   CONSTRAINT uq_category_name UNIQUE (name, agent_id)
 );
 
+CREATE TABLE IF NOT EXISTS staff (
+  id SERIAL PRIMARY KEY,
+  agent_id UUID NOT NULL,
+  username VARCHAR(50) NOT NULL,
+  password_hash VARCHAR(100) NOT NULL,
+  allowed_screens TEXT[] NOT NULL DEFAULT '{}',
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT uq_staff_username UNIQUE (username, agent_id)
+);
+
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
