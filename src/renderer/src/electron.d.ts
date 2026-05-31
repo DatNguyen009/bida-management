@@ -70,9 +70,9 @@ declare global {
         lowStock(): Promise<unknown[]>
       }
       auth: {
-        login(username: string, password: string): Promise<{ role: string; agentId: string | null }>
+        login(username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[] }>
         logout(): Promise<void>
-        getSession(): Promise<{ role: string; agentId: string | null } | null>
+        getSession(): Promise<{ role: string; agentId: string | null; allowedScreens: string[] } | null>
       }
       loyalty: {
         getSettings(): Promise<LoyaltySettings>

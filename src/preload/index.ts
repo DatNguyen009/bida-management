@@ -112,10 +112,12 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('reports:lowStock'),
   },
   auth: {
-    login: (username: string, password: string) =>
+    login: (username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[] }> =>
       ipcRenderer.invoke('auth:login', username, password),
-    logout: () => ipcRenderer.invoke('auth:logout'),
-    getSession: () => ipcRenderer.invoke('auth:getSession'),
+    logout: (): Promise<void> =>
+      ipcRenderer.invoke('auth:logout'),
+    getSession: (): Promise<{ role: string; agentId: string | null; allowedScreens: string[] } | null> =>
+      ipcRenderer.invoke('auth:getSession'),
   },
   loyalty: {
     getSettings: (): Promise<LoyaltySettings> =>

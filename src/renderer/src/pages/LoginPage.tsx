@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { toast } from 'sonner'
 
 interface Props {
-  onLogin: () => void
+  onLogin: (allowedScreens: string[]) => void
 }
 
 export default function LoginPage({ onLogin }: Props) {
@@ -14,9 +14,9 @@ export default function LoginPage({ onLogin }: Props) {
     e.preventDefault()
     setLoading(true)
     try {
-      await window.api.auth.login(username, password)
+      const result = await window.api.auth.login(username, password)
       toast.success('Đăng nhập thành công')
-      onLogin()
+      onLogin(result.allowedScreens)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
     } finally {
