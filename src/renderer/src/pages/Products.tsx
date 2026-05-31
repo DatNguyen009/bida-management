@@ -170,14 +170,15 @@ export default function ProductsPage() {
 
           <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
             {isLoading ? (
-              <TableSkeleton rows={pageSize} cols={5} />
+              <TableSkeleton rows={pageSize} cols={6} />
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
                     <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
                     <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
-                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá</th>
+                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá nhập</th>
+                    <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá bán</th>
                     <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tồn kho</th>
                     <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
                   </tr>
@@ -199,6 +200,9 @@ export default function ProductsPage() {
                         <span className="bg-[#1e3d23] text-[#e2e8f0] text-xs px-2 py-0.5 rounded-full">
                           {p.category_icon} {p.category_name}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-right text-[#6b7280] font-mono text-sm">
+                        {p.cost_price != null ? formatCurrency(p.cost_price) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
                       <td className="px-4 py-3 text-right">
