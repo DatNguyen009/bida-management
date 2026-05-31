@@ -19,7 +19,7 @@ import {
 
 describe('getAllProducts', () => {
   it('returns active products with joined category fields', async () => {
-    const mockProducts = [{ id: 1, name: 'Bia Tiger', category_id: 1, category_name: 'Đồ uống', category_icon: '🥤', is_active: true }]
+    const mockProducts = [{ id: 1, name: 'Bia Tiger', category_id: 1, category_name: 'Đồ uống', category_icon: '🥤', cost_price: 20000, is_active: true }]
     vi.mocked(db.query).mockResolvedValue(mockProducts)
 
     const result = await getAllProducts()
@@ -99,6 +99,34 @@ describe('adjustStock', () => {
 
     expect(result).toBeNull()
     expect(db.queryOne).toHaveBeenCalledTimes(1)
+  })
+
+  it('updates cost_price on product when type is "in" and costPrice provided', async () => {
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce({ id: 1, stock_quantity: 30, cost_price: 15000, name: 'Test' })
+      .mockResolvedValueOnce({ id: 1 })
+
+    await adjustStock(1, 'in', 10, 'Nhập kho', 15000)
+
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('cost_price = $4'),
+      expect.arrayContaining([10, 1, null, 15000])
+    )
+  })
+
+  it('does not update cost_price when type is "out"', async () => {
+    vi.mocked(db.queryOne)
+      .mockResolvedValueOnce({ id: 1, stock_quantity: 20, name: 'Test' })
+      .mockResolvedValueOnce({ id: 1 })
+
+    await adjustStock(1, 'out', 5, 'Bán', null)
+
+    expect(db.queryOne).toHaveBeenNthCalledWith(
+      1,
+      expect.not.stringContaining('cost_price = $4'),
+      expect.arrayContaining([5, 1, null])
+    )
   })
 
   it('calculates before_qty correctly for out type', async () => {

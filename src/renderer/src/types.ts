@@ -25,6 +25,7 @@ export interface Product {
   category_name: string
   category_icon: string
   price: number
+  cost_price: number | null
   stock_quantity: number
   min_stock_alert: number
   unit: string

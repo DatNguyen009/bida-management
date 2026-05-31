@@ -20,7 +20,7 @@ export async function getAllProducts(): Promise<Product[]> {
     `SELECT p.id, p.name, p.category_id,
             COALESCE(c.name, 'Khác') AS category_name,
             COALESCE(c.icon, '📦') AS category_icon,
-            p.price, p.stock_quantity, p.min_stock_alert,
+            p.price, p.cost_price, p.stock_quantity, p.min_stock_alert,
             p.unit, p.is_active, p.product_type, p.created_at
      FROM cloud_products p
      LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id
@@ -39,7 +39,7 @@ export async function getProductPage(input: { page: number; pageSize: number }):
       `SELECT p.id, p.name, p.category_id,
               COALESCE(c.name, 'Khác') AS category_name,
               COALESCE(c.icon, '📦') AS category_icon,
-              p.price, p.stock_quantity, p.min_stock_alert,
+              p.price, p.cost_price, p.stock_quantity, p.min_stock_alert,
               p.unit, p.is_active, p.product_type, p.created_at
        FROM cloud_products p
        LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = p.agent_id
@@ -112,10 +112,16 @@ export async function adjustStock(
 ): Promise<Product | null> {
   const agentId = getAgentId()
   const operator = type === 'out' ? '-' : '+'
+  const updateCostPrice = type === 'in' && costPrice != null
+  const costPriceClause = updateCostPrice ? ', cost_price = $4' : ''
+  const queryParams: (number | string | null)[] = updateCostPrice
+    ? [quantity, productId, agentId, costPrice]
+    : [quantity, productId, agentId]
+
   const product = await queryOne<Product>(
-    `UPDATE cloud_products SET stock_quantity = stock_quantity ${operator} $1
+    `UPDATE cloud_products SET stock_quantity = stock_quantity ${operator} $1${costPriceClause}
      WHERE id = $2 AND agent_id = $3 RETURNING *`,
-    [quantity, productId, agentId]
+    queryParams
   )
   if (!product) return null
 

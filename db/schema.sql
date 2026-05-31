@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   price DECIMAL(10,0) NOT NULL,
+  cost_price DECIMAL(10,0) NULL,
   stock_quantity INT NOT NULL DEFAULT 0,
   min_stock_alert INT NOT NULL DEFAULT 5,
   unit VARCHAR(20) NOT NULL DEFAULT 'cái',
