@@ -6,6 +6,7 @@ interface AuthStoreType {
   expiresAt: number
   role: string
   agentId: string | null
+  allowedScreens: string[]
 }
 
 export const authStore = new Store<AuthStoreType>({

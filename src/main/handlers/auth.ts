@@ -2,6 +2,8 @@
 import { ipcMain } from 'electron'
 import { authStore, getAccessToken } from '../lib/authStore'
 import { ensureDefaultCategories } from './categories'
+import bcrypt from 'bcryptjs'
+import { queryOne } from '../db'
 
 const API_BASE = import.meta.env.MAIN_VITE_API_URL ?? 'http://localhost:4000/api/v1'
 
@@ -26,19 +28,40 @@ function parseExpiry(token: string): number {
 
 export function registerAuthHandlers(): void {
   ipcMain.handle('auth:login', async (_event, username: string, password: string) => {
-    const data = await apiFetch('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    })
-    authStore.set('accessToken', data.accessToken)
-    authStore.set('refreshToken', data.refreshToken)
-    authStore.set('expiresAt', parseExpiry(data.accessToken))
-    authStore.set('role', data.role)
-    authStore.set('agentId', data.agentId)
-    if (data.agentId) {
-      await ensureDefaultCategories(data.agentId)
+    // 1. Try external API (owner)
+    try {
+      const data = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      })
+      authStore.set('accessToken', data.accessToken)
+      authStore.set('refreshToken', data.refreshToken)
+      authStore.set('expiresAt', parseExpiry(data.accessToken))
+      authStore.set('role', 'owner')
+      authStore.set('agentId', data.agentId)
+      authStore.set('allowedScreens', [])
+      if (data.agentId) {
+        await ensureDefaultCategories(data.agentId)
+      }
+      return { role: 'owner', agentId: data.agentId, allowedScreens: [] }
+    } catch (ownerErr) {
+      // 2. Try cloud_staff
+      const staff = await queryOne<{
+        id: number; agent_id: string; password_hash: string; allowed_screens: string[]
+      }>(
+        'SELECT id, agent_id, password_hash, allowed_screens FROM cloud_staff WHERE username = $1 AND is_active = TRUE LIMIT 1',
+        [username]
+      )
+      if (!staff) throw ownerErr
+
+      const match = await bcrypt.compare(password, staff.password_hash)
+      if (!match) throw ownerErr
+
+      authStore.set('role', 'staff')
+      authStore.set('agentId', staff.agent_id)
+      authStore.set('allowedScreens', staff.allowed_screens)
+      return { role: 'staff', agentId: staff.agent_id, allowedScreens: staff.allowed_screens }
     }
-    return { role: data.role, agentId: data.agentId }
   })
 
   ipcMain.handle('auth:logout', async () => {
@@ -55,6 +78,20 @@ export function registerAuthHandlers(): void {
   })
 
   ipcMain.handle('auth:getSession', async () => {
+    const role = authStore.get('role')
+
+    // Staff session: no refreshToken needed
+    if (role === 'staff') {
+      const agentId = authStore.get('agentId')
+      if (!agentId) return null
+      return {
+        role: 'staff',
+        agentId,
+        allowedScreens: authStore.get('allowedScreens') ?? [],
+      }
+    }
+
+    // Owner session: use refreshToken
     const refreshToken = authStore.get('refreshToken')
     if (!refreshToken) return null
 
@@ -62,7 +99,7 @@ export function registerAuthHandlers(): void {
     const expiresAt = authStore.get('expiresAt')
 
     if (accessToken && expiresAt && Date.now() < expiresAt - 60_000) {
-      return { role: authStore.get('role'), agentId: authStore.get('agentId') }
+      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [] }
     }
 
     try {
@@ -73,7 +110,7 @@ export function registerAuthHandlers(): void {
       authStore.set('accessToken', data.accessToken)
       authStore.set('refreshToken', data.refreshToken)
       authStore.set('expiresAt', parseExpiry(data.accessToken))
-      return { role: authStore.get('role'), agentId: authStore.get('agentId') }
+      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [] }
     } catch {
       authStore.clear()
       return null
