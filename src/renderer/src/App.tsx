@@ -10,6 +10,7 @@ import type { Session } from './types'
 import LoginPage from './pages/LoginPage'
 import StockHistoryPage from './pages/StockHistory'
 import InvoiceListPage from './pages/InvoiceList'
+import AccessDenied from './components/AccessDenied'
 
 type View =
   | { page: 'dashboard' }
@@ -25,11 +26,18 @@ type View =
 export default function App() {
   const [view, setView] = useState<View>({ page: 'dashboard' })
   const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
+  const [allowedScreens, setAllowedScreens] = useState<string[]>([])
+  const isOwner = allowedScreens.length === 0
 
   useEffect(() => {
     window.api.auth.getSession()
       .then((session) => {
-        setAuthState(session ? 'authenticated' : 'unauthenticated')
+        if (session) {
+          setAllowedScreens(session.allowedScreens ?? [])
+          setAuthState('authenticated')
+        } else {
+          setAuthState('unauthenticated')
+        }
       })
       .catch(() => {
         setAuthState('unauthenticated')
@@ -45,7 +53,7 @@ export default function App() {
   }
 
   if (authState === 'unauthenticated') {
-    return <LoginPage onLogin={() => setAuthState('authenticated')} />
+    return <LoginPage onLogin={(screens) => { setAllowedScreens(screens); setAuthState('authenticated') }} />
   }
 
   const handleCheckout = (
@@ -65,6 +73,14 @@ export default function App() {
     { page: 'reports', label: 'Báo cáo', icon: '📊' },
   ]
 
+  const visibleNavItems = isOwner
+    ? navItems
+    : navItems.filter(({ page }) => allowedScreens.includes(page))
+
+  function canAccess(page: string): boolean {
+    return isOwner || page === 'session' || page === 'invoice' || allowedScreens.includes(page)
+  }
+
   const currentPage: string = view.page === 'session' || view.page === 'invoice' ? 'dashboard' : view.page
 
   return (
@@ -77,7 +93,7 @@ export default function App() {
         </div>
 
         <nav className="flex-1 py-3 px-2 flex flex-col gap-0.5 overflow-y-auto">
-          {navItems.map(({ page, label, icon }) => (
+          {visibleNavItems.map(({ page, label, icon }) => (
             <button
               key={page}
               onClick={() => setView({ page: page as NavPage } as View)}
@@ -107,6 +123,7 @@ export default function App() {
           <button
             onClick={async () => {
               await window.api.auth.logout()
+              setAllowedScreens([])
               setAuthState('unauthenticated')
               setView({ page: 'dashboard' })
             }}
@@ -136,12 +153,36 @@ export default function App() {
             onComplete={() => setView({ page: 'dashboard' })}
           />
         )}
-        {view.page === 'products' && <ProductsPage />}
-        {view.page === 'stock' && <StockHistoryPage />}
-        {view.page === 'invoices' && <InvoiceListPage />}
-        {view.page === 'customers' && <CustomersPage />}
-        {view.page === 'reports' && <ReportsPage />}
-        {view.page === 'settings' && <SettingsPage />}
+        {view.page === 'products' && (
+          canAccess('products')
+            ? <ProductsPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'stock' && (
+          canAccess('stock')
+            ? <StockHistoryPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'invoices' && (
+          canAccess('invoices')
+            ? <InvoiceListPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'customers' && (
+          canAccess('customers')
+            ? <CustomersPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'reports' && (
+          canAccess('reports')
+            ? <ReportsPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'settings' && (
+          canAccess('settings')
+            ? <SettingsPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
       </main>
     </div>
   )
