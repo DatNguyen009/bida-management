@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category, StaffMember } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -60,6 +60,16 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('categories:update', id, input),
     delete: (id: number): Promise<{ success: boolean; productCount: number }> =>
       ipcRenderer.invoke('categories:delete', id),
+  },
+  staff: {
+    getAll: (): Promise<StaffMember[]> =>
+      ipcRenderer.invoke('staff:getAll'),
+    create: (input: { username: string; password: string; allowedScreens: string[] }): Promise<StaffMember | null> =>
+      ipcRenderer.invoke('staff:create', input),
+    update: (id: number, input: { password?: string; allowedScreens: string[] }): Promise<StaffMember | null> =>
+      ipcRenderer.invoke('staff:update', id, input),
+    delete: (id: number): Promise<void> =>
+      ipcRenderer.invoke('staff:delete', id),
   },
   invoices: {
     create: (input: InvoiceCreateInput): Promise<Invoice | null> =>

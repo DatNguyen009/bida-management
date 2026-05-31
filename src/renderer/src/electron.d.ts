@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category, StaffMember } from './types'
 
 declare global {
   interface Window {
@@ -38,6 +38,12 @@ declare global {
         create(input: { name: string; icon: string }): Promise<Category | null>
         update(id: number, input: { name: string; icon: string }): Promise<Category | null>
         delete(id: number): Promise<{ success: boolean; productCount: number }>
+      }
+      staff: {
+        getAll(): Promise<StaffMember[]>
+        create(input: { username: string; password: string; allowedScreens: string[] }): Promise<StaffMember | null>
+        update(id: number, input: { password?: string; allowedScreens: string[] }): Promise<StaffMember | null>
+        delete(id: number): Promise<void>
       }
       invoices: {
         create(input: InvoiceCreateInput): Promise<Invoice | null>
