@@ -124,7 +124,7 @@ export default function SettingsPage() {
   })
 
   return (
-    <div className="max-w-lg">
+    <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-[#d4af37]">Cài đặt</h1>
         <div className="flex gap-1 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg p-1">
