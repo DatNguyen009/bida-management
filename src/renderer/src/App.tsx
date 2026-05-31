@@ -122,7 +122,7 @@ export default function App() {
           </button>
           <button
             onClick={async () => {
-              await window.api.auth.logout()
+              try { await window.api.auth.logout() } catch { /* always logout locally */ }
               setAllowedScreens([])
               setAuthState('unauthenticated')
               setView({ page: 'dashboard' })
