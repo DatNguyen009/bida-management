@@ -79,6 +79,14 @@ export default function SettingsPage() {
   const [bankAccountName, setBankAccountName] = useState('')
   const [vatRate, setVatRate] = useState('10')
 
+  const payosClientId = settings.find((s: { key: string; value: string }) => s.key === 'payos_client_id')?.value ?? ''
+  const payosApiKey = settings.find((s: { key: string; value: string }) => s.key === 'payos_api_key')?.value ?? ''
+  const payosChecksumKey = settings.find((s: { key: string; value: string }) => s.key === 'payos_checksum_key')?.value ?? ''
+
+  const [localPayosClientId, setLocalPayosClientId] = useState(payosClientId)
+  const [localPayosApiKey, setLocalPayosApiKey] = useState(payosApiKey)
+  const [localPayosChecksumKey, setLocalPayosChecksumKey] = useState(payosChecksumKey)
+
   useEffect(() => {
     setShopName(getVal('shop_name'))
     setAddress(getVal('address'))
@@ -89,6 +97,9 @@ export default function SettingsPage() {
     setBankAccount(getVal('bank_account'))
     setBankAccountName(getVal('bank_account_name'))
     setVatRate(getVal('vat_rate') || '10')
+    setLocalPayosClientId(payosClientId)
+    setLocalPayosApiKey(payosApiKey)
+    setLocalPayosChecksumKey(payosChecksumKey)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings])
 
@@ -110,6 +121,9 @@ export default function SettingsPage() {
         ['bank_account', bankAccount],
         ['bank_account_name', bankAccountName],
         ['vat_rate', vatRate],
+        ['payos_client_id', localPayosClientId],
+        ['payos_api_key', localPayosApiKey],
+        ['payos_checksum_key', localPayosChecksumKey],
       ]
       for (const [key, value] of pairs) {
         await api().settings.set(key, value)
@@ -232,6 +246,26 @@ export default function SettingsPage() {
               VD: Chi 200,000đ = {Math.floor(200000 / 10000) * Number(pointsPer10k || 1)} điểm.
               Đổi 100 điểm = {100 * Number(vndPerPoint || 100)}đ giảm giá.
             </p>
+          </section>
+
+          <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
+            <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">PayOS</h2>
+            <p className="text-white/40 text-xs">Đăng ký miễn phí tại payos.vn để lấy thông tin bên dưới.</p>
+            <div>
+              <Label className="text-white/55 text-xs">Client ID</Label>
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
+                value={localPayosClientId} onChange={e => setLocalPayosClientId(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-white/55 text-xs">API Key</Label>
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
+                value={localPayosApiKey} onChange={e => setLocalPayosApiKey(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-white/55 text-xs">Checksum Key</Label>
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
+                value={localPayosChecksumKey} onChange={e => setLocalPayosChecksumKey(e.target.value)} />
+            </div>
           </section>
 
           <section className="bg-white/[0.06] border border-white/10 rounded-xl p-5 space-y-4">
