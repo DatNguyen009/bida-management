@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
@@ -51,36 +51,39 @@ export default function ReportsPage() {
   const [fromDate, toDate] = getPeriodDates(period, customFrom, customTo)
   const enabled = !!fromDate && !!toDate
 
-  const { data: revenueData = [], isFetching: f1 } = useQuery({
+  const staleTime = 2 * 60 * 1000 // 2 phút cache — switch back lại period đã xem thì instant
+
+  const { data: revenueData = [], isLoading: l1 } = useQuery({
     queryKey: ['reports', 'revenue', fromDate, toDate],
     queryFn: () => api().reports.revenue(fromDate, toDate),
-    enabled, placeholderData: keepPreviousData,
+    enabled, staleTime,
   })
-  const { data: summaryData = [], isFetching: f2 } = useQuery({
+  const { data: summaryData = [], isLoading: l2 } = useQuery({
     queryKey: ['reports', 'summary', fromDate, toDate],
     queryFn: () => api().reports.summary(fromDate, toDate),
-    enabled, placeholderData: keepPreviousData,
+    enabled, staleTime,
   })
   const { data: tableStats = [] } = useQuery({
     queryKey: ['reports', 'tableStats', fromDate, toDate],
     queryFn: () => api().reports.tableStats(fromDate, toDate),
-    enabled, placeholderData: keepPreviousData,
+    enabled, staleTime,
   })
   const { data: lowStock = [] } = useQuery({
     queryKey: ['reports', 'lowStock'],
     queryFn: () => api().reports.lowStock(),
+    staleTime,
   })
   const { data: staffData = [] } = useQuery({
     queryKey: ['reports', 'staffStats', fromDate, toDate],
     queryFn: () => api().reports.staffStats(fromDate, toDate),
-    enabled, placeholderData: keepPreviousData,
+    enabled, staleTime,
   })
   const { data: productData = [] } = useQuery({
     queryKey: ['reports', 'productStats', fromDate, toDate],
     queryFn: () => api().reports.productStats(fromDate, toDate),
-    enabled, placeholderData: keepPreviousData,
+    enabled, staleTime,
   })
-  const isFetching = f1 || f2
+  const isLoading = l1 || l2
 
   const summary = summaryData[0] as { total_revenue: string; total_invoices: string; avg_invoice: string } | undefined
   const chartData = (revenueData as Array<{ date: string; total: string; invoice_count: string }>).map((d) => ({
@@ -108,7 +111,6 @@ export default function ReportsPage() {
   return (
     <div className="space-y-5">
       {/* Period filter */}
-      {/* isFetching dot indicator */}
       <div className="flex items-center gap-3 flex-wrap">
         <h1 className="text-xl font-bold text-[#d4af37] mr-2">Báo cáo</h1>
         {(['today', 'week', 'month', 'year', 'custom'] as Period[]).map((p) => (
@@ -131,16 +133,20 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {/* Summary stats — fade when fetching, keep previous data visible */}
-      <div className="grid grid-cols-3 gap-4" style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.25s ease' }}>
+      {/* Summary stats */}
+      <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Tổng doanh thu', value: summary ? formatCurrency(Number(summary.total_revenue)) : '—', color: 'text-[#d4af37]' },
-          { label: 'Số hóa đơn', value: summary?.total_invoices ?? '—', color: 'text-blue-400' },
-          { label: 'Trung bình / HĐ', value: summary ? formatCurrency(Number(summary.avg_invoice)) : '—', color: 'text-green-400' },
+          { label: 'Tổng doanh thu', value: summary ? formatCurrency(Number(summary.total_revenue)) : null, color: 'text-[#d4af37]' },
+          { label: 'Số hóa đơn', value: summary?.total_invoices ?? null, color: 'text-blue-400' },
+          { label: 'Trung bình / HĐ', value: summary ? formatCurrency(Number(summary.avg_invoice)) : null, color: 'text-green-400' },
         ].map((s) => (
           <div key={s.label} className={`${GLASS_CARD} p-4 text-center`}
             style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)' }}>
-            <p className={`font-extrabold text-2xl ${s.color}`}>{s.value}</p>
+            {isLoading ? (
+              <div className="h-8 w-24 mx-auto rounded-lg bg-white/10 animate-pulse mb-1" />
+            ) : (
+              <p className={`font-extrabold text-2xl ${s.color}`}>{s.value ?? '—'}</p>
+            )}
             <p className="text-white/55 text-xs mt-1">{s.label}</p>
           </div>
         ))}
@@ -159,8 +165,7 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      {/* Tab content — fade on period change */}
-      <div style={{ opacity: isFetching ? 0.65 : 1, transition: 'opacity 0.25s ease' }}>
+      <div>
 
       {/* TAB: TỔNG QUAN */}
       {activeTab === 'overview' && (
@@ -385,7 +390,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      </div>{/* end fade wrapper */}
+      </div>
     </div>
   )
 }
