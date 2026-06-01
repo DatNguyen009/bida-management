@@ -7,6 +7,7 @@ import { authRouter } from './routes/auth'
 import { agentsRouter } from './routes/agents'
 import syncRouter from './routes/sync'
 import masterRouter from './routes/master'
+import payosRouter from './routes/payos'
 
 dotenv.config()
 
@@ -25,6 +26,7 @@ app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/agents', agentsRouter)
 app.use('/api/v1/sync', syncRouter)
 app.use('/api/v1/master', masterRouter)
+app.use('/api/v1/payos', payosRouter)
 
 const dashboardDir = path.join(__dirname, '../public/dashboard')
 app.use('/dashboard', express.static(dashboardDir))
