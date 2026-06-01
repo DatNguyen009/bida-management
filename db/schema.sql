@@ -187,6 +187,9 @@ CREATE TABLE IF NOT EXISTS promotions (
 CREATE UNIQUE INDEX IF NOT EXISTS promotions_code_agent_idx
   ON promotions (agent_id, code) WHERE code IS NOT NULL;
 
+ALTER TABLE cloud_invoices
+  ADD COLUMN IF NOT EXISTS promotions_applied JSONB DEFAULT '[]'::jsonb;
+
 -- Seed 8 sample tables
 INSERT INTO tables (name, hourly_rate) VALUES
   ('Bàn 1', 50000), ('Bàn 2', 50000), ('Bàn 3', 50000), ('Bàn 4', 50000),
