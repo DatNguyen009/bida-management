@@ -161,6 +161,32 @@ INSERT INTO loyalty_settings (points_per_10k_vnd, vnd_per_point, min_redeem_poin
 SELECT 1, 100, 100
 WHERE NOT EXISTS (SELECT 1 FROM loyalty_settings);
 
+-- Chương trình khuyến mãi
+CREATE TABLE IF NOT EXISTS promotions (
+  id             SERIAL PRIMARY KEY,
+  agent_id       VARCHAR(50) NOT NULL,
+  name           VARCHAR(100) NOT NULL,
+  type           VARCHAR(20) NOT NULL CHECK (type IN ('voucher','time_slot','event')),
+  is_active      BOOLEAN DEFAULT TRUE,
+  discount_type  VARCHAR(10) NOT NULL CHECK (discount_type IN ('percent','fixed')),
+  discount_value DECIMAL(10,2) NOT NULL,
+  apply_to       VARCHAR(20) DEFAULT 'total' CHECK (apply_to IN ('total','play','items')),
+  max_discount   DECIMAL(10,0) NULL,
+  code           VARCHAR(50) NULL,
+  max_uses       INT NULL,
+  used_count     INT DEFAULT 0,
+  days_of_week   INT[] NULL,
+  time_from      TIME NULL,
+  time_to        TIME NULL,
+  valid_from     DATE NULL,
+  valid_to       DATE NULL,
+  created_at     TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT voucher_has_code CHECK (type <> 'voucher' OR code IS NOT NULL)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS promotions_code_agent_idx
+  ON promotions (agent_id, code) WHERE code IS NOT NULL;
+
 -- Seed 8 sample tables
 INSERT INTO tables (name, hourly_rate) VALUES
   ('Bàn 1', 50000), ('Bàn 2', 50000), ('Bàn 3', 50000), ('Bàn 4', 50000),

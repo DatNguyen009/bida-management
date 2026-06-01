@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS cloud_invoices (
   discount_from_points DECIMAL(10,0) NOT NULL DEFAULT 0,
   final_amount         DECIMAL(10,0) NOT NULL,
   points_earned        INT           NOT NULL DEFAULT 0,
+  promotions_applied   JSONB         DEFAULT '[]'::jsonb,
   printed_at           TIMESTAMPTZ,
   created_at           TIMESTAMPTZ,
   PRIMARY KEY (agent_id, id)
