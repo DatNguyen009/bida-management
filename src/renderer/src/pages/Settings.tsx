@@ -154,56 +154,56 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Thông tin quán</h2>
-            <div><Label className="text-[#6b7280] text-xs">Tên quán</Label>
+            <div><Label className="text-white/55 text-xs">Tên quán</Label>
               <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={shopName}
                 onChange={(e) => setShopName(e.target.value)} /></div>
-            <div><Label className="text-[#6b7280] text-xs">Địa chỉ</Label>
+            <div><Label className="text-white/55 text-xs">Địa chỉ</Label>
               <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={address}
                 onChange={(e) => setAddress(e.target.value)} /></div>
-            <div><Label className="text-[#6b7280] text-xs">Số điện thoại</Label>
+            <div><Label className="text-white/55 text-xs">Số điện thoại</Label>
               <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={phone}
                 onChange={(e) => setPhone(e.target.value)} /></div>
-            <div><Label className="text-[#6b7280] text-xs">Giá mặc định (đồng/giờ)</Label>
+            <div><Label className="text-white/55 text-xs">Giá mặc định (đồng/giờ)</Label>
               <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={defaultRate}
                 onChange={(e) => setDefaultRate(e.target.value)} /></div>
             <div>
-              <Label className="text-[#6b7280] text-xs">VAT (%)</Label>
+              <Label className="text-white/55 text-xs">VAT (%)</Label>
               <Input type="number" min={0} max={100}
                 className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={vatRate}
                 onChange={(e) => setVatRate(e.target.value)}
                 placeholder="10" />
-              <p className="text-xs text-[#6b7280] mt-1">Nhập 0 để tắt VAT. Mặc định 10%.</p>
+              <p className="text-xs text-white/55 mt-1">Nhập 0 để tắt VAT. Mặc định 10%.</p>
             </div>
           </section>
 
           <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Máy in nhiệt</h2>
             <div>
-              <Label className="text-[#6b7280] text-xs">Đường dẫn máy in (USB / Serial)</Label>
+              <Label className="text-white/55 text-xs">Đường dẫn máy in (USB / Serial)</Label>
               <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={printerPath}
                 onChange={(e) => setPrinterPath(e.target.value)}
                 placeholder="USB001 hoặc COM3" />
-              <p className="text-xs text-[#6b7280] mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
+              <p className="text-xs text-white/55 mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
             </div>
           </section>
 
           <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tài khoản ngân hàng</h2>
             <div>
-              <Label className="text-[#6b7280] text-xs">Mã ngân hàng (VietQR)</Label>
+              <Label className="text-white/55 text-xs">Mã ngân hàng (VietQR)</Label>
               <Input
                 className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankId}
                 onChange={(e) => setBankId(e.target.value.toUpperCase())}
                 placeholder="VD: MB, VCB, TCB, ACB, TPB"
               />
-              <p className="text-xs text-[#6b7280] mt-1">
+              <p className="text-xs text-white/55 mt-1">
                 Tra cứu mã tại: img.vietqr.io/danh-sach-ngan-hang
               </p>
             </div>
             <div>
-              <Label className="text-[#6b7280] text-xs">Số tài khoản</Label>
+              <Label className="text-white/55 text-xs">Số tài khoản</Label>
               <Input
                 className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankAccount}
@@ -212,7 +212,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <Label className="text-[#6b7280] text-xs">Tên chủ tài khoản</Label>
+              <Label className="text-white/55 text-xs">Tên chủ tài khoản</Label>
               <Input
                 className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankAccountName}
@@ -224,13 +224,13 @@ export default function SettingsPage() {
 
           <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tích điểm khách hàng</h2>
-            <div><Label className="text-[#6b7280] text-xs">Điểm nhận được khi chi 10.000đ</Label>
+            <div><Label className="text-white/55 text-xs">Điểm nhận được khi chi 10.000đ</Label>
               <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={pointsPer10k}
                 onChange={(e) => setPointsPer10k(e.target.value)} /></div>
-            <div><Label className="text-[#6b7280] text-xs">1 điểm = ? đồng giảm giá</Label>
+            <div><Label className="text-white/55 text-xs">1 điểm = ? đồng giảm giá</Label>
               <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={vndPerPoint}
                 onChange={(e) => setVndPerPoint(e.target.value)} /></div>
-            <p className="text-xs text-[#6b7280]">
+            <p className="text-xs text-white/55">
               VD: Chi 200,000đ = {Math.floor(200000 / 10000) * Number(pointsPer10k || 1)} điểm.
               Đổi 100 điểm = {100 * Number(vndPerPoint || 100)}đ giảm giá.
             </p>
@@ -238,7 +238,7 @@ export default function SettingsPage() {
 
           <section className="bg-white/[0.06] border border-white/10 rounded-xl p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Giao diện</h3>
-            <p className="text-[#6b7280] text-xs">Chọn background theme cho toàn bộ app.</p>
+            <p className="text-white/55 text-xs">Chọn background theme cho toàn bộ app.</p>
             <div className="grid grid-cols-2 gap-4">
               {(
                 [
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="p-3 bg-white/[0.04]">
                     <p className="text-white text-xs font-semibold">{t.label}</p>
-                    <p className="text-white/40 text-[10px] mt-0.5">{t.desc}</p>
+                    <p className="text-white/65 text-[10px] mt-0.5">{t.desc}</p>
                   </div>
                   {theme === t.id && (
                     <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#d4af37] flex items-center justify-center">
@@ -326,7 +326,7 @@ export default function SettingsPage() {
               <tbody>
                 {staffList.map((s, i) => (
                   <tr key={s.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
-                    <td className="px-4 py-3 text-[#e2e8f0] font-medium">{s.username}</td>
+                    <td className="px-4 py-3 text-white/90 font-medium">{s.username}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1 flex-wrap">
                         {s.allowed_screens.map((sc) => (
@@ -334,7 +334,7 @@ export default function SettingsPage() {
                             {SCREENS.find((x) => x.key === sc)?.label ?? sc}
                           </span>
                         ))}
-                        {s.allowed_screens.length === 0 && <span className="text-[#6b7280] text-xs">Không có quyền</span>}
+                        {s.allowed_screens.length === 0 && <span className="text-white/55 text-xs">Không có quyền</span>}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right space-x-1">
@@ -354,7 +354,7 @@ export default function SettingsPage() {
                   </tr>
                 ))}
                 {staffList.length === 0 && (
-                  <tr><td colSpan={3} className="px-4 py-8 text-center text-[#6b7280]">Chưa có nhân viên nào</td></tr>
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-white/55">Chưa có nhân viên nào</td></tr>
                 )}
               </tbody>
             </table>
@@ -367,7 +367,7 @@ export default function SettingsPage() {
               </DialogHeader>
               <div className="space-y-3">
                 <div>
-                  <Label className="text-[#6b7280] text-xs">Tên đăng nhập</Label>
+                  <Label className="text-white/55 text-xs">Tên đăng nhập</Label>
                   <Input
                     className="bg-white/[0.04] border-white/10 text-white mt-1"
                     value={staffForm.username}
@@ -376,7 +376,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[#6b7280] text-xs">
+                  <Label className="text-white/55 text-xs">
                     {staffMode === 'edit' ? 'Mật khẩu mới (để trống = không đổi)' : 'Mật khẩu'}
                   </Label>
                   <Input
@@ -387,7 +387,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[#6b7280] text-xs mb-2 block">Màn hình được phép truy cập</Label>
+                  <Label className="text-white/55 text-xs mb-2 block">Màn hình được phép truy cập</Label>
                   <div className="space-y-2">
                     {SCREENS.map(({ key, label }) => (
                       <label key={key} className="flex items-center gap-2 cursor-pointer">

@@ -76,7 +76,7 @@ export default function App() {
   if (authState === 'checking') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white/40 text-sm">Đang tải...</p>
+        <p className="text-white/65 text-sm">Đang tải...</p>
       </div>
     )
   }
@@ -131,7 +131,7 @@ export default function App() {
           </div>
           <div>
             <div className="text-white font-extrabold text-sm leading-tight tracking-tight">Bida</div>
-            <div className="text-white/35 text-[10px] tracking-wide">Management System</div>
+            <div className="text-white/60 text-[10px] tracking-wide">Management System</div>
           </div>
           {/* bottom divider */}
           <div className="absolute bottom-0 left-4 right-4 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
@@ -159,7 +159,7 @@ export default function App() {
               className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center gap-2.5 mb-0.5
                 ${currentPage === page
                   ? 'glass-nav-active text-white font-semibold'
-                  : 'text-white/45 hover:bg-white/[0.07] hover:text-white/85'
+                  : 'text-white/70 hover:bg-white/[0.07] hover:text-white/85'
                 }`}
             >
               <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0
@@ -185,7 +185,7 @@ export default function App() {
                   className={`w-full text-left px-2.5 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5 mb-0.5
                     ${currentPage === page
                       ? 'glass-nav-active text-white font-semibold'
-                      : 'text-white/45 hover:bg-white/[0.07] hover:text-white/85'
+                      : 'text-white/70 hover:bg-white/[0.07] hover:text-white/85'
                     }`}
                 >
                   <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0
@@ -205,7 +205,7 @@ export default function App() {
             className={`w-full text-left px-2.5 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5
               ${currentPage === 'settings'
                 ? 'glass-nav-active text-white font-semibold'
-                : 'text-white/45 hover:bg-white/[0.07] hover:text-white/85'
+                : 'text-white/70 hover:bg-white/[0.07] hover:text-white/85'
               }`}
           >
             <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0
@@ -234,7 +234,7 @@ export default function App() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs text-white font-semibold truncate">{username || 'Owner'}</p>
-              <p className="text-[10px] text-white/35 capitalize">{role}</p>
+              <p className="text-[10px] text-white/60 capitalize">{role}</p>
             </div>
             <button
               title="Đăng xuất"
@@ -256,8 +256,8 @@ export default function App() {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Topbar */}
         <header className="glass-topbar flex-shrink-0 h-12 flex items-center px-6 gap-2">
-          <span className="text-[#555353] text-xs">Workspace</span>
-          <span className="text-[#333131] text-xs">/</span>
+          <span className="text-white/70 text-xs">Workspace</span>
+          <span className="text-white/25 text-xs">/</span>
           <span className="text-white text-xs font-medium">{pageLabels[currentPage] ?? currentPage}</span>
         </header>
       <main key={currentPage} className="page-enter flex-1 overflow-auto p-6">

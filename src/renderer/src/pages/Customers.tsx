@@ -91,20 +91,20 @@ export default function CustomersPage() {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-medium text-[#e2e8f0]">{customer.name}</p>
-                  <p className="text-sm text-[#6b7280]">{customer.phone}</p>
+                  <p className="font-medium text-white/90">{customer.name}</p>
+                  <p className="text-sm text-white/55">{customer.phone}</p>
                 </div>
                 <div className="text-right">
                   <Badge className="bg-[#7f3f00] text-yellow-300 text-xs">
                     {customer.points_balance} điểm
                   </Badge>
-                  <p className="text-xs text-[#6b7280] mt-1">{customer.total_visits} lần</p>
+                  <p className="text-xs text-white/55 mt-1">{customer.total_visits} lần</p>
                 </div>
               </div>
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="text-[#6b7280] text-center py-8">Không tìm thấy khách hàng</p>
+            <p className="text-white/55 text-center py-8">Không tìm thấy khách hàng</p>
           )}
         </div>
       </div>
@@ -148,14 +148,14 @@ export default function CustomersPage() {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-lg font-bold text-[#e2e8f0]">{selected.name}</h2>
-                    <p className="text-[#6b7280] text-sm">{selected.phone}</p>
-                    {selected.email && <p className="text-[#6b7280] text-sm">{selected.email}</p>}
+                    <h2 className="text-lg font-bold text-white/90">{selected.name}</h2>
+                    <p className="text-white/55 text-sm">{selected.phone}</p>
+                    {selected.email && <p className="text-white/55 text-sm">{selected.email}</p>}
                   </>
                 )}
               </div>
               {!editMode && (
-                <Button size="sm" variant="outline" className="border-white/10 text-[#6b7280] text-xs"
+                <Button size="sm" variant="outline" className="border-white/10 text-white/55 text-xs"
                   onClick={() => {
                     setEditForm({ name: selected.name, email: selected.email ?? '', notes: selected.notes ?? '' })
                     setEditMode(true)
@@ -168,40 +168,40 @@ export default function CustomersPage() {
             <div className="grid grid-cols-2 gap-3 mt-4 text-center">
               <div className="bg-white/[0.04] rounded-lg p-3">
                 <p className="text-2xl font-bold text-[#d4af37]">{selected.points_balance}</p>
-                <p className="text-xs text-[#6b7280]">điểm</p>
+                <p className="text-xs text-white/55">điểm</p>
               </div>
               <div className="bg-white/[0.04] rounded-lg p-3">
                 <p className="text-2xl font-bold text-green-400">{selected.total_visits}</p>
-                <p className="text-xs text-[#6b7280]">lần đến</p>
+                <p className="text-xs text-white/55">lần đến</p>
               </div>
             </div>
 
             <div className="mt-3 p-3 bg-white/[0.04] rounded-lg">
-              <p className="text-xs text-[#6b7280]">Tổng chi tiêu</p>
+              <p className="text-xs text-white/55">Tổng chi tiêu</p>
               <p className="text-lg font-bold text-green-400">{formatCurrency(selected.total_spent)}</p>
             </div>
 
             {selected.notes && (
-              <p className="mt-3 text-sm text-[#6b7280] italic">{selected.notes}</p>
+              <p className="mt-3 text-sm text-white/55 italic">{selected.notes}</p>
             )}
           </div>
 
           <div className="bg-white/[0.06] rounded-xl p-4 border border-white/10">
-            <h3 className="font-semibold mb-3 text-[#e2e8f0]">Lịch sử hóa đơn</h3>
+            <h3 className="font-semibold mb-3 text-white/90">Lịch sử hóa đơn</h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {(invoiceHistory as Array<{ id: number; invoice_number: string; final_amount: number; table_name: string; created_at: string }>).map((inv) => (
                 <div key={inv.id} className="p-2 bg-white/[0.04] rounded text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#6b7280]">#{inv.invoice_number}</span>
+                    <span className="text-white/55">#{inv.invoice_number}</span>
                     <span className="text-green-400">{formatCurrency(inv.final_amount)}</span>
                   </div>
-                  <p className="text-xs text-[#6b7280]">
+                  <p className="text-xs text-white/55">
                     {inv.table_name} — {new Date(inv.created_at).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
               ))}
               {invoiceHistory.length === 0 && (
-                <p className="text-[#6b7280] text-xs">Chưa có hóa đơn</p>
+                <p className="text-white/55 text-xs">Chưa có hóa đơn</p>
               )}
             </div>
           </div>

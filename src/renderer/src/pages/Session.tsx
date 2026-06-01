@@ -59,8 +59,8 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
   if (!session) {
     return (
       <div className="p-6">
-        <button onClick={onBack} className="text-[#6b7280] hover:text-white text-sm flex items-center gap-1 mb-4">← Quay lại</button>
-        <p className="text-[#6b7280]">Không tìm thấy phiên chơi.</p>
+        <button onClick={onBack} className="text-white/55 hover:text-white text-sm flex items-center gap-1 mb-4">← Quay lại</button>
+        <p className="text-white/55">Không tìm thấy phiên chơi.</p>
       </div>
     )
   }
@@ -71,21 +71,21 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="text-[#6b7280] hover:text-white text-sm flex items-center gap-1">← Quay lại</button>
+        <button onClick={onBack} className="text-white/55 hover:text-white text-sm flex items-center gap-1">← Quay lại</button>
         <h1 className="text-xl font-bold text-[#d4af37]">{session.table_name}</h1>
       </div>
 
       <div className="bg-[#2d1515] border border-[#7f1d1d] rounded-xl p-8 mb-4 text-center">
-        <p className="text-[#6b7280] text-[10px] uppercase tracking-widest mb-3">Thời gian chơi</p>
+        <p className="text-white/55 text-[10px] uppercase tracking-widest mb-3">Thời gian chơi</p>
         <p className="text-6xl font-mono font-bold text-red-400 tracking-wider">{formatDuration(seconds)}</p>
         <p className="text-2xl font-bold text-red-400 mt-3">{formatCurrency(playAmount)}</p>
-        <p className="text-xs text-[#6b7280] mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
+        <p className="text-xs text-white/55 mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
       </div>
 
       {/* Order section */}
       <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 mb-4">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-[#e2e8f0] text-sm">Đồ uống / thức ăn</h3>
+          <h3 className="font-semibold text-white/90 text-sm">Đồ uống / thức ăn</h3>
           <button
             className="btn-gold"
             onClick={() => setShowPicker(true)}
@@ -100,7 +100,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
         />
         {itemsAmount > 0 && (
           <div className="mt-3 pt-3 border-t border-white/10 flex justify-between text-sm">
-            <span className="text-[#6b7280]">Tổng đồ uống:</span>
+            <span className="text-white/55">Tổng đồ uống:</span>
             <span className="text-[#d4af37] font-bold">{formatCurrency(itemsAmount)}</span>
           </div>
         )}

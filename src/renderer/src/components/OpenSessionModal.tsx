@@ -50,7 +50,7 @@ export default function OpenSessionModal({ table, onConfirm, onClose }: Props) {
             <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">🎱</div>
             <h2 className="text-base font-bold text-white">Mở phiên chơi</h2>
           </div>
-          <p className="text-white/40 text-xs ml-11">{table.name} · {formatCurrency(table.hourly_rate)}/giờ</p>
+          <p className="text-white/65 text-xs ml-11">{table.name} · {formatCurrency(table.hourly_rate)}/giờ</p>
         </div>
 
         {/* Divider */}

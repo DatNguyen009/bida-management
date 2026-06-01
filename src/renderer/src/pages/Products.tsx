@@ -135,13 +135,13 @@ export default function ProductsPage() {
         <h1 className="text-xl font-bold text-[#d4af37]">Quản lý sản phẩm</h1>
         <div className="flex gap-1 backdrop-blur-xl bg-white/[0.04] border border-white/10 rounded-lg p-1">
           <button
-            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'products' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'products' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-white/55 hover:text-white'}`}
             onClick={() => setTab('products')}
           >
             Danh sách
           </button>
           <button
-            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'categories' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'categories' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-white/55 hover:text-white'}`}
             onClick={() => setTab('categories')}
           >
             Category
@@ -211,7 +211,7 @@ export default function ProductsPage() {
                     <tr key={p.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-2">
-                          <span className="text-[#e2e8f0]">{p.name}</span>
+                          <span className="text-white/90">{p.name}</span>
                           {p.product_type === 'composite' && (
                             <span className="text-xs bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 px-1.5 py-0.5 rounded">
                               Chế biến
@@ -220,22 +220,22 @@ export default function ProductsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="bg-white/10 text-[#e2e8f0] text-xs px-2 py-0.5 rounded-full">
+                        <span className="bg-white/10 text-white/90 text-xs px-2 py-0.5 rounded-full">
                           {p.category_icon} {p.category_name}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right text-[#6b7280] font-mono text-sm">
+                      <td className="px-4 py-3 text-right text-white/55 font-mono text-sm">
                         {p.cost_price != null ? formatCurrency(p.cost_price) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right text-green-400 font-semibold">{formatCurrency(p.price)}</td>
                       <td className="px-4 py-3 text-right">
                         {p.product_type === 'composite' ? (
-                          <span className={`${(p.effective_stock ?? 0) <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}`}>
+                          <span className={`${(p.effective_stock ?? 0) <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-white/90'}`}>
                             {p.effective_stock != null ? p.effective_stock : '—'} {p.unit}
-                            <span className="ml-1 text-[10px] text-[#6b7280]">có thể làm</span>
+                            <span className="ml-1 text-[10px] text-white/55">có thể làm</span>
                           </span>
                         ) : (
-                          <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-[#e2e8f0]'}>
+                          <span className={p.stock_quantity <= p.min_stock_alert ? 'text-red-400 font-semibold' : 'text-white/90'}>
                             {p.stock_quantity} {p.unit}
                           </span>
                         )}
@@ -245,7 +245,7 @@ export default function ProductsPage() {
                           onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
                           Nhập kho
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                        <Button size="sm" variant="ghost" className="text-white/55 hover:text-white h-7 text-xs px-2"
                           onClick={() => {
                             setSelected(p)
                             setForm({ name: p.name, category_id: p.category_id, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert, product_type: p.product_type ?? 'stock' })
@@ -298,9 +298,9 @@ export default function ProductsPage() {
                 {categories.map((cat, i) => (
                   <tr key={cat.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                     <td className="px-4 py-3 text-2xl">{cat.icon}</td>
-                    <td className="px-4 py-3 text-[#e2e8f0] font-medium">{cat.name}</td>
+                    <td className="px-4 py-3 text-white/90 font-medium">{cat.name}</td>
                     <td className="px-4 py-3 text-right space-x-1">
-                      <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                      <Button size="sm" variant="ghost" className="text-white/55 hover:text-white h-7 text-xs px-2"
                         onClick={() => { setSelectedCat(cat); setCatForm({ name: cat.name, icon: cat.icon }); setCatMode('edit') }}>
                         Sửa
                       </Button>
@@ -312,7 +312,7 @@ export default function ProductsPage() {
                   </tr>
                 ))}
                 {categories.length === 0 && (
-                  <tr><td colSpan={3} className="px-4 py-8 text-center text-[#6b7280]">Chưa có category nào</td></tr>
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-white/55">Chưa có category nào</td></tr>
                 )}
               </tbody>
             </table>
@@ -471,7 +471,7 @@ export default function ProductsPage() {
                 <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">📦</div>
                 <h2 className="text-base font-bold text-white">Nhập kho</h2>
               </div>
-              <p className="text-white/35 text-xs ml-11">{selected?.name} · Tồn: {selected?.stock_quantity} {selected?.unit}</p>
+              <p className="text-white/60 text-xs ml-11">{selected?.name} · Tồn: {selected?.stock_quantity} {selected?.unit}</p>
             </div>
             <div className="mb-5 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
             <div className="space-y-4 mb-6">

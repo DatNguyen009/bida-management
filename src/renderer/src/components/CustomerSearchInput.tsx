@@ -91,11 +91,11 @@ export default function CustomerSearchInput({ onSelect }: Props) {
       <div className="flex justify-between items-center">
         <div>
           <p className="font-medium text-green-400">✓ {selected.name}</p>
-          <p className="text-sm text-[#6b7280]">{selected.phone}</p>
+          <p className="text-sm text-white/55">{selected.phone}</p>
         </div>
         <div className="text-right">
           <p className="text-[#d4af37] font-bold">{selected.points_balance} điểm</p>
-          <button className="text-xs text-[#6b7280] hover:text-white" onClick={handleClear}>
+          <button className="text-xs text-white/55 hover:text-white" onClick={handleClear}>
             ✕ Xóa
           </button>
         </div>
@@ -113,7 +113,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
         onBlur={handleBlur}
         onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
       />
-      {isLoading && <p className="text-xs text-[#6b7280] mt-1">Đang tìm...</p>}
+      {isLoading && <p className="text-xs text-white/55 mt-1">Đang tìm...</p>}
       {isOpen && !showCreate && (
         <div className="absolute z-50 w-full mt-1 bg-[#161515] border border-[#272525] rounded-lg overflow-auto max-h-64 shadow-lg">
           {results.map((c) => (
@@ -124,7 +124,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
             >
               <div>
                 <p className="text-white text-sm font-medium">{c.name}</p>
-                <p className="text-[#6b7280] text-xs">{c.phone}</p>
+                <p className="text-white/55 text-xs">{c.phone}</p>
               </div>
               <p className="text-[#d4af37] text-xs">{c.points_balance} điểm</p>
             </button>
@@ -141,7 +141,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
       )}
       {showCreate && (
         <div className="mt-2 bg-[#161515] border border-[#272525] rounded-lg p-3 space-y-2">
-          <p className="text-xs text-[#6b7280]">Tạo khách mới — SĐT: {input}</p>
+          <p className="text-xs text-white/55">Tạo khách mới — SĐT: {input}</p>
           <Input
             className="bg-[#1c1b1b] border-[#272525] text-white text-sm"
             placeholder="Tên khách hàng..."
@@ -163,7 +163,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
             <Button
               size="sm"
               variant="outline"
-              className="border-[#272525] text-[#6b7280]"
+              className="border-[#272525] text-white/55"
               onClick={() => { setShowCreate(false); setCreateError('') }}
             >
               Huỷ

@@ -67,7 +67,7 @@ export default function ReportsPage() {
           <button key={p}
             className={period === p
               ? 'bg-[#d4af37] text-[#0f0e0f] font-bold px-3 py-1.5 rounded-lg text-sm'
-              : 'bg-white/[0.06] text-[#6b7280] border border-white/10 hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm'}
+              : 'bg-white/[0.06] text-white/55 border border-white/10 hover:bg-white/10 px-3 py-1.5 rounded-lg text-sm'}
             onClick={() => setPeriod(p)}>
             {p === 'today' ? 'Hôm nay' : p === 'week' ? '7 ngày' : p === 'month' ? 'Tháng này' : 'Tuỳ chọn'}
           </button>
@@ -76,7 +76,7 @@ export default function ReportsPage() {
           <div className="flex items-center gap-2">
             <input type="date" className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded px-2 py-1 text-sm text-white"
               value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
-            <span className="text-[#6b7280]">→</span>
+            <span className="text-white/55">→</span>
             <input type="date" className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded px-2 py-1 text-sm text-white"
               value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
           </div>
@@ -88,25 +88,25 @@ export default function ReportsPage() {
           <p className="text-[#d4af37] font-bold text-2xl">
             {summary ? formatCurrency(Number(summary.total_revenue)) : '—'}
           </p>
-          <p className="text-[#6b7280] text-xs mt-1">Tổng doanh thu</p>
+          <p className="text-white/55 text-xs mt-1">Tổng doanh thu</p>
         </div>
         <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 text-center">
           <p className="text-[#d4af37] font-bold text-2xl">
             {summary?.total_invoices ?? '—'}
           </p>
-          <p className="text-[#6b7280] text-xs mt-1">Số hóa đơn</p>
+          <p className="text-white/55 text-xs mt-1">Số hóa đơn</p>
         </div>
         <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 text-center">
           <p className="text-[#d4af37] font-bold text-2xl">
             {summary ? formatCurrency(Number(summary.avg_invoice)) : '—'}
           </p>
-          <p className="text-[#6b7280] text-xs mt-1">Trung bình/HĐ</p>
+          <p className="text-white/55 text-xs mt-1">Trung bình/HĐ</p>
         </div>
       </div>
 
       {chartData.length > 0 && (
         <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4">
-          <h3 className="font-semibold mb-4 text-[#e2e8f0]">Doanh thu theo ngày</h3>
+          <h3 className="font-semibold mb-4 text-white/90">Doanh thu theo ngày</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#272525" />
@@ -124,18 +124,18 @@ export default function ReportsPage() {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4">
-          <h3 className="font-semibold mb-3 text-[#e2e8f0]">Thống kê bàn</h3>
+          <h3 className="font-semibold mb-3 text-white/90">Thống kê bàn</h3>
           <div className="space-y-2">
             {(tableStats as Array<{ table_name: string; total_revenue: string; session_count: string; avg_duration_minutes: string }>).map((t, i) => (
               <div key={i} className="flex justify-between items-center p-2 bg-white/[0.04] rounded border border-white/10">
                 <div>
-                  <p className="text-sm font-medium text-[#e2e8f0]">{t.table_name}</p>
-                  <p className="text-xs text-[#6b7280]">{t.session_count} lần • TB {Math.round(Number(t.avg_duration_minutes))} phút</p>
+                  <p className="text-sm font-medium text-white/90">{t.table_name}</p>
+                  <p className="text-xs text-white/55">{t.session_count} lần • TB {Math.round(Number(t.avg_duration_minutes))} phút</p>
                 </div>
                 <span className="text-green-400 text-sm">{formatCurrency(Number(t.total_revenue))}</span>
               </div>
             ))}
-            {tableStats.length === 0 && <p className="text-[#6b7280] text-sm">Không có dữ liệu</p>}
+            {tableStats.length === 0 && <p className="text-white/55 text-sm">Không có dữ liệu</p>}
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default function ReportsPage() {
               <p className={`text-xs font-bold uppercase tracking-widest ${lowStock.length > 0 ? 'text-red-400' : 'text-green-400'}`}>
                 Cảnh báo tồn kho
               </p>
-              <p className="text-white/35 text-[11px] mt-0.5">
+              <p className="text-white/60 text-[11px] mt-0.5">
                 {lowStock.length > 0 ? `${lowStock.length} sản phẩm cần nhập thêm` : 'Tất cả sản phẩm ổn định'}
               </p>
             </div>

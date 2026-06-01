@@ -53,7 +53,7 @@ export default function LoginPage({ onLogin }: Props) {
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🎱</div>
           <h1 className="text-2xl font-bold text-[#d4af37]">Bida Manager</h1>
-          <p className="text-[#6b7280] text-sm mt-1">Đăng nhập để tiếp tục</p>
+          <p className="text-white/55 text-sm mt-1">Đăng nhập để tiếp tục</p>
         </div>
 
         <div>

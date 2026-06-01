@@ -18,7 +18,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
   return (
     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[#6b7280]">Hiển thị:</span>
+        <span className="text-xs text-white/55">Hiển thị:</span>
         <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(Number(v))}>
           <SelectTrigger className="w-20 h-7 bg-white/[0.04] border-white/10 text-white text-xs">
             <SelectValue />
@@ -31,7 +31,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
             ))}
           </SelectContent>
         </Select>
-        <span className="text-xs text-[#6b7280]">
+        <span className="text-xs text-white/55">
           {total === 0 ? 'Không có kết quả' : `${from}–${to} / ${total}`}
         </span>
       </div>
@@ -40,7 +40,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-white/10 text-[#6b7280] hover:bg-white/[0.06] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-white/55 hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
@@ -52,7 +52,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-white/10 text-[#6b7280] hover:bg-white/[0.06] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-white/55 hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >

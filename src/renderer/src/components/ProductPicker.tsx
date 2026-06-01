@@ -65,7 +65,7 @@ export default function ProductPicker({ open, onClose, onSelect }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{product.name}</p>
                   <p className="text-xs text-green-400">{formatCurrency(product.price)}</p>
-                  <p className="text-xs text-gray-500">Tồn: {product.stock_quantity} {product.unit}</p>
+                  <p className="text-xs text-white/55">Tồn: {product.stock_quantity} {product.unit}</p>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button

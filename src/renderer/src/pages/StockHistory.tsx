@@ -81,7 +81,7 @@ export default function StockHistoryPage() {
 
       <div className="flex flex-wrap gap-3 mb-6 items-end">
         <div>
-          <p className="text-xs text-[#6b7280] mb-1">Sản phẩm</p>
+          <p className="text-xs text-white/55 mb-1">Sản phẩm</p>
           <Input
             className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-48"
             placeholder="Tìm tên sản phẩm..."
@@ -91,7 +91,7 @@ export default function StockHistoryPage() {
           />
         </div>
         <div>
-          <p className="text-xs text-[#6b7280] mb-1">Từ ngày</p>
+          <p className="text-xs text-white/55 mb-1">Từ ngày</p>
           <Input
             type="date"
             className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
@@ -100,7 +100,7 @@ export default function StockHistoryPage() {
           />
         </div>
         <div>
-          <p className="text-xs text-[#6b7280] mb-1">Đến ngày</p>
+          <p className="text-xs text-white/55 mb-1">Đến ngày</p>
           <Input
             type="date"
             className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
@@ -142,21 +142,21 @@ export default function StockHistoryPage() {
               <>
                 {transactions.map((t, i) => (
                   <tr key={t.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
-                    <td className="px-4 py-3 text-[#6b7280] whitespace-nowrap">{formatDateTime(t.created_at)}</td>
-                    <td className="px-4 py-3 font-medium text-[#e2e8f0]">{t.product_name}</td>
+                    <td className="px-4 py-3 text-white/55 whitespace-nowrap">{formatDateTime(t.created_at)}</td>
+                    <td className="px-4 py-3 font-medium text-white/90">{t.product_name}</td>
                     <td className="px-4 py-3">{typeBadge(t.type)}</td>
                     <td className="px-4 py-3 text-right">{qtyDisplay(t.type, t.quantity)}</td>
-                    <td className="px-4 py-3 text-right text-[#6b7280]">{t.before_qty}</td>
-                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{t.after_qty}</td>
-                    <td className="px-4 py-3 text-right text-[#e2e8f0] font-mono text-xs">
+                    <td className="px-4 py-3 text-right text-white/55">{t.before_qty}</td>
+                    <td className="px-4 py-3 text-right text-white/90">{t.after_qty}</td>
+                    <td className="px-4 py-3 text-right text-white/90 font-mono text-xs">
                       {t.cost_price != null ? formatCurrency(t.cost_price) : '—'}
                     </td>
-                    <td className="px-4 py-3 text-[#6b7280] text-xs">{t.note ?? '—'}</td>
+                    <td className="px-4 py-3 text-white/55 text-xs">{t.note ?? '—'}</td>
                   </tr>
                 ))}
                 {transactions.length === 0 && !isFetching && (
                   <tr>
-                    <td colSpan={8} className="p-8 text-center text-[#6b7280]">
+                    <td colSpan={8} className="p-8 text-center text-white/55">
                       Không có giao dịch nào trong khoảng thời gian này
                     </td>
                   </tr>

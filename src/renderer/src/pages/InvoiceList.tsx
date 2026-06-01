@@ -81,18 +81,18 @@ export default function InvoiceListPage({ role, username }: Props) {
         <div className="flex flex-wrap gap-3 mb-6 items-end">
           <h1 className="text-2xl font-bold text-[#d4af37] w-full">Hóa đơn</h1>
           <div>
-            <p className="text-xs text-[#6b7280] mb-1">Từ ngày</p>
+            <p className="text-xs text-white/55 mb-1">Từ ngày</p>
             <Input type="date" className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
               value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           </div>
           <div>
-            <p className="text-xs text-[#6b7280] mb-1">Đến ngày</p>
+            <p className="text-xs text-white/55 mb-1">Đến ngày</p>
             <Input type="date" className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
               value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </div>
           {isOwner && (
             <div>
-              <p className="text-xs text-[#6b7280] mb-1">Nhân viên</p>
+              <p className="text-xs text-white/55 mb-1">Nhân viên</p>
               <select
                 value={selectedStaff}
                 onChange={(e) => setSelectedStaff(e.target.value)}
@@ -142,23 +142,23 @@ export default function InvoiceListPage({ role, username }: Props) {
                         : `hover:bg-white/[0.06] ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}`}
                     onClick={() => setSelected(inv)}
                   >
-                    <td className="px-4 py-3 font-mono text-[#6b7280]">{inv.invoice_number}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-[#e2e8f0]">{formatDateTime(inv.created_at)}</td>
-                    <td className="px-4 py-3 text-[#e2e8f0]">{inv.table_name ?? '—'}</td>
-                    <td className="px-4 py-3 text-[#e2e8f0]">{inv.customer_name ?? '—'}</td>
+                    <td className="px-4 py-3 font-mono text-white/55">{inv.invoice_number}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-white/90">{formatDateTime(inv.created_at)}</td>
+                    <td className="px-4 py-3 text-white/90">{inv.table_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-white/90">{inv.customer_name ?? '—'}</td>
                     {isOwner && (
-                      <td className="px-4 py-3 text-[#6b7280] text-xs">{inv.completed_by ?? '—'}</td>
+                      <td className="px-4 py-3 text-white/55 text-xs">{inv.completed_by ?? '—'}</td>
                     )}
-                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.play_amount)}</td>
-                    <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.items_amount)}</td>
+                    <td className="px-4 py-3 text-right text-white/90">{formatCurrency(inv.play_amount)}</td>
+                    <td className="px-4 py-3 text-right text-white/90">{formatCurrency(inv.items_amount)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-green-400">{formatCurrency(inv.final_amount)}</td>
                     <td className="px-4 py-3 text-right text-[#d4af37]">+{inv.points_earned}</td>
-                    <td className="px-4 py-3 text-center text-[#e2e8f0]">{inv.printed_at ? '✓' : '—'}</td>
+                    <td className="px-4 py-3 text-center text-white/90">{inv.printed_at ? '✓' : '—'}</td>
                   </tr>
                 ))}
                 {invoices.length === 0 && !isFetching && (
                   <tr>
-                    <td colSpan={isOwner ? 10 : 9} className="p-8 text-center text-[#6b7280]">
+                    <td colSpan={isOwner ? 10 : 9} className="p-8 text-center text-white/55">
                       Không có hóa đơn nào trong khoảng thời gian này
                     </td>
                   </tr>
@@ -183,33 +183,33 @@ export default function InvoiceListPage({ role, username }: Props) {
             <div className="flex justify-between items-start mb-3">
               <div>
                 <p className="font-bold text-lg text-[#d4af37]">HĐ #{selected.invoice_number}</p>
-                <p className="text-sm text-[#6b7280]">{selected.table_name ?? '—'}</p>
-                <p className="text-xs text-[#6b7280]">{formatDateTime(selected.created_at)}</p>
+                <p className="text-sm text-white/55">{selected.table_name ?? '—'}</p>
+                <p className="text-xs text-white/55">{formatDateTime(selected.created_at)}</p>
                 {selected.completed_by && (
-                  <p className="text-xs text-[#555353] mt-0.5">NV: {selected.completed_by}</p>
+                  <p className="text-xs text-white/70 mt-0.5">NV: {selected.completed_by}</p>
                 )}
               </div>
-              <button className="text-[#6b7280] hover:text-white"
+              <button className="text-white/55 hover:text-white"
                 onClick={() => setSelected(null)}>✕</button>
             </div>
 
             {selected.customer_name && (
               <div className="mb-3 p-2 bg-white/[0.04] rounded text-sm border border-white/10">
-                <p className="font-medium text-[#e2e8f0]">{selected.customer_name}</p>
-                <p className="text-[#6b7280] text-xs">{selected.customer_phone}</p>
+                <p className="font-medium text-white/90">{selected.customer_name}</p>
+                <p className="text-white/55 text-xs">{selected.customer_phone}</p>
               </div>
             )}
 
             <div className="space-y-1 text-sm border-t border-[#d4af37] pt-3">
               <div className="flex justify-between">
-                <span className="text-[#6b7280]">Tiền chơi</span>
-                <span className="text-[#e2e8f0]">{formatCurrency(selected.play_amount)}</span>
+                <span className="text-white/55">Tiền chơi</span>
+                <span className="text-white/90">{formatCurrency(selected.play_amount)}</span>
               </div>
 
               {orderItems.length > 0 && (
                 <div className="pt-1 pb-1">
                   {orderItems.map((item, i) => (
-                    <div key={i} className="flex justify-between text-xs text-[#6b7280] py-0.5">
+                    <div key={i} className="flex justify-between text-xs text-white/55 py-0.5">
                       <span>{item.product_name} x{item.quantity}</span>
                       <span>{formatCurrency(item.subtotal)}</span>
                     </div>
@@ -244,7 +244,7 @@ export default function InvoiceListPage({ role, username }: Props) {
             </div>
 
             {selected.printed_at && (
-              <p className="text-xs text-[#6b7280] mt-3 text-center">
+              <p className="text-xs text-white/55 mt-3 text-center">
                 Đã in lúc {new Date(selected.printed_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
               </p>
             )}

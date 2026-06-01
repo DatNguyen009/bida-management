@@ -10,7 +10,7 @@ interface Props {
 
 export default function OrderList({ items, onRemove, onAdjust, readOnly = false }: Props) {
   if (items.length === 0) {
-    return <p className="text-gray-500 text-sm">Chưa có đồ uống / thức ăn</p>
+    return <p className="text-white/55 text-sm">Chưa có đồ uống / thức ăn</p>
   }
 
   return (

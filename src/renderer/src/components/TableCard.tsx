@@ -54,7 +54,7 @@ export default function TableCard({ table, onOpen, onView, onEdit }: Props) {
         <div className="text-[#d4af37] font-bold text-sm">{table.name}</div>
         {isPlaying && session
           ? <PlayingTimer startTime={session.start_time} hourlyRate={session.hourly_rate} />
-          : <div className="text-[#6b7280] text-xs">{formatCurrency(table.hourly_rate)}/giờ</div>
+          : <div className="text-white/55 text-xs">{formatCurrency(table.hourly_rate)}/giờ</div>
         }
       </div>
 

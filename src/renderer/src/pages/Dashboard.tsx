@@ -110,7 +110,7 @@ export default function Dashboard({ onViewSession }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-[#d4af37]">Dashboard</h1>
-          <p className="text-xs text-white/35 mt-0.5">Quản lý bàn bida</p>
+          <p className="text-xs text-white/60 mt-0.5">Quản lý bàn bida</p>
         </div>
         <button
           onClick={handleAddNew}
@@ -126,36 +126,36 @@ export default function Dashboard({ onViewSession }: Props) {
         {/* Bàn đang chơi */}
         <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(239,68,68,0.25)'}}>
           <div className="absolute inset-0 bg-red-500/[0.04] pointer-events-none" />
-          <div className="text-white/45 text-xs mb-2">Bàn đang chơi</div>
+          <div className="text-white/70 text-xs mb-2">Bàn đang chơi</div>
           <div className="text-red-400 text-3xl font-extrabold leading-none">{playingCount}</div>
-          <div className="text-white/35 text-xs mt-2">/ {tables.length} bàn</div>
+          <div className="text-white/60 text-xs mt-2">/ {tables.length} bàn</div>
         </div>
 
         {/* Doanh thu hôm nay */}
         <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(212,175,55,0.25)'}}>
           <div className="absolute inset-0 bg-yellow-500/[0.04] pointer-events-none" />
-          <div className="text-white/45 text-xs mb-2">Doanh thu hôm nay</div>
+          <div className="text-white/70 text-xs mb-2">Doanh thu hôm nay</div>
           <div className="text-[#d4af37] text-2xl font-extrabold leading-none truncate">
             {summary ? formatCurrency(Number(summary.total_revenue)) : '—'}
           </div>
-          <div className="text-white/35 text-xs mt-2">Cập nhật mỗi phút</div>
+          <div className="text-white/60 text-xs mt-2">Cập nhật mỗi phút</div>
         </div>
 
         {/* Khách hàng */}
         <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(96,165,250,0.25)'}}>
           <div className="absolute inset-0 bg-blue-500/[0.04] pointer-events-none" />
-          <div className="text-white/45 text-xs mb-2">Khách hàng</div>
+          <div className="text-white/70 text-xs mb-2">Khách hàng</div>
           <div className="text-blue-400 text-3xl font-extrabold leading-none">{activeSessions.length}</div>
-          <div className="text-white/35 text-xs mt-2">đang trong quán</div>
+          <div className="text-white/60 text-xs mt-2">đang trong quán</div>
         </div>
 
         {/* Hóa đơn hôm nay */}
         <div className={glassCard} style={glassCardInner}>
-          <div className="text-white/45 text-xs mb-2">Hóa đơn hôm nay</div>
+          <div className="text-white/70 text-xs mb-2">Hóa đơn hôm nay</div>
           <div className="text-white text-3xl font-extrabold leading-none">
             {todayInvoices ? todayInvoices.total : summary?.total_invoices ?? '—'}
           </div>
-          <div className="text-white/35 text-xs mt-2">đã thanh toán</div>
+          <div className="text-white/60 text-xs mt-2">đã thanh toán</div>
         </div>
       </div>
 

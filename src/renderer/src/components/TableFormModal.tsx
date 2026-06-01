@@ -47,7 +47,7 @@ export default function TableFormModal({ isOpen, table, onSave, onClose }: Props
               {table ? 'Chỉnh sửa bàn' : 'Thêm bàn mới'}
             </h2>
           </div>
-          {table && <p className="text-white/40 text-xs ml-11">ID #{table.id}</p>}
+          {table && <p className="text-white/65 text-xs ml-11">ID #{table.id}</p>}
         </div>
 
         {/* Divider */}

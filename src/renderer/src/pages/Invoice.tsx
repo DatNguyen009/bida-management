@@ -152,7 +152,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
       {/* Customer Lookup */}
       <div className="col-span-full bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 mb-2">
-        <h3 className="font-semibold text-xs text-[#6b7280] uppercase tracking-widest mb-3">KHÁCH HÀNG (tùy chọn)</h3>
+        <h3 className="font-semibold text-xs text-white/55 uppercase tracking-widest mb-3">KHÁCH HÀNG (tùy chọn)</h3>
         <CustomerSearchInput onSelect={(c) => { setSelectedCustomer(c); setPointsToRedeem(0); setPointsError('') }} />
         {selectedCustomer && selectedCustomer.points_balance > 0 && (
           <div className="mt-3">
@@ -182,7 +182,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
         <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold text-[#e2e8f0]">Đồ uống / thức ăn</h3>
+            <h3 className="font-semibold text-white/90">Đồ uống / thức ăn</h3>
             <Button size="sm" onClick={() => setShowPicker(true)}
               className="btn-gold">
               + Thêm
@@ -197,21 +197,21 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
         <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 space-y-3">
           <div>
-            <Label className="text-[#6b7280] text-xs">Giảm giá (đồng)</Label>
+            <Label className="text-white/55 text-xs">Giảm giá (đồng)</Label>
             <Input type="number" className="mt-1 bg-[#161515] border-[#272525] text-white"
               value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
           </div>
           <div className="pt-2 border-t border-[#272525] space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-[#6b7280]">Tổng chơi:</span>
+              <span className="text-white/55">Tổng chơi:</span>
               <span>{formatCurrency(playAmount)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#6b7280]">Tổng hàng:</span>
+              <span className="text-white/55">Tổng hàng:</span>
               <span>{formatCurrency(itemsAmount)}</span>
             </div>
             {vatRate > 0 && (
-              <div className="flex justify-between text-[#6b7280]">
+              <div className="flex justify-between text-white/55">
                 <span>VAT ({vatRate}%):</span>
                 <span>+{formatCurrency(vatAmount)}</span>
               </div>
@@ -231,7 +231,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         <div className="mt-6">
           {paymentStep === 'select' && (
             <div className="space-y-3">
-              <p className="text-xs text-[#6b7280] uppercase tracking-widest text-center mb-2">Phương thức thanh toán</p>
+              <p className="text-xs text-white/55 uppercase tracking-widest text-center mb-2">Phương thức thanh toán</p>
               <div className="flex gap-3">
                 <Button
                   className="flex-1 bg-[#1c1b1b] border border-[#272525] text-white hover:bg-[#272525] font-bold py-6 text-base"
@@ -249,7 +249,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </Button>
               </div>
               {!bankConfigured && (
-                <p className="text-xs text-[#6b7280] text-center">
+                <p className="text-xs text-white/55 text-center">
                   Vào Cài đặt → Tài khoản ngân hàng để bật thanh toán chuyển khoản
                 </p>
               )}
@@ -260,11 +260,11 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             <div className="space-y-3">
               <div className="bg-[#161515] border border-[#272525] rounded-xl p-3 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6b7280]">Cần thanh toán</span>
+                  <span className="text-white/55">Cần thanh toán</span>
                   <span className="font-bold text-[#d4af37]">{formatCurrency(finalAmount)}</span>
                 </div>
                 <div>
-                  <Label className="text-[#6b7280] text-xs">Tiền khách đưa</Label>
+                  <Label className="text-white/55 text-xs">Tiền khách đưa</Label>
                   <Input
                     type="number"
                     min={0}
@@ -276,7 +276,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </div>
                 {cashReceived !== '' && (
                   <div className="flex justify-between text-sm pt-1 border-t border-[#272525]">
-                    <span className="text-[#6b7280]">Tiền thối</span>
+                    <span className="text-white/55">Tiền thối</span>
                     <span className={`font-bold text-lg ${cashReceived >= finalAmount ? 'text-green-400' : 'text-red-400'}`}>
                       {cashReceived >= finalAmount
                         ? formatCurrency(cashReceived - finalAmount)
@@ -303,7 +303,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </Button>
               </div>
               <button
-                className="w-full text-xs text-[#6b7280] hover:text-white text-center mt-1"
+                className="w-full text-xs text-white/55 hover:text-white text-center mt-1"
                 onClick={() => { setPaymentStep('select'); setCashReceived('') }}
               >
                 ← Quay lại chọn phương thức
@@ -326,7 +326,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                   className="mx-auto w-48 h-48 rounded-lg"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                 />
-                <p className="text-sm text-[#6b7280] mt-2">{bankId} • {bankAccount}</p>
+                <p className="text-sm text-white/55 mt-2">{bankId} • {bankAccount}</p>
                 <p className="text-sm text-white font-medium">{bankAccountName}</p>
                 <p className="text-[#d4af37] font-bold text-lg mt-1">{formatCurrency(finalAmount)}</p>
               </div>
@@ -348,7 +348,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </Button>
               </div>
               <button
-                className="w-full text-xs text-[#6b7280] hover:text-white text-center"
+                className="w-full text-xs text-white/55 hover:text-white text-center"
                 onClick={() => setPaymentStep('select')}
               >
                 ← Quay lại chọn phương thức
