@@ -40,7 +40,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-white/10 text-white/55 hover:bg-white/[0.06] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-white hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
@@ -52,7 +52,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-white/10 text-white/55 hover:bg-white/[0.06] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-white hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
