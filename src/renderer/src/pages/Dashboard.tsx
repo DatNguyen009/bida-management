@@ -31,6 +31,20 @@ export default function Dashboard({ onViewSession }: Props) {
     refetchInterval: 60000,
   })
 
+  const today = new Date().toISOString().slice(0, 10)
+
+  const { data: summaryData = [] } = useQuery({
+    queryKey: ['reports', 'summary', today],
+    queryFn: () => api().reports.summary(today, today),
+    refetchInterval: 60000,
+  })
+
+  const { data: todayInvoices } = useQuery({
+    queryKey: ['invoices', 'today'],
+    queryFn: () => window.api.invoices.getList({ fromDate: today, toDate: today, pageSize: 1 }),
+    refetchInterval: 60000,
+  })
+
   useEffect(() => {
     setActiveSessions(activeSessions)
   }, [activeSessions, setActiveSessions])
@@ -83,29 +97,7 @@ export default function Dashboard({ onViewSession }: Props) {
     setFormOpen(true)
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-[#6b7280]">Đang tải...</p>
-      </div>
-    )
-  }
-
-  const today = new Date().toISOString().slice(0, 10)
-
-  const { data: summaryData = [] } = useQuery({
-    queryKey: ['reports', 'summary', today],
-    queryFn: () => api().reports.summary(today, today),
-    refetchInterval: 60000,
-  })
   const summary = (summaryData as Array<{ total_revenue: string; total_invoices: string }>)[0]
-
-  const { data: todayInvoices } = useQuery({
-    queryKey: ['invoices', 'today'],
-    queryFn: () => window.api.invoices.getList({ fromDate: today, toDate: today, pageSize: 1 }),
-    refetchInterval: 60000,
-  })
-
   const idleCount = tables.filter((t) => t.status === 'idle').length
   const playingCount = tables.filter((t) => t.status === 'playing').length
 

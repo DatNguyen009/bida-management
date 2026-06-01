@@ -32,6 +32,29 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    if (is.dev) mainWindow.webContents.openDevTools({ mode: 'detach' })
+  })
+
+  mainWindow.webContents.on('console-message', (_e, level, message) => {
+    if (level >= 2) console.log('[RENDERER]', message)
+  })
+  mainWindow.webContents.on('did-finish-load', () => {
+    setTimeout(() => {
+      mainWindow.webContents.executeJavaScript(`
+        (() => {
+          const errors = window.__errors || []
+          return JSON.stringify({
+            rootEmpty: document.getElementById('root')?.innerHTML === '',
+            errors,
+            scripts: Array.from(document.querySelectorAll('script[src]')).map(s=>s.src).slice(0,3),
+          })
+        })()
+      `).then(r => console.log('[DOM]', r)).catch(e => console.error('[DOM ERR]', e))
+    }, 4000)
+  })
+
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    console.error('[CRASH] render-process-gone:', details)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
