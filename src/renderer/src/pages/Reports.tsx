@@ -115,10 +115,12 @@ export default function ReportsPage() {
         <h1 className="text-xl font-bold text-[#d4af37] mr-2">Báo cáo</h1>
         {(['today', 'week', 'month', 'year', 'custom'] as Period[]).map((p) => (
           <button key={p}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${period === p
-              ? 'btn-gold'
-              : 'bg-white/[0.06] text-white border border-white/10 hover:bg-white/10'}`}
-            onClick={() => setPeriod(p)}>
+            onClick={() => setPeriod(p)}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+            style={period === p
+              ? { background: 'linear-gradient(135deg,#f0d060,#d4af37,#b8960c)', color: '#0f0e0f', borderColor: 'transparent', boxShadow: '0 4px 12px rgba(212,175,55,0.35),inset 0 1px 0 rgba(255,255,255,0.4)' }
+              : { background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.1)' }
+            }>
             {PERIOD_LABELS[p]}
           </button>
         ))}
