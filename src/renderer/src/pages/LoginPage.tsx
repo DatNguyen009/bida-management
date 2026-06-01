@@ -30,12 +30,10 @@ export default function LoginPage({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div
-        className={`theme-bg theme-bg-${theme}`}
-        style={{ backgroundImage: `url(${bgImage})` }}
-      />
-      <form onSubmit={handleSubmit} className="relative z-10 bg-[#161515] border-2 border-[#d4af37] p-8 rounded-2xl w-96 space-y-5 shadow-2xl">
+    <>
+      <div className={`theme-bg theme-bg-${theme}`} style={{ backgroundImage: `url(${bgImage})` }} />
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+      <form onSubmit={handleSubmit} className="relative bg-white/[0.08] backdrop-blur-xl border border-white/20 p-8 rounded-2xl w-96 space-y-5 shadow-2xl" style={{boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 20px 60px rgba(0,0,0,0.4)'}}>
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🎱</div>
           <h1 className="text-2xl font-bold text-[#d4af37]">Bida Manager</h1>
@@ -75,6 +73,7 @@ export default function LoginPage({ onLogin }: Props) {
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>
-    </div>
+      </div>
+    </>
   )
 }

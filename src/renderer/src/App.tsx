@@ -55,13 +55,12 @@ export default function App() {
 
   if (authState === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        <div
-          className={`theme-bg theme-bg-${theme}`}
-          style={{ backgroundImage: `url(${bgImage})` }}
-        />
-        <p className="text-gray-500 text-sm relative z-10">Đang tải...</p>
-      </div>
+      <>
+        <div className={`theme-bg theme-bg-${theme}`} style={{ backgroundImage: `url(${bgImage})` }} />
+        <div className="min-h-screen flex items-center justify-center relative z-10">
+          <p className="text-gray-500 text-sm">Đang tải...</p>
+        </div>
+      </>
     )
   }
 
@@ -103,13 +102,15 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen text-white overflow-hidden relative">
+    <>
+      {/* Background — sibling of layout, not inside overflow:hidden */}
       <div
         className={`theme-bg theme-bg-${theme}`}
         style={{ backgroundImage: `url(${bgImage})` }}
       />
+      <div className="flex h-screen text-white overflow-hidden relative z-10">
       {/* Sidebar */}
-      <aside className="glass-sidebar w-48 flex-shrink-0 flex flex-col relative z-10">
+      <aside className="glass-sidebar w-48 flex-shrink-0 flex flex-col relative">
         {/* Logo */}
         <div className="px-4 py-4 flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-[#d4af37] flex items-center justify-center text-sm flex-shrink-0">🎱</div>
@@ -270,5 +271,6 @@ export default function App() {
       </main>
       </div>
     </div>
+    </>
   )
 }
