@@ -75,21 +75,22 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
         <h1 className="text-xl font-bold text-[#d4af37]">{session.table_name}</h1>
       </div>
 
-      <div className="bg-[#2d1515] border border-[#7f1d1d] rounded-xl p-8 mb-4 text-center">
-        <p className="text-white/55 text-[10px] uppercase tracking-widest mb-3">Thời gian chơi</p>
-        <p className="text-6xl font-mono font-bold text-red-400 tracking-wider">{formatDuration(seconds)}</p>
-        <p className="text-2xl font-bold text-red-400 mt-3">{formatCurrency(playAmount)}</p>
-        <p className="text-xs text-white/55 mt-1">{formatCurrency(session.hourly_rate)}/giờ</p>
+      {/* Timer card */}
+      <div className="rounded-2xl p-8 mb-4 text-center relative overflow-hidden"
+        style={{background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 32px rgba(239,68,68,0.1)'}}>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+        <p className="text-white/40 text-[10px] uppercase tracking-widest mb-3">Thời gian chơi</p>
+        <p className="text-6xl font-mono font-bold text-red-400 tracking-wider relative">{formatDuration(seconds)}</p>
+        <p className="text-2xl font-bold text-red-400 mt-3 relative">{formatCurrency(playAmount)}</p>
+        <p className="text-xs text-white/40 mt-1 relative">{formatCurrency(session.hourly_rate)}/giờ</p>
       </div>
 
       {/* Order section */}
-      <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 mb-4">
+      <div className="rounded-2xl p-4 mb-4"
+        style={{background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.08)'}}>
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-white/90 text-sm">Đồ uống / thức ăn</h3>
-          <button
-            className="btn-gold"
-            onClick={() => setShowPicker(true)}
-          >
+          <h3 className="font-semibold text-white text-sm">🍺 Đồ uống / thức ăn</h3>
+          <button className="btn-gold text-xs px-3 py-2" onClick={() => setShowPicker(true)}>
             + Gọi
           </button>
         </div>
@@ -99,18 +100,39 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
           onAdjust={(id, delta) => adjustQtyMutation.mutate({ itemId: id, delta })}
         />
         {itemsAmount > 0 && (
-          <div className="mt-3 pt-3 border-t border-white/10 flex justify-between text-sm">
-            <span className="text-white/55">Tổng đồ uống:</span>
-            <span className="text-[#d4af37] font-bold">{formatCurrency(itemsAmount)}</span>
+          <div className="mt-3 pt-3 flex justify-between items-center text-sm"
+            style={{borderTop:'1px solid rgba(255,255,255,0.08)'}}>
+            <span className="text-white/55">Tổng đồ uống</span>
+            <span className="text-[#d4af37] font-bold text-base">{formatCurrency(itemsAmount)}</span>
           </div>
         )}
       </div>
 
+      {/* Summary + checkout */}
+      <div className="rounded-2xl p-4 mb-4"
+        style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+        <div className="flex justify-between text-sm mb-1">
+          <span className="text-white/55">Tiền chơi</span>
+          <span className="text-red-400 font-semibold">{formatCurrency(playAmount)}</span>
+        </div>
+        {itemsAmount > 0 && (
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-white/55">Đồ uống</span>
+            <span className="text-[#d4af37] font-semibold">{formatCurrency(itemsAmount)}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-base font-bold mt-2 pt-2"
+          style={{borderTop:'1px solid rgba(255,255,255,0.08)'}}>
+          <span className="text-white">Tổng cộng</span>
+          <span className="text-[#d4af37]">{formatCurrency(playAmount + itemsAmount)}</span>
+        </div>
+      </div>
+
       <button
-        className="btn-gold"
+        className="btn-gold w-full py-3 text-sm font-bold"
         onClick={() => onCheckout(session, playAmount)}
       >
-        Kết thúc & Thanh toán — {formatCurrency(playAmount)}
+        Kết thúc & Thanh toán — {formatCurrency(playAmount + itemsAmount)}
       </button>
 
       <ProductPicker
