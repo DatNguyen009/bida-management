@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category, StaffMember } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category, StaffMember, Promotion } from './types'
 
 declare global {
   interface Window {
@@ -79,6 +79,15 @@ declare global {
       loyalty: {
         getSettings(): Promise<LoyaltySettings>
         saveSettings(settings: LoyaltySettings): Promise<LoyaltySettings>
+      }
+      promotions: {
+        getAll(): Promise<Promotion[]>
+        getActive(now: string): Promise<Promotion[]>
+        validateVoucher(code: string): Promise<Promotion | null>
+        create(input: Omit<Promotion, 'id' | 'agent_id' | 'used_count' | 'created_at'>): Promise<Promotion>
+        update(id: number, input: Partial<Promotion>): Promise<Promotion>
+        delete(id: number): Promise<void>
+        incrementUsed(id: number): Promise<void>
       }
     }
   }

@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category, StaffMember } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category, StaffMember, Promotion } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -110,6 +110,10 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('reports:tableStats', from, to),
     lowStock: (): Promise<unknown[]> =>
       ipcRenderer.invoke('reports:lowStock'),
+    staffStats: (from: string, to: string): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:staffStats', from, to),
+    productStats: (from: string, to: string): Promise<unknown[]> =>
+      ipcRenderer.invoke('reports:productStats', from, to),
   },
   auth: {
     login: (username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[] }> =>
@@ -124,5 +128,21 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('loyalty:getSettings'),
     saveSettings: (settings: LoyaltySettings): Promise<LoyaltySettings> =>
       ipcRenderer.invoke('loyalty:saveSettings', settings),
+  },
+  promotions: {
+    getAll: (): Promise<Promotion[]> =>
+      ipcRenderer.invoke('promotions:getAll'),
+    getActive: (now: string): Promise<Promotion[]> =>
+      ipcRenderer.invoke('promotions:getActive', now),
+    validateVoucher: (code: string): Promise<Promotion | null> =>
+      ipcRenderer.invoke('promotions:validateVoucher', code),
+    create: (input: Omit<Promotion, 'id' | 'agent_id' | 'used_count' | 'created_at'>): Promise<Promotion> =>
+      ipcRenderer.invoke('promotions:create', input),
+    update: (id: number, input: Partial<Promotion>): Promise<Promotion> =>
+      ipcRenderer.invoke('promotions:update', id, input),
+    delete: (id: number): Promise<void> =>
+      ipcRenderer.invoke('promotions:delete', id),
+    incrementUsed: (id: number): Promise<void> =>
+      ipcRenderer.invoke('promotions:incrementUsed', id),
   },
 })
