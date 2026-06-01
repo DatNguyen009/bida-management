@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { InvoiceListRow, InvoiceOrderItem } from '../types'
+import type { InvoiceListRow, InvoiceOrderItem, StaffMember } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Pagination from '../components/Pagination'
 import TableSkeleton from '../components/TableSkeleton'
 import { formatCurrency } from '../lib/utils'
+
+interface Props {
+  role: string
+  username: string
+}
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -22,19 +27,33 @@ function formatDateTime(iso: string): string {
   })
 }
 
-export default function InvoiceListPage() {
+export default function InvoiceListPage({ role, username }: Props) {
+  const isOwner = role === 'owner'
+
   const [fromDate, setFromDate] = useState(firstOfMonth())
   const [toDate, setToDate] = useState(today())
-  const [appliedFilter, setAppliedFilter] = useState({ fromDate: firstOfMonth(), toDate: today() })
+  const [selectedStaff, setSelectedStaff] = useState<string>('')
+  const [appliedFilter, setAppliedFilter] = useState({
+    fromDate: firstOfMonth(),
+    toDate: today(),
+    completedBy: '',
+  })
   const [selected, setSelected] = useState<InvoiceListRow | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
+
+  const { data: staffList = [] } = useQuery<StaffMember[]>({
+    queryKey: ['staffList'],
+    queryFn: () => window.api.staff.getAll(),
+    enabled: isOwner,
+  })
 
   const { data: invoiceResult, isFetching, isLoading } = useQuery({
     queryKey: ['invoiceList', appliedFilter, page, pageSize],
     queryFn: () => window.api.invoices.getList({
       fromDate: appliedFilter.fromDate || undefined,
       toDate: appliedFilter.toDate || undefined,
+      completedBy: appliedFilter.completedBy || undefined,
       page,
       pageSize,
     }),
@@ -51,7 +70,7 @@ export default function InvoiceListPage() {
   })
 
   const handleFilter = () => {
-    setAppliedFilter({ fromDate, toDate })
+    setAppliedFilter({ fromDate, toDate, completedBy: isOwner ? selectedStaff : username })
     setSelected(null)
     setPage(1)
   }
@@ -63,31 +82,49 @@ export default function InvoiceListPage() {
           <h1 className="text-2xl font-bold text-[#d4af37] w-full">Hóa đơn</h1>
           <div>
             <p className="text-xs text-[#6b7280] mb-1">Từ ngày</p>
-            <Input type="date" className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
+            <Input type="date" className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
               value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           </div>
           <div>
             <p className="text-xs text-[#6b7280] mb-1">Đến ngày</p>
-            <Input type="date" className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
+            <Input type="date" className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
               value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </div>
-          <Button className="bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+          {isOwner && (
+            <div>
+              <p className="text-xs text-[#6b7280] mb-1">Nhân viên</p>
+              <select
+                value={selectedStaff}
+                onChange={(e) => setSelectedStaff(e.target.value)}
+                className="backdrop-blur-xl bg-white/[0.07] border border-white/10 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[#d4af37]"
+              >
+                <option value="">Tất cả</option>
+                {staffList.map((s) => (
+                  <option key={s.id} value={s.username}>{s.username}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
             onClick={handleFilter} disabled={isFetching}>
             {isFetching ? 'Đang tải...' : 'Lọc'}
           </Button>
         </div>
 
-        <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+        <div className="bg-white/[0.04] rounded-xl overflow-hidden border border-white/10">
           {isLoading ? (
-            <TableSkeleton rows={pageSize} cols={5} />
+            <TableSkeleton rows={pageSize} cols={isOwner ? 6 : 5} />
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                <tr className="bg-white/[0.06] border-b-2 border-[#d4af37]">
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">#</th>
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thời gian</th>
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Bàn</th>
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Khách hàng</th>
+                  {isOwner && (
+                    <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Nhân viên</th>
+                  )}
                   <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Chơi</th>
                   <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Đồ uống</th>
                   <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tổng</th>
@@ -99,16 +136,19 @@ export default function InvoiceListPage() {
                 {invoices.map((inv, i) => (
                   <tr
                     key={inv.id}
-                    className={`border-b border-[#1e3d23] cursor-pointer transition-colors
+                    className={`border-b border-white/10 cursor-pointer transition-colors
                       ${selected?.id === inv.id
-                        ? 'bg-[#1e3d23]'
-                        : `hover:bg-[#162a1a] ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}`}
+                        ? 'bg-white/10'
+                        : `hover:bg-white/[0.06] ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}`}
                     onClick={() => setSelected(inv)}
                   >
                     <td className="px-4 py-3 font-mono text-[#6b7280]">{inv.invoice_number}</td>
                     <td className="px-4 py-3 whitespace-nowrap text-[#e2e8f0]">{formatDateTime(inv.created_at)}</td>
                     <td className="px-4 py-3 text-[#e2e8f0]">{inv.table_name ?? '—'}</td>
                     <td className="px-4 py-3 text-[#e2e8f0]">{inv.customer_name ?? '—'}</td>
+                    {isOwner && (
+                      <td className="px-4 py-3 text-[#6b7280] text-xs">{inv.completed_by ?? '—'}</td>
+                    )}
                     <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.play_amount)}</td>
                     <td className="px-4 py-3 text-right text-[#e2e8f0]">{formatCurrency(inv.items_amount)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-green-400">{formatCurrency(inv.final_amount)}</td>
@@ -118,7 +158,7 @@ export default function InvoiceListPage() {
                 ))}
                 {invoices.length === 0 && !isFetching && (
                   <tr>
-                    <td colSpan={9} className="p-8 text-center text-[#6b7280]">
+                    <td colSpan={isOwner ? 10 : 9} className="p-8 text-center text-[#6b7280]">
                       Không có hóa đơn nào trong khoảng thời gian này
                     </td>
                   </tr>
@@ -139,19 +179,22 @@ export default function InvoiceListPage() {
 
       {selected && (
         <div className="w-72 flex-shrink-0">
-          <div className="bg-[#162a1a] rounded-xl p-4 sticky top-0 border border-[#1e3d23]">
+          <div className="bg-white/[0.06] rounded-xl p-4 sticky top-0 border border-white/10">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <p className="font-bold text-lg text-[#d4af37]">HĐ #{selected.invoice_number}</p>
                 <p className="text-sm text-[#6b7280]">{selected.table_name ?? '—'}</p>
                 <p className="text-xs text-[#6b7280]">{formatDateTime(selected.created_at)}</p>
+                {selected.completed_by && (
+                  <p className="text-xs text-[#555353] mt-0.5">NV: {selected.completed_by}</p>
+                )}
               </div>
               <button className="text-[#6b7280] hover:text-white"
                 onClick={() => setSelected(null)}>✕</button>
             </div>
 
             {selected.customer_name && (
-              <div className="mb-3 p-2 bg-[#0a1a0d] rounded text-sm border border-[#1e3d23]">
+              <div className="mb-3 p-2 bg-white/[0.04] rounded text-sm border border-white/10">
                 <p className="font-medium text-[#e2e8f0]">{selected.customer_name}</p>
                 <p className="text-[#6b7280] text-xs">{selected.customer_phone}</p>
               </div>
@@ -174,7 +217,7 @@ export default function InvoiceListPage() {
                 </div>
               )}
 
-              <div className="border-t border-[#1e3d23] pt-1 space-y-1">
+              <div className="border-t border-white/10 pt-1 space-y-1">
                 {selected.discount > 0 && (
                   <div className="flex justify-between text-red-400">
                     <span>Giảm giá</span>

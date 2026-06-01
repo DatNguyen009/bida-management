@@ -1,0 +1,48 @@
+<h2>Quản lý category đặt ở đâu?</h2>
+<p class="subtitle">Chọn vị trí phù hợp nhất với luồng sử dụng</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Tab riêng trong trang Sản phẩm</h3>
+      <p>Trang Sản phẩm có 2 tab: "Danh sách" và "Category". Quản lý category ngay trong context của sản phẩm.</p>
+      <div style="margin-top:10px;background:#0a1a0d;border:1px solid #1e3d23;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af">
+        <span style="color:#d4af37;font-weight:bold">📦 Sản phẩm</span>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <span style="background:#1e3d23;color:#6b7280;padding:3px 10px;border-radius:4px">Danh sách</span>
+          <span style="background:#d4af37;color:#0d1f12;padding:3px 10px;border-radius:4px;font-weight:bold">Category</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Trong trang Cài đặt</h3>
+      <p>Category là cấu hình hệ thống → đặt trong Settings. Ít thay đổi, phù hợp setup một lần.</p>
+      <div style="margin-top:10px;background:#0a1a0d;border:1px solid #1e3d23;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af">
+        <span style="color:#d4af37;font-weight:bold">⚙️ Cài đặt</span>
+        <div style="margin-top:6px;color:#e2e8f0">• Thông tin quán<br>• Máy in<br>• Tích điểm<br>
+          <span style="color:#d4af37">• Category sản phẩm ←</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Popup / Dialog ngay trong form sản phẩm</h3>
+      <p>Khi chọn category trong form tạo/sửa sản phẩm, có nút "+ Tạo category mới" mở dialog nhỏ. Inline, không cần rời trang.</p>
+      <div style="margin-top:10px;background:#0a1a0d;border:1px solid #1e3d23;border-radius:8px;padding:10px;font-size:12px;color:#9ca3af">
+        <div style="color:#e2e8f0">Category:</div>
+        <div style="display:flex;gap:6px;margin-top:4px;align-items:center">
+          <select style="background:#0a1a0d;border:1px solid #1e3d23;color:#e2e8f0;padding:3px 6px;border-radius:4px;font-size:11px">
+            <option>Đồ uống</option>
+          </select>
+          <span style="color:#d4af37;font-size:11px;cursor:pointer">+ Tạo mới</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

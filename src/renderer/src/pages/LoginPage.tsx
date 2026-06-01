@@ -48,7 +48,7 @@ export default function LoginPage({ onLogin }: Props) {
             onChange={(e) => setUsername(e.target.value)}
             required
             autoFocus
-            className="w-full bg-[#1c1b1b] border border-[#272525] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            className="w-full backdrop-blur-xl bg-white/[0.07] border border-white/10 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
             placeholder="Nhập tên đăng nhập"
           />
         </div>
@@ -60,7 +60,7 @@ export default function LoginPage({ onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-[#1c1b1b] border border-[#272525] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            className="w-full backdrop-blur-xl bg-white/[0.07] border border-white/10 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
             placeholder="••••••••"
           />
         </div>

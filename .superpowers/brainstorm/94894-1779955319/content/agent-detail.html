@@ -1,0 +1,97 @@
+<h2>Trang chi tiết từng quán</h2>
+<p class="subtitle">Khi master click vào "Quán Bida A", họ thấy gì?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:#cdd6f4">
+        <div style="color:#cba6f7;font-weight:bold;margin-bottom:6px">🏪 Quán Bida A — Trạng thái hiện tại</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px">
+          <div style="background:#a6e3a1;padding:5px;border-radius:3px;text-align:center;color:#1e1e2e;font-size:9px"><div style="font-weight:bold">Bàn 1</div><div>Trống</div></div>
+          <div style="background:#f38ba8;padding:5px;border-radius:3px;text-align:center;color:#1e1e2e;font-size:9px"><div style="font-weight:bold">Bàn 2</div><div>1h23m</div></div>
+          <div style="background:#f38ba8;padding:5px;border-radius:3px;text-align:center;color:#1e1e2e;font-size:9px"><div style="font-weight:bold">Bàn 3</div><div>45m</div></div>
+          <div style="background:#a6e3a1;padding:5px;border-radius:3px;text-align:center;color:#1e1e2e;font-size:9px"><div style="font-weight:bold">Bàn 4</div><div>Trống</div></div>
+        </div>
+        <div style="background:#313244;padding:5px;border-radius:3px;color:#6c7086;font-size:9px;text-align:center">
+          Chỉ xem trạng thái bàn real-time + tổng doanh thu hôm nay
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Trạng thái bàn real-time</h3>
+      <p>Grid bàn như Dashboard của agent: xanh = trống, đỏ = đang chơi (kèm thời gian). Thêm stats nhanh hôm nay: doanh thu, số hóa đơn.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:#cdd6f4">
+        <div style="color:#cba6f7;font-weight:bold;margin-bottom:6px">🏪 Quán Bida A</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px">
+          <div style="background:#313244;padding:5px;border-radius:3px;text-align:center">
+            <div style="color:#fab387;font-size:12px;font-weight:bold">3/8</div>
+            <div style="color:#6c7086;font-size:8px">Bàn chơi</div>
+          </div>
+          <div style="background:#313244;padding:5px;border-radius:3px;text-align:center">
+            <div style="color:#a6e3a1;font-size:12px;font-weight:bold">1.8M</div>
+            <div style="color:#6c7086;font-size:8px">Hôm nay</div>
+          </div>
+          <div style="background:#313244;padding:5px;border-radius:3px;text-align:center">
+            <div style="color:#89b4fa;font-size:12px;font-weight:bold">12</div>
+            <div style="color:#6c7086;font-size:8px">Hóa đơn</div>
+          </div>
+        </div>
+        <div style="background:#313244;padding:5px;border-radius:3px;margin-bottom:4px">
+          <div style="color:#6c7086;font-size:8px;margin-bottom:3px">Hóa đơn gần nhất</div>
+          <div style="color:#cdd6f4;font-size:9px">HD#00047 — Bàn 2 — 150,000đ — 14:32</div>
+          <div style="color:#cdd6f4;font-size:9px">HD#00046 — Bàn 5 — 220,000đ — 13:15</div>
+        </div>
+        <div style="background:#313244;padding:5px;border-radius:3px">
+          <div style="color:#6c7086;font-size:8px">Top sản phẩm hôm nay</div>
+          <div style="color:#cdd6f4;font-size:9px">Coca Cola × 18 • Bia × 12</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Summary + recent activity</h3>
+      <p>Stats hôm nay + hóa đơn gần nhất + top sản phẩm. Không có grid bàn chi tiết. Tập trung vào dữ liệu kinh doanh.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="C" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:#cdd6f4">
+        <div style="color:#cba6f7;font-weight:bold;margin-bottom:6px">🏪 Quán Bida A</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+          <div>
+            <div style="color:#6c7086;font-size:8px;margin-bottom:3px">BÀN ĐANG CHƠI</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">
+              <div style="background:#f38ba8;padding:3px;border-radius:2px;text-align:center;color:#1e1e2e;font-size:8px">B2 1h23m</div>
+              <div style="background:#f38ba8;padding:3px;border-radius:2px;text-align:center;color:#1e1e2e;font-size:8px">B3 45m</div>
+              <div style="background:#a6e3a1;padding:3px;border-radius:2px;text-align:center;color:#1e1e2e;font-size:8px">B1 Trống</div>
+              <div style="background:#a6e3a1;padding:3px;border-radius:2px;text-align:center;color:#1e1e2e;font-size:8px">B4 Trống</div>
+            </div>
+          </div>
+          <div>
+            <div style="color:#6c7086;font-size:8px;margin-bottom:3px">HÓA ĐƠN GẦN NHẤT</div>
+            <div style="background:#313244;padding:3px;border-radius:2px;font-size:8px;margin-bottom:2px;color:#cdd6f4">HD#047 — 150k — 14:32</div>
+            <div style="background:#313244;padding:3px;border-radius:2px;font-size:8px;margin-bottom:2px;color:#cdd6f4">HD#046 — 220k — 13:15</div>
+            <div style="background:#313244;padding:3px;border-radius:2px;font-size:8px;color:#cdd6f4">HD#045 — 180k — 12:08</div>
+          </div>
+        </div>
+        <div style="background:#313244;padding:5px;border-radius:3px">
+          <div style="color:#a6e3a1;font-size:11px;font-weight:bold">1,850,000đ hôm nay</div>
+          <div style="display:flex;align-items:flex-end;gap:2px;height:20px;margin-top:3px">
+            <div style="background:#89b4fa;flex:1;height:60%"></div><div style="background:#89b4fa;flex:1;height:75%"></div><div style="background:#89b4fa;flex:1;height:50%"></div><div style="background:#89b4fa;flex:1;height:90%"></div><div style="background:#89b4fa;flex:1;height:65%"></div><div style="background:#89b4fa;flex:1;height:80%"></div><div style="background:#a6e3a1;flex:1;height:100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Kết hợp: bàn + activity + chart</h3>
+      <p>Grid bàn mini + hóa đơn gần nhất + biểu đồ doanh thu 7 ngày — tất cả trên một màn hình. Full picture cho một quán.</p>
+    </div>
+  </div>
+
+</div>

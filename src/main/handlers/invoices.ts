@@ -1,7 +1,7 @@
 // src/main/handlers/invoices.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
-import { getAgentId } from '../lib/authStore'
+import { getAgentId, getUsername, getRole } from '../lib/authStore'
 import type { Invoice, InvoiceCreateInput, PageResult, InvoiceListRow } from '../../renderer/src/types'
 import { printInvoice } from './printer'
 
@@ -19,31 +19,40 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
   const agentId = getAgentId()
   const invoiceNumber = await getNextInvoiceNumber()
 
+  const completedBy = getUsername() || null
+
   const invoice = await queryOne<Invoice>(
     `INSERT INTO cloud_invoices
        (session_id, invoice_number, play_amount, items_amount, total_amount,
         discount, points_redeemed, discount_from_points, final_amount, points_earned,
-        payment_method, agent_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+        payment_method, agent_id, completed_by, customer_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
     [
       input.sessionId, invoiceNumber,
       input.playAmount, input.itemsAmount,
       input.playAmount + input.itemsAmount,
       input.discount, input.pointsRedeemed, input.discountFromPoints,
       input.finalAmount, input.pointsEarned,
-      input.paymentMethod ?? 'cash', agentId,
+      input.paymentMethod ?? 'cash', agentId, completedBy,
+      input.customerId ?? null,
     ]
   )
 
   if (invoice && input.customerId) {
-    await query(
-      `UPDATE cloud_customers
-       SET points_balance = points_balance + $1 - $2,
-           total_visits = total_visits + 1,
-           total_spent = total_spent + $3
-       WHERE id = $4 AND agent_id = $5`,
-      [input.pointsEarned, input.pointsRedeemed, input.finalAmount, input.customerId, agentId]
-    )
+    await Promise.all([
+      query(
+        `UPDATE cloud_customers
+         SET points_balance = points_balance + $1 - $2,
+             total_visits = total_visits + 1,
+             total_spent = total_spent + $3
+         WHERE id = $4 AND agent_id = $5`,
+        [input.pointsEarned, input.pointsRedeemed, input.finalAmount, input.customerId, agentId]
+      ),
+      query(
+        `UPDATE cloud_sessions SET customer_id = $1 WHERE id = $2 AND agent_id = $3`,
+        [input.customerId, input.sessionId, agentId]
+      ),
+    ])
   }
 
   if (invoice) {
@@ -128,13 +137,18 @@ export async function printAndMarkInvoice(
 export interface InvoiceListInput {
   fromDate?: string
   toDate?: string
+  completedBy?: string
   page: number
   pageSize: number
 }
 
 export async function getInvoiceList(input: InvoiceListInput): Promise<PageResult<InvoiceListRow>> {
   const agentId = getAgentId()
+  const role = getRole()
   const offset = (input.page - 1) * input.pageSize
+
+  // Staff always sees only their own invoices; owner can optionally filter by staff
+  const completedByFilter = role === 'staff' ? getUsername() || null : (input.completedBy ?? null)
 
   const [rows, countRows] = await Promise.all([
     query<InvoiceListRow>(
@@ -142,27 +156,30 @@ export async function getInvoiceList(input: InvoiceListInput): Promise<PageResul
               i.play_amount, i.items_amount, i.final_amount,
               i.discount, i.points_redeemed, i.discount_from_points,
               i.points_earned, i.printed_at, i.created_at,
+              i.completed_by,
               t.name AS table_name,
               c.name AS customer_name,
               c.phone AS customer_phone
        FROM cloud_invoices i
        LEFT JOIN cloud_sessions s ON s.id = i.session_id
        LEFT JOIN cloud_tables t ON t.id = s.table_id
-       LEFT JOIN cloud_customers c ON c.id = s.customer_id
+       LEFT JOIN cloud_customers c ON c.id = COALESCE(i.customer_id, s.customer_id)
        WHERE i.agent_id = $1
          AND ($2::date IS NULL OR DATE(i.created_at) >= $2)
          AND ($3::date IS NULL OR DATE(i.created_at) <= $3)
+         AND ($4::varchar IS NULL OR i.completed_by = $4)
        ORDER BY i.created_at DESC
-       LIMIT $4 OFFSET $5`,
-      [agentId, input.fromDate ?? null, input.toDate ?? null, input.pageSize, offset]
+       LIMIT $5 OFFSET $6`,
+      [agentId, input.fromDate ?? null, input.toDate ?? null, completedByFilter, input.pageSize, offset]
     ),
     query<{ count: string }>(
       `SELECT COUNT(*) AS count
        FROM cloud_invoices i
        WHERE i.agent_id = $1
          AND ($2::date IS NULL OR DATE(i.created_at) >= $2)
-         AND ($3::date IS NULL OR DATE(i.created_at) <= $3)`,
-      [agentId, input.fromDate ?? null, input.toDate ?? null]
+         AND ($3::date IS NULL OR DATE(i.created_at) <= $3)
+         AND ($4::varchar IS NULL OR i.completed_by = $4)`,
+      [agentId, input.fromDate ?? null, input.toDate ?? null, completedByFilter]
     ),
   ])
 

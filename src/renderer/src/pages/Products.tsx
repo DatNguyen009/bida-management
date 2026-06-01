@@ -138,15 +138,15 @@ export default function ProductsPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-[#d4af37]">Quản lý sản phẩm</h1>
-        <div className="flex gap-1 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg p-1">
+        <div className="flex gap-1 backdrop-blur-xl bg-white/[0.04] border border-white/10 rounded-lg p-1">
           <button
-            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'products' ? 'bg-[#d4af37] text-[#0d1f12] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'products' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-[#6b7280] hover:text-white'}`}
             onClick={() => setTab('products')}
           >
             Danh sách
           </button>
           <button
-            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'categories' ? 'bg-[#d4af37] text-[#0d1f12] font-bold' : 'text-[#6b7280] hover:text-white'}`}
+            className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'categories' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-[#6b7280] hover:text-white'}`}
             onClick={() => setTab('categories')}
           >
             Category
@@ -159,7 +159,7 @@ export default function ProductsPage() {
           <div className="flex justify-end mb-4">
             <Button
               onClick={() => { setForm({ name: '', category_id: categories[0]?.id ?? 0, price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' }); setMode('create') }}
-              className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
             >
               + Thêm sản phẩm
             </Button>
@@ -171,13 +171,13 @@ export default function ProductsPage() {
             </div>
           )}
 
-          <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+          <div className="bg-white/[0.04] rounded-xl overflow-hidden border border-white/10">
             {isLoading ? (
               <TableSkeleton rows={pageSize} cols={6} />
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                  <tr className="bg-white/[0.06] border-b-2 border-[#d4af37]">
                     <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
                     <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
                     <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Giá nhập</th>
@@ -188,7 +188,7 @@ export default function ProductsPage() {
                 </thead>
                 <tbody>
                   {products.map((p, i) => (
-                    <tr key={p.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                    <tr key={p.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-2">
                           <span className="text-[#e2e8f0]">{p.name}</span>
@@ -200,7 +200,7 @@ export default function ProductsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="bg-[#1e3d23] text-[#e2e8f0] text-xs px-2 py-0.5 rounded-full">
+                        <span className="bg-white/10 text-[#e2e8f0] text-xs px-2 py-0.5 rounded-full">
                           {p.category_icon} {p.category_name}
                         </span>
                       </td>
@@ -259,16 +259,16 @@ export default function ProductsPage() {
         <div>
           <div className="flex justify-end mb-4">
             <Button
-              className="bg-[#d4af37] text-[#0d1f12] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
               onClick={() => { setCatForm({ name: '', icon: '📦' }); setSelectedCat(null); setCatMode('create') }}
             >
               + Thêm category
             </Button>
           </div>
-          <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+          <div className="bg-white/[0.04] rounded-xl overflow-hidden border border-white/10">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+                <tr className="bg-white/[0.06] border-b-2 border-[#d4af37]">
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Icon</th>
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên</th>
                   <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
@@ -276,7 +276,7 @@ export default function ProductsPage() {
               </thead>
               <tbody>
                 {categories.map((cat, i) => (
-                  <tr key={cat.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                  <tr key={cat.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                     <td className="px-4 py-3 text-2xl">{cat.icon}</td>
                     <td className="px-4 py-3 text-[#e2e8f0] font-medium">{cat.name}</td>
                     <td className="px-4 py-3 text-right space-x-1">
@@ -299,25 +299,25 @@ export default function ProductsPage() {
           </div>
 
           <Dialog open={catMode === 'create' || catMode === 'edit'} onOpenChange={(o) => !o && setCatMode(null)}>
-            <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
+            <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
               <DialogHeader>
                 <DialogTitle>{catMode === 'create' ? 'Thêm category' : 'Sửa category'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
                 <div>
                   <Label>Icon (gõ 1 emoji)</Label>
-                  <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1 text-2xl" value={catForm.icon}
+                  <Input className="bg-white/[0.04] border-white/10 text-white mt-1 text-2xl" value={catForm.icon}
                     onChange={(e) => setCatForm({ ...catForm, icon: e.target.value })} maxLength={2} />
                 </div>
                 <div>
                   <Label>Tên category</Label>
-                  <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={catForm.name}
+                  <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={catForm.name}
                     onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setCatMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
-                <Button className="bg-[#d4af37] text-[#0d1f12] font-bold"
+                <Button variant="outline" onClick={() => setCatMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
+                <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold"
                   onClick={() => catMode === 'create' ? createCatMutation.mutate() : updateCatMutation.mutate()}>
                   Lưu
                 </Button>
@@ -328,7 +328,7 @@ export default function ProductsPage() {
       )}
 
       <Dialog open={mode === 'create' || mode === 'edit'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
+        <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
           <DialogHeader>
             <DialogTitle>{mode === 'create' ? 'Thêm sản phẩm' : 'Sửa sản phẩm'}</DialogTitle>
           </DialogHeader>
@@ -361,7 +361,7 @@ export default function ProductsPage() {
             <div>
               <Label>Category</Label>
               <select
-                className="w-full mt-1 bg-[#0a1a0d] border border-[#1e3d23] text-white rounded-md px-3 py-2 text-sm"
+                className="w-full mt-1 backdrop-blur-xl bg-white/[0.04] border border-white/10 text-white rounded-md px-3 py-2 text-sm"
                 value={form.category_id}
                 onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
               >
@@ -371,20 +371,20 @@ export default function ProductsPage() {
               </select>
             </div>
             <div><Label>Tên</Label>
-              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.name}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div><Label>Giá (đồng)</Label>
-              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.price}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.price}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} /></div>
             <div><Label>Đơn vị</Label>
-              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.unit}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.unit}
                 onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
             <div><Label>Cảnh báo tồn dưới</Label>
-              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={form.min_stock_alert}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.min_stock_alert}
                 onChange={(e) => setForm({ ...form, min_stock_alert: Number(e.target.value) })} /></div>
           </div>
           {form.product_type === 'composite' && (
-            <div className="border-t border-[#1e3d23] pt-3 mt-1">
+            <div className="border-t border-white/10 pt-3 mt-1">
               <Label className="text-[#d4af37] text-sm font-semibold">Nguyên liệu</Label>
               <div className="space-y-2 mt-2">
                 {recipeItems.map((item, idx) => (
@@ -394,7 +394,7 @@ export default function ProductsPage() {
                       type="number"
                       min={0.01}
                       step={0.01}
-                      className="w-20 bg-[#0a1a0d] border border-[#1e3d23] text-white rounded px-2 py-1 text-sm"
+                      className="w-20 backdrop-blur-xl bg-white/[0.04] border border-white/10 text-white rounded px-2 py-1 text-sm"
                       value={item.quantity}
                       onChange={(e) => {
                         const updated = [...recipeItems]
@@ -421,14 +421,14 @@ export default function ProductsPage() {
                     }
                   }}
                 >
-                  <SelectTrigger className="flex-1 bg-[#0a1a0d] border-[#1e3d23] text-white text-sm h-8">
+                  <SelectTrigger className="flex-1 bg-white/[0.04] border-white/10 text-white text-sm h-8">
                     <SelectValue placeholder="+ Thêm nguyên liệu..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0a1a0d] border-[#1e3d23]">
+                  <SelectContent className="bg-white/[0.04] border-white/10">
                     {products
                       .filter((p) => p.product_type === 'stock' && !recipeItems.find((r) => r.ingredientId === p.id))
                       .map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)} className="text-white hover:bg-[#162a1a]">
+                        <SelectItem key={p.id} value={String(p.id)} className="text-white hover:bg-white/[0.06]">
                           {p.name} (tồn: {p.stock_quantity} {p.unit})
                         </SelectItem>
                       ))}
@@ -438,8 +438,8 @@ export default function ProductsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
-            <Button className="bg-[#d4af37] text-[#0d1f12] font-bold"
+            <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
+            <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold"
               onClick={() => mode === 'create' ? createMutation.mutate() : updateMutation.mutate()}>
               Lưu
             </Button>
@@ -448,7 +448,7 @@ export default function ProductsPage() {
       </Dialog>
 
       <Dialog open={mode === 'stock'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="bg-[#162a1a] border-[#1e3d23] text-white">
+        <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
           <DialogHeader>
             <DialogTitle>Nhập kho — {selected?.name}</DialogTitle>
           </DialogHeader>
@@ -458,19 +458,19 @@ export default function ProductsPage() {
             </p>
             <div>
               <Label>Số lượng nhập thêm</Label>
-              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={stockQty}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={stockQty}
                 onChange={(e) => setStockQty(Number(e.target.value))} />
             </div>
             <div>
               <Label>Giá nhập (đ/đơn vị) — tuỳ chọn</Label>
-              <Input type="number" className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1"
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1"
                 placeholder="Để trống nếu không cần theo dõi"
                 value={stockCostPrice}
                 onChange={(e) => setStockCostPrice(e.target.value === '' ? '' : Number(e.target.value))} />
             </div>
             <div>
               <Label>Ghi chú</Label>
-              <Input className="bg-[#0a1a0d] border-[#1e3d23] text-white mt-1" value={stockNote}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={stockNote}
                 onChange={(e) => setStockNote(e.target.value)} />
             </div>
             {stockQty > 0 && (
@@ -480,8 +480,8 @@ export default function ProductsPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-[#1e3d23] text-[#6b7280]">Huỷ</Button>
-            <Button className="bg-[#d4af37] text-[#0d1f12] font-bold" onClick={() => stockMutation.mutate()}>
+            <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
+            <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold" onClick={() => stockMutation.mutate()}>
               Nhập kho
             </Button>
           </DialogFooter>

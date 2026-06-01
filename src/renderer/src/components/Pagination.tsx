@@ -16,16 +16,16 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
   const to = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#1e3d23]">
+    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
       <div className="flex items-center gap-2">
         <span className="text-xs text-[#6b7280]">Hiển thị:</span>
         <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(Number(v))}>
-          <SelectTrigger className="w-20 h-7 bg-[#0a1a0d] border-[#1e3d23] text-white text-xs">
+          <SelectTrigger className="w-20 h-7 bg-white/[0.04] border-white/10 text-white text-xs">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-[#0a1a0d] border-[#1e3d23]">
+          <SelectContent className="bg-white/[0.04] border-white/10">
             {pageSizeOptions.map((s) => (
-              <SelectItem key={s} value={String(s)} className="text-white text-xs hover:bg-[#162a1a]">
+              <SelectItem key={s} value={String(s)} className="text-white text-xs hover:bg-white/[0.06]">
                 {s}
               </SelectItem>
             ))}
@@ -40,7 +40,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-[#1e3d23] text-[#6b7280] hover:bg-[#162a1a] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-[#6b7280] hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
@@ -52,7 +52,7 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
         <Button
           size="sm"
           variant="outline"
-          className="h-7 px-2 border-[#1e3d23] text-[#6b7280] hover:bg-[#162a1a] disabled:opacity-30"
+          className="h-7 px-2 border-white/10 text-[#6b7280] hover:bg-white/[0.06] disabled:opacity-30"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >

@@ -31,18 +31,20 @@ export default function TableCard({ table, onOpen, onView, onEdit }: Props) {
 
   return (
     <div
-      className={`relative rounded-xl p-3 flex items-center gap-4 cursor-pointer transition-colors
+      className={`relative rounded-xl p-3 flex items-center gap-4 cursor-pointer transition-all
+        backdrop-blur-xl border
         ${isPlaying
-          ? 'bg-[#2d1515] border border-[#991b1b] hover:border-red-500'
-          : 'bg-[#162a1a] border border-[#1e3d23] hover:border-green-500'
+          ? 'bg-red-950/30 border-red-500/30 hover:border-red-400/60 hover:bg-red-950/40'
+          : 'bg-white/[0.06] border-white/10 hover:border-green-400/50 hover:bg-white/[0.10]'
         }`}
+      style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}
       onClick={() => isPlaying ? onView(table.id) : onOpen(table)}
     >
       {/* Icon */}
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0
         ${isPlaying
-          ? 'bg-gradient-to-br from-[#991b1b] to-[#7f1d1d]'
-          : 'bg-gradient-to-br from-[#166534] to-[#14532d]'
+          ? 'bg-red-500/20 border border-red-500/30'
+          : 'bg-green-500/15 border border-green-500/25'
         }`}>
         🎱
       </div>
@@ -59,11 +61,11 @@ export default function TableCard({ table, onOpen, onView, onEdit }: Props) {
       {/* Status + edit */}
       <div className="flex items-center gap-2 flex-shrink-0">
         {isPlaying
-          ? <span className="bg-[#7f1d1d] text-red-400 text-[10px] px-2.5 py-1 rounded-full font-semibold">● Đang chơi</span>
-          : <span className="bg-[#14532d] text-green-400 text-[10px] px-2.5 py-1 rounded-full font-semibold">● Trống</span>
+          ? <span className="bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] px-2.5 py-1 rounded-full font-semibold">● Đang chơi</span>
+          : <span className="bg-green-500/15 border border-green-500/25 text-green-400 text-[10px] px-2.5 py-1 rounded-full font-semibold">● Trống</span>
         }
         <button
-          className="relative z-10 text-[#6b7280] hover:text-white text-xs px-1.5 py-1 rounded hover:bg-[#1e3d23] transition-colors"
+          className="relative z-10 text-white/30 hover:text-white text-xs px-1.5 py-1 rounded hover:bg-white/10 transition-colors"
           onClick={(e) => { e.stopPropagation(); onEdit(table) }}
           title="Chỉnh sửa"
         >

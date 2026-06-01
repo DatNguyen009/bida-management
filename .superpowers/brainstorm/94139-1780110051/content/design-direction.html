@@ -1,0 +1,87 @@
+<h2>Hướng thiết kế tổng thể</h2>
+<p class="subtitle">Chọn phong cách UI bạn muốn — logic chức năng giữ nguyên, chỉ thay đổi giao diện</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f1923;padding:12px;border-radius:8px;">
+      <div style="background:#1a2736;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="color:#10b981;font-weight:700;font-size:13px;">🎱 Bida</span>
+        <span style="color:#64748b;font-size:11px;margin-left:8px;">Dashboard</span>
+        <span style="color:#64748b;font-size:11px;">Bàn</span>
+        <span style="color:#64748b;font-size:11px;">Hóa đơn</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:#1a2736;border-radius:6px;padding:8px;">
+          <div style="width:36px;height:36px;background:#10b981;border-radius:50%;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 1</div>
+          <div style="color:#10b981;font-size:11px;font-weight:600;">Trống</div>
+        </div>
+        <div style="background:#1a2736;border-radius:6px;padding:8px;">
+          <div style="width:36px;height:36px;background:#ef4444;border-radius:50%;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 2</div>
+          <div style="color:#ef4444;font-size:11px;font-weight:600;">01:24:05</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Dark Professional</h3>
+      <p>Tinh chỉnh theme tối hiện tại — nav gọn hơn, card có depth, màu accent xanh lá đậm hơn. Chuyên nghiệp, ít gây mỏi mắt khi dùng ban đêm.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:12px;border-radius:8px;">
+      <div style="background:white;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);">
+        <span style="color:#7c3aed;font-weight:700;font-size:13px;">🎱 Bida</span>
+        <span style="color:#94a3b8;font-size:11px;margin-left:8px;">Dashboard</span>
+        <span style="color:#94a3b8;font-size:11px;">Bàn</span>
+        <span style="color:#94a3b8;font-size:11px;">Hóa đơn</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:white;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+          <div style="width:36px;height:36px;background:#dcfce7;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 1</div>
+          <div style="color:#16a34a;font-size:11px;font-weight:600;">Trống</div>
+        </div>
+        <div style="background:white;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+          <div style="width:36px;height:36px;background:#fee2e2;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#94a3b8;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 2</div>
+          <div style="color:#dc2626;font-size:11px;font-weight:600;">01:24:05</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Light Modern</h3>
+      <p>Theme sáng, tím làm màu accent chính, card bóng nhẹ. Trông như SaaS app hiện đại, phù hợp dùng ban ngày trong ánh sáng tốt.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1f12;padding:12px;border-radius:8px;">
+      <div style="background:#162a1a;border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px;border-bottom:2px solid #d4af37;">
+        <span style="color:#d4af37;font-weight:700;font-size:13px;">🎱 Bida</span>
+        <span style="color:#4ade80;font-size:11px;margin-left:8px;">Dashboard</span>
+        <span style="color:#6b7280;font-size:11px;">Bàn</span>
+        <span style="color:#6b7280;font-size:11px;">Hóa đơn</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:#162a1a;border-radius:6px;padding:8px;border:1px solid #1e3d23;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#166534,#14532d);border-radius:50%;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#6b7280;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 1</div>
+          <div style="color:#4ade80;font-size:11px;font-weight:600;">Trống</div>
+        </div>
+        <div style="background:#162a1a;border-radius:6px;padding:8px;border:1px solid #1e3d23;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#991b1b,#7f1d1d);border-radius:50%;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎱</div>
+          <div style="color:#6b7280;font-size:9px;text-transform:uppercase;letter-spacing:1px;">Bàn 2</div>
+          <div style="color:#f87171;font-size:11px;font-weight:600;">01:24:05</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Billiard Dark Green</h3>
+      <p>Xanh lá đậm như mặt bàn bida, gold accent, mang cảm giác thương hiệu rõ ràng. Đặc trưng, dễ nhận ra, phù hợp quán bida cao cấp.</p>
+    </div>
+  </div>
+
+</div>

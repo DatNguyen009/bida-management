@@ -1,0 +1,102 @@
+<h2>Card bàn bida trên Dashboard</h2>
+<p class="subtitle">Mỗi bàn hiển thị như thế nào? Chọn kiểu card bạn thích</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1f12;padding:12px;border-radius:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <!-- Empty table -->
+        <div style="background:#162a1a;border-radius:8px;padding:12px;border:1px solid #1e3d23;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="color:#d4af37;font-weight:700;font-size:12px;">Bàn 1</span>
+            <span style="background:#14532d;color:#4ade80;font-size:9px;padding:2px 6px;border-radius:10px;">Trống</span>
+          </div>
+          <div style="font-size:24px;text-align:center;margin:4px 0;">🎱</div>
+          <div style="color:#6b7280;font-size:9px;text-align:center;">50,000đ/giờ</div>
+          <div style="background:#15803d;color:white;font-size:9px;text-align:center;padding:4px;border-radius:4px;margin-top:6px;cursor:pointer;">Mở bàn</div>
+        </div>
+        <!-- Playing table -->
+        <div style="background:#2d1515;border-radius:8px;padding:12px;border:1px solid #7f1d1d;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="color:#d4af37;font-weight:700;font-size:12px;">Bàn 2</span>
+            <span style="background:#7f1d1d;color:#f87171;font-size:9px;padding:2px 6px;border-radius:10px;">Đang chơi</span>
+          </div>
+          <div style="font-size:24px;text-align:center;margin:4px 0;">🎱</div>
+          <div style="color:#f87171;font-size:14px;font-weight:700;text-align:center;font-family:monospace;">01:24:05</div>
+          <div style="color:#f87171;font-size:9px;text-align:center;">125,000đ</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Compact Card</h3>
+      <p>Card vuông vắn, icon bida ở giữa, badge trạng thái góc trên. Rõ ràng, hiển thị được nhiều bàn hơn.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1f12;padding:12px;border-radius:8px;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <!-- Empty table - wide -->
+        <div style="background:#162a1a;border-radius:8px;padding:10px 14px;border:1px solid #1e3d23;display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#166534,#14532d);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🎱</div>
+          <div style="flex:1;">
+            <div style="color:#d4af37;font-weight:700;font-size:12px;">Bàn 1</div>
+            <div style="color:#6b7280;font-size:9px;">50,000đ/giờ</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="background:#14532d;color:#4ade80;font-size:9px;padding:3px 8px;border-radius:10px;">Trống</span>
+          </div>
+        </div>
+        <!-- Playing table - wide -->
+        <div style="background:#2d1515;border-radius:8px;padding:10px 14px;border:1px solid #991b1b;display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#991b1b,#7f1d1d);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🎱</div>
+          <div style="flex:1;">
+            <div style="color:#d4af37;font-weight:700;font-size:12px;">Bàn 2</div>
+            <div style="color:#f87171;font-size:14px;font-weight:700;font-family:monospace;">01:24:05</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#f87171;font-size:12px;font-weight:600;">125,000đ</div>
+            <span style="background:#7f1d1d;color:#f87171;font-size:9px;padding:2px 6px;border-radius:10px;">Đang chơi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Wide Row Card</h3>
+      <p>Card nằm ngang, icon bên trái, thông tin ở giữa, trạng thái bên phải. Dễ đọc tiền và giờ chơi hơn.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1f12;padding:12px;border-radius:8px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <!-- Empty -->
+        <div style="background:#162a1a;border-radius:8px;overflow:hidden;border:1px solid #1e3d23;">
+          <div style="height:4px;background:#4ade80;"></div>
+          <div style="padding:10px;">
+            <div style="color:#d4af37;font-weight:700;font-size:12px;margin-bottom:2px;">Bàn 1</div>
+            <div style="font-size:20px;text-align:center;margin:6px 0;">🎱</div>
+            <div style="color:#4ade80;font-size:10px;font-weight:600;text-align:center;">Trống</div>
+            <div style="color:#6b7280;font-size:9px;text-align:center;">50,000đ/h</div>
+          </div>
+        </div>
+        <!-- Playing -->
+        <div style="background:#1a1215;border-radius:8px;overflow:hidden;border:1px solid #7f1d1d;">
+          <div style="height:4px;background:#ef4444;"></div>
+          <div style="padding:10px;">
+            <div style="color:#d4af37;font-weight:700;font-size:12px;margin-bottom:2px;">Bàn 2</div>
+            <div style="color:#f87171;font-size:13px;font-weight:700;font-family:monospace;text-align:center;margin:4px 0;">01:24:05</div>
+            <div style="color:#f87171;font-size:10px;font-weight:600;text-align:center;">125,000đ</div>
+            <div style="color:#6b7280;font-size:8px;text-align:center;">Nguyễn Văn A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Status Strip Card</h3>
+      <p>Dải màu trên đầu card (xanh=trống, đỏ=đang chơi). Nhận biết trạng thái cực nhanh chỉ bằng màu sắc, kể cả khi nhìn từ xa.</p>
+    </div>
+  </div>
+
+</div>

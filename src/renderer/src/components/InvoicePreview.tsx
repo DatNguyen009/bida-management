@@ -62,6 +62,12 @@ export default function InvoicePreview({ input, invoiceNumber }: Props) {
           <span>-{formatCurrency(input.discountFromPoints)}</span>
         </div>
       )}
+      {(input.vatRate ?? 0) > 0 && (
+        <div className="flex justify-between">
+          <span>VAT ({input.vatRate}%):</span>
+          <span>+{formatCurrency(input.vatAmount ?? 0)}</span>
+        </div>
+      )}
       <hr className="border-black my-1" />
       <div className="flex justify-between font-bold text-sm">
         <span>TỔNG CỘNG:</span>

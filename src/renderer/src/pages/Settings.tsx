@@ -134,7 +134,7 @@ export default function SettingsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-[#d4af37]">Cài đặt</h1>
-        <div className="flex gap-1 bg-[#161515] border border-[#272525] rounded-lg p-1">
+        <div className="flex gap-1 backdrop-blur-xl bg-white/[0.04] border border-white/10 rounded-lg p-1">
           <button
             className={`px-4 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'settings' ? 'bg-[#d4af37] text-[#0f0e0f] font-bold' : 'text-white hover:text-[#d4af37]'}`}
             onClick={() => setActiveTab('settings')}
@@ -152,24 +152,24 @@ export default function SettingsPage() {
 
       {activeTab === 'settings' && (
         <div className="space-y-4">
-          <section className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-5 space-y-4">
+          <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Thông tin quán</h2>
             <div><Label className="text-[#6b7280] text-xs">Tên quán</Label>
-              <Input className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={shopName}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={shopName}
                 onChange={(e) => setShopName(e.target.value)} /></div>
             <div><Label className="text-[#6b7280] text-xs">Địa chỉ</Label>
-              <Input className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={address}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={address}
                 onChange={(e) => setAddress(e.target.value)} /></div>
             <div><Label className="text-[#6b7280] text-xs">Số điện thoại</Label>
-              <Input className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={phone}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={phone}
                 onChange={(e) => setPhone(e.target.value)} /></div>
             <div><Label className="text-[#6b7280] text-xs">Giá mặc định (đồng/giờ)</Label>
-              <Input type="number" className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={defaultRate}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={defaultRate}
                 onChange={(e) => setDefaultRate(e.target.value)} /></div>
             <div>
               <Label className="text-[#6b7280] text-xs">VAT (%)</Label>
               <Input type="number" min={0} max={100}
-                className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]"
+                className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={vatRate}
                 onChange={(e) => setVatRate(e.target.value)}
                 placeholder="10" />
@@ -177,23 +177,23 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <section className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-5 space-y-4">
+          <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Máy in nhiệt</h2>
             <div>
               <Label className="text-[#6b7280] text-xs">Đường dẫn máy in (USB / Serial)</Label>
-              <Input className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={printerPath}
+              <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={printerPath}
                 onChange={(e) => setPrinterPath(e.target.value)}
                 placeholder="USB001 hoặc COM3" />
               <p className="text-xs text-[#6b7280] mt-1">Windows: USB001, COM3 — macOS/Linux: /dev/usb/lp0</p>
             </div>
           </section>
 
-          <section className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-5 space-y-4">
+          <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tài khoản ngân hàng</h2>
             <div>
               <Label className="text-[#6b7280] text-xs">Mã ngân hàng (VietQR)</Label>
               <Input
-                className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]"
+                className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankId}
                 onChange={(e) => setBankId(e.target.value.toUpperCase())}
                 placeholder="VD: MB, VCB, TCB, ACB, TPB"
@@ -205,7 +205,7 @@ export default function SettingsPage() {
             <div>
               <Label className="text-[#6b7280] text-xs">Số tài khoản</Label>
               <Input
-                className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]"
+                className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankAccount}
                 onChange={(e) => setBankAccount(e.target.value)}
                 placeholder="VD: 1234567890"
@@ -214,7 +214,7 @@ export default function SettingsPage() {
             <div>
               <Label className="text-[#6b7280] text-xs">Tên chủ tài khoản</Label>
               <Input
-                className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]"
+                className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
                 value={bankAccountName}
                 onChange={(e) => setBankAccountName(e.target.value.toUpperCase())}
                 placeholder="VD: NGUYEN VAN A"
@@ -222,13 +222,13 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <section className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-5 space-y-4">
+          <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">Tích điểm khách hàng</h2>
             <div><Label className="text-[#6b7280] text-xs">Điểm nhận được khi chi 10.000đ</Label>
-              <Input type="number" className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={pointsPer10k}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={pointsPer10k}
                 onChange={(e) => setPointsPer10k(e.target.value)} /></div>
             <div><Label className="text-[#6b7280] text-xs">1 điểm = ? đồng giảm giá</Label>
-              <Input type="number" className="bg-[#161515] border-[#272525] text-white mt-1 focus:border-[#d4af37]" value={vndPerPoint}
+              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]" value={vndPerPoint}
                 onChange={(e) => setVndPerPoint(e.target.value)} /></div>
             <p className="text-xs text-[#6b7280]">
               VD: Chi 200,000đ = {Math.floor(200000 / 10000) * Number(pointsPer10k || 1)} điểm.
@@ -314,10 +314,10 @@ export default function SettingsPage() {
             </Button>
           </div>
 
-          <div className="bg-[#161515] rounded-xl overflow-hidden border border-[#272525]">
+          <div className="backdrop-blur-xl bg-white/[0.04] rounded-xl overflow-hidden border border-white/10">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-[#1c1b1b] border-b-2 border-[#d4af37]">
+                <tr className="bg-white/[0.06] border-b-2 border-[#d4af37]">
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Tên đăng nhập</th>
                   <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Màn hình được phép</th>
                   <th className="text-right px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thao tác</th>
@@ -325,7 +325,7 @@ export default function SettingsPage() {
               </thead>
               <tbody>
                 {staffList.map((s, i) => (
-                  <tr key={s.id} className={`border-b border-[#272525] hover:bg-[#1c1b1b] transition-colors ${i % 2 === 1 ? 'bg-[#181717]' : ''}`}>
+                  <tr key={s.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                     <td className="px-4 py-3 text-[#e2e8f0] font-medium">{s.username}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1 flex-wrap">
@@ -361,7 +361,7 @@ export default function SettingsPage() {
           </div>
 
           <Dialog open={staffMode === 'create' || staffMode === 'edit'} onOpenChange={(o) => !o && setStaffMode(null)}>
-            <DialogContent className="bg-[#1c1b1b] border-[#272525] text-white">
+            <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
               <DialogHeader>
                 <DialogTitle>{staffMode === 'create' ? 'Thêm nhân viên' : 'Sửa nhân viên'}</DialogTitle>
               </DialogHeader>
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                 <div>
                   <Label className="text-[#6b7280] text-xs">Tên đăng nhập</Label>
                   <Input
-                    className="bg-[#161515] border-[#272525] text-white mt-1"
+                    className="bg-white/[0.04] border-white/10 text-white mt-1"
                     value={staffForm.username}
                     onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
                     disabled={staffMode === 'edit'}
@@ -381,7 +381,7 @@ export default function SettingsPage() {
                   </Label>
                   <Input
                     type="password"
-                    className="bg-[#161515] border-[#272525] text-white mt-1"
+                    className="bg-white/[0.04] border-white/10 text-white mt-1"
                     value={staffForm.password}
                     onChange={(e) => setStaffForm({ ...staffForm, password: e.target.value })}
                   />
@@ -409,7 +409,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setStaffMode(null)} className="border-[#272525] text-[#6b7280]">Huỷ</Button>
+                <Button variant="outline" onClick={() => setStaffMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
                 <Button
                   className="bg-[#d4af37] text-[#0f0e0f] font-bold"
                   disabled={staffMode === 'create' && (!staffForm.username || !staffForm.password)}

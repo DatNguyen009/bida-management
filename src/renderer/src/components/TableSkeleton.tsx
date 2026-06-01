@@ -11,7 +11,7 @@ export default function TableSkeleton({ rows = 10, cols = 4 }: Props) {
   return (
     <div className="space-y-1 p-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#0d1f12]/40">
+        <div key={i} className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#0f0e0f]/40">
           {Array.from({ length: cols }).map((_, j) => (
             <Skeleton
               key={j}

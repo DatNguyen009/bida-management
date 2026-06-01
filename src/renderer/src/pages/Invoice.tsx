@@ -31,6 +31,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   type PaymentStep = 'select' | 'cash' | 'bank'
   const [paymentStep, setPaymentStep] = useState<PaymentStep>('select')
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash')
+  const [cashReceived, setCashReceived] = useState<number | ''>('')
 
   const { data: orderItems = [] } = useQuery({
     queryKey: ['orderItems', session.id],
@@ -53,9 +54,21 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
   const itemsAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
   const discountFromPoints = calcDiscountFromPoints(pointsToRedeem, VND_PER_POINT)
-  const { finalAmount } = calcInvoice({
+
+  const shopName = settings?.find((s: { key: string }) => s.key === 'shop_name')?.value ?? 'Quán Bida'
+  const shopAddress = settings?.find((s: { key: string }) => s.key === 'address')?.value ?? ''
+  const shopPhone = settings?.find((s: { key: string }) => s.key === 'phone')?.value ?? ''
+  const printerPath = settings?.find((s: { key: string }) => s.key === 'printer_path')?.value ?? 'USB001'
+  const bankId = settings?.find((s: { key: string }) => s.key === 'bank_id')?.value ?? ''
+  const bankAccount = settings?.find((s: { key: string }) => s.key === 'bank_account')?.value ?? ''
+  const bankAccountName = settings?.find((s: { key: string }) => s.key === 'bank_account_name')?.value ?? ''
+  const bankConfigured = isBankConfigured(bankId, bankAccount, bankAccountName)
+  const vatRate = Number(settings?.find((s: { key: string }) => s.key === 'vat_rate')?.value ?? '10')
+  const { finalAmount: preVatAmount } = calcInvoice({
     playAmount, itemsAmount, discount, pointsRedeemed: pointsToRedeem, vndPerPoint: VND_PER_POINT,
   })
+  const vatAmount = vatRate > 0 ? Math.round(preVatAmount * vatRate / 100) : 0
+  const finalAmount = preVatAmount + vatAmount
   const pointsEarned = calcPointsEarned(finalAmount, POINTS_PER_10K)
 
   const handlePointsChange = (value: number) => {
@@ -68,15 +81,6 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     }
     setPointsToRedeem(value)
   }
-
-  const shopName = settings?.find((s: { key: string }) => s.key === 'shop_name')?.value ?? 'Quán Bida'
-  const shopAddress = settings?.find((s: { key: string }) => s.key === 'address')?.value ?? ''
-  const shopPhone = settings?.find((s: { key: string }) => s.key === 'phone')?.value ?? ''
-  const printerPath = settings?.find((s: { key: string }) => s.key === 'printer_path')?.value ?? 'USB001'
-  const bankId = settings?.find((s: { key: string }) => s.key === 'bank_id')?.value ?? ''
-  const bankAccount = settings?.find((s: { key: string }) => s.key === 'bank_account')?.value ?? ''
-  const bankAccountName = settings?.find((s: { key: string }) => s.key === 'bank_account_name')?.value ?? ''
-  const bankConfigured = isBankConfigured(bankId, bankAccount, bankAccountName)
 
   const invoiceInput: InvoiceCreateInput = {
     sessionId: session.id,
@@ -97,6 +101,8 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     bankId,
     bankAccount,
     bankAccountName,
+    vatRate,
+    vatAmount,
   }
 
   const addItemMutation = useMutation({
@@ -145,7 +151,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
       {/* Customer Lookup */}
-      <div className="col-span-full bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-2">
+      <div className="col-span-full bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 mb-2">
         <h3 className="font-semibold text-xs text-[#6b7280] uppercase tracking-widest mb-3">KHÁCH HÀNG (tùy chọn)</h3>
         <CustomerSearchInput onSelect={(c) => { setSelectedCustomer(c); setPointsToRedeem(0); setPointsError('') }} />
         {selectedCustomer && selectedCustomer.points_balance > 0 && (
@@ -155,7 +161,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               type="number"
               min={0}
               max={selectedCustomer.points_balance}
-              className="mt-1 bg-[#0a1a0d] border-[#1e3d23] text-white"
+              className="mt-1 bg-[#161515] border-[#272525] text-white"
               value={pointsToRedeem || ''}
               onChange={(e) => handlePointsChange(Number(e.target.value))}
             />
@@ -174,11 +180,11 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
       <div>
         <h2 className="text-xl font-bold mb-4">Bàn {session.table_name}</h2>
 
-        <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-4">
+        <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 mb-4">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[#e2e8f0]">Đồ uống / thức ăn</h3>
             <Button size="sm" onClick={() => setShowPicker(true)}
-              className="bg-[#d4af37] text-[#0d1f12] font-bold text-xs hover:bg-yellow-400">
+              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-xs hover:bg-yellow-400">
               + Thêm
             </Button>
           </div>
@@ -189,13 +195,13 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
           />
         </div>
 
-        <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 space-y-3">
+        <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 space-y-3">
           <div>
             <Label className="text-[#6b7280] text-xs">Giảm giá (đồng)</Label>
-            <Input type="number" className="mt-1 bg-[#0a1a0d] border-[#1e3d23] text-white"
+            <Input type="number" className="mt-1 bg-[#161515] border-[#272525] text-white"
               value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
           </div>
-          <div className="pt-2 border-t border-[#1e3d23] space-y-1 text-sm">
+          <div className="pt-2 border-t border-[#272525] space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-[#6b7280]">Tổng chơi:</span>
               <span>{formatCurrency(playAmount)}</span>
@@ -204,6 +210,12 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               <span className="text-[#6b7280]">Tổng hàng:</span>
               <span>{formatCurrency(itemsAmount)}</span>
             </div>
+            {vatRate > 0 && (
+              <div className="flex justify-between text-[#6b7280]">
+                <span>VAT ({vatRate}%):</span>
+                <span>+{formatCurrency(vatAmount)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-bold text-base">
               <span>Tổng cộng:</span>
               <span className="text-[#d4af37] font-bold text-lg">{formatCurrency(finalAmount)}</span>
@@ -222,13 +234,13 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               <p className="text-xs text-[#6b7280] uppercase tracking-widest text-center mb-2">Phương thức thanh toán</p>
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-[#162a1a] border border-[#1e3d23] text-white hover:bg-[#1e3d23] font-bold py-6 text-base"
+                  className="flex-1 bg-[#1c1b1b] border border-[#272525] text-white hover:bg-[#272525] font-bold py-6 text-base"
                   onClick={() => { setPaymentMethod('cash'); setPaymentStep('cash') }}
                 >
                   💵 Tiền mặt
                 </Button>
                 <Button
-                  className="flex-1 bg-[#162a1a] border border-[#1e3d23] text-white hover:bg-[#1e3d23] font-bold py-6 text-base disabled:opacity-40"
+                  className="flex-1 bg-[#1c1b1b] border border-[#272525] text-white hover:bg-[#272525] font-bold py-6 text-base disabled:opacity-40"
                   disabled={!bankConfigured}
                   title={!bankConfigured ? 'Chưa cấu hình tài khoản ngân hàng trong Cài đặt' : undefined}
                   onClick={() => { setPaymentMethod('bank_transfer'); setPaymentStep('bank') }}
@@ -246,9 +258,36 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
           {paymentStep === 'cash' && (
             <div className="space-y-3">
+              <div className="bg-[#161515] border border-[#272525] rounded-xl p-3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#6b7280]">Cần thanh toán</span>
+                  <span className="font-bold text-[#d4af37]">{formatCurrency(finalAmount)}</span>
+                </div>
+                <div>
+                  <Label className="text-[#6b7280] text-xs">Tiền khách đưa</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    className="mt-1 bg-[#1c1b1b] border-[#272525] text-white text-right"
+                    placeholder="0"
+                    value={cashReceived}
+                    onChange={(e) => setCashReceived(e.target.value === '' ? '' : Number(e.target.value))}
+                  />
+                </div>
+                {cashReceived !== '' && (
+                  <div className="flex justify-between text-sm pt-1 border-t border-[#272525]">
+                    <span className="text-[#6b7280]">Tiền thối</span>
+                    <span className={`font-bold text-lg ${cashReceived >= finalAmount ? 'text-green-400' : 'text-red-400'}`}>
+                      {cashReceived >= finalAmount
+                        ? formatCurrency(cashReceived - finalAmount)
+                        : `Thiếu ${formatCurrency(finalAmount - cashReceived)}`}
+                    </span>
+                  </div>
+                )}
+              </div>
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+                  className="flex-1 bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >
@@ -256,7 +295,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
+                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#1c1b1b]"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: false })}
                 >
@@ -265,7 +304,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               </div>
               <button
                 className="w-full text-xs text-[#6b7280] hover:text-white text-center mt-1"
-                onClick={() => setPaymentStep('select')}
+                onClick={() => { setPaymentStep('select'); setCashReceived('') }}
               >
                 ← Quay lại chọn phương thức
               </button>
@@ -274,7 +313,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
           {paymentStep === 'bank' && (
             <div className="space-y-4">
-              <div className="bg-[#0a1a0d] border border-[#1e3d23] rounded-xl p-4 text-center">
+              <div className="bg-[#161515] border border-[#272525] rounded-xl p-4 text-center">
                 <img
                   src={buildVietQRUrl({
                     bankId,
@@ -293,7 +332,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               </div>
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+                  className="flex-1 bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >
@@ -301,7 +340,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#162a1a]"
+                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#1c1b1b]"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: false })}
                 >

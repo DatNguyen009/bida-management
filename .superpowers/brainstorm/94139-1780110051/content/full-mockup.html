@@ -1,0 +1,205 @@
+<h2>Full Mockup — Billiard Dark Green + Sidebar</h2>
+<p class="subtitle">Preview toàn bộ giao diện mới. Click để xem từng màn hình.</p>
+
+<div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;">
+
+  <!-- Tab buttons -->
+  <div style="width:100%;display:flex;gap:8px;margin-bottom:4px;">
+    <button onclick="showTab('dashboard')" id="tab-dashboard"
+      style="background:#d4af37;color:#0d1f12;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Dashboard</button>
+    <button onclick="showTab('products')" id="tab-products"
+      style="background:#162a1a;color:#6b7280;border:1px solid #1e3d23;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">Sản phẩm (bảng)</button>
+    <button onclick="showTab('session')" id="tab-session"
+      style="background:#162a1a;color:#6b7280;border:1px solid #1e3d23;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">Phiên chơi</button>
+  </div>
+
+  <!-- App frame -->
+  <div id="app-frame" style="width:100%;background:#0d1f12;border-radius:10px;overflow:hidden;border:1px solid #1e3d23;display:flex;height:420px;">
+
+    <!-- Sidebar -->
+    <div style="width:160px;background:#0a1a0d;border-right:2px solid #d4af37;display:flex;flex-direction:column;padding:16px 0;flex-shrink:0;">
+      <div style="padding:0 16px 16px;border-bottom:1px solid #1e3d23;margin-bottom:12px;">
+        <div style="color:#d4af37;font-weight:700;font-size:15px;">🎱 Bida</div>
+        <div style="color:#4b7a52;font-size:10px;">qk_admin</div>
+      </div>
+      <nav style="flex:1;display:flex;flex-direction:column;gap:2px;padding:0 8px;">
+        <div id="nav-dashboard" style="padding:8px 10px;border-radius:6px;font-size:11px;color:#4ade80;background:#1e3d23;border-left:3px solid #4ade80;cursor:pointer;" onclick="showTab('dashboard')">🏠 Dashboard</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;" onclick="showTab('products')">📦 Sản phẩm</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;">🏪 Kho</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;">🧾 Hóa đơn</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;">👥 Khách hàng</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;">📊 Báo cáo</div>
+      </nav>
+      <div style="padding:8px;margin-top:auto;border-top:1px solid #1e3d23;">
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#6b7280;cursor:pointer;">⚙ Cài đặt</div>
+        <div style="padding:8px 10px;border-radius:6px;font-size:11px;color:#ef4444;cursor:pointer;">↩ Đăng xuất</div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+
+      <!-- Dashboard view -->
+      <div id="view-dashboard" style="flex:1;overflow:auto;padding:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <h2 style="color:#d4af37;font-size:18px;margin:0 0 2px;">Dashboard</h2>
+            <p style="color:#4b7a52;font-size:11px;margin:0;">Thứ Sáu, 30/05/2026</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div style="background:#162a1a;border-radius:8px;padding:8px 14px;text-align:center;border:1px solid #1e3d23;">
+              <div style="color:#4ade80;font-size:18px;font-weight:700;">3</div>
+              <div style="color:#6b7280;font-size:9px;">Bàn trống</div>
+            </div>
+            <div style="background:#2d1515;border-radius:8px;padding:8px 14px;text-align:center;border:1px solid #7f1d1d;">
+              <div style="color:#f87171;font-size:18px;font-weight:700;">2</div>
+              <div style="color:#6b7280;font-size:9px;">Đang chơi</div>
+            </div>
+            <div style="background:#162a1a;border-radius:8px;padding:8px 14px;text-align:center;border:1px solid #d4af37;">
+              <div style="color:#d4af37;font-size:18px;font-weight:700;">540K</div>
+              <div style="color:#6b7280;font-size:9px;">Hôm nay</div>
+            </div>
+          </div>
+        </div>
+        <!-- Table cards - Wide Row style -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="background:#162a1a;border-radius:8px;padding:12px 16px;border:1px solid #1e3d23;display:flex;align-items:center;gap:14px;cursor:pointer;" onmouseover="this.style.borderColor='#4ade80'" onmouseout="this.style.borderColor='#1e3d23'">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,#166534,#14532d);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎱</div>
+            <div style="flex:1;">
+              <div style="color:#d4af37;font-weight:700;font-size:14px;">Bàn 1 — VIP</div>
+              <div style="color:#6b7280;font-size:11px;">50,000đ/giờ</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="background:#14532d;color:#4ade80;font-size:10px;padding:3px 10px;border-radius:12px;font-weight:600;">● Trống</span>
+              <div style="color:#6b7280;font-size:9px;margin-top:3px;">Sẵn sàng</div>
+            </div>
+          </div>
+          <div style="background:#2d1515;border-radius:8px;padding:12px 16px;border:1px solid #991b1b;display:flex;align-items:center;gap:14px;cursor:pointer;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,#991b1b,#7f1d1d);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎱</div>
+            <div style="flex:1;">
+              <div style="color:#d4af37;font-weight:700;font-size:14px;">Bàn 2</div>
+              <div style="color:#f87171;font-size:13px;font-weight:700;font-family:monospace;">01:24:05</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="color:#f87171;font-size:14px;font-weight:700;">125,000đ</div>
+              <span style="background:#7f1d1d;color:#f87171;font-size:10px;padding:3px 10px;border-radius:12px;">● Đang chơi</span>
+            </div>
+          </div>
+          <div style="background:#162a1a;border-radius:8px;padding:12px 16px;border:1px solid #1e3d23;display:flex;align-items:center;gap:14px;cursor:pointer;" onmouseover="this.style.borderColor='#4ade80'" onmouseout="this.style.borderColor='#1e3d23'">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,#166534,#14532d);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎱</div>
+            <div style="flex:1;">
+              <div style="color:#d4af37;font-weight:700;font-size:14px;">Bàn 3</div>
+              <div style="color:#6b7280;font-size:11px;">60,000đ/giờ</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="background:#14532d;color:#4ade80;font-size:10px;padding:3px 10px;border-radius:12px;font-weight:600;">● Trống</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products table view -->
+      <div id="view-products" style="flex:1;overflow:auto;padding:20px;display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 style="color:#d4af37;font-size:18px;margin:0;">Sản phẩm</h2>
+          <button style="background:#d4af37;color:#0d1f12;border:none;padding:7px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">+ Thêm sản phẩm</button>
+        </div>
+        <div style="background:#0a1a0d;border-radius:8px;overflow:hidden;border:1px solid #1e3d23;">
+          <table style="width:100%;border-collapse:collapse;font-size:11px;">
+            <thead>
+              <tr style="background:#162a1a;border-bottom:2px solid #d4af37;">
+                <th style="text-align:left;padding:10px 14px;color:#d4af37;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Tên sản phẩm</th>
+                <th style="text-align:left;padding:10px 14px;color:#d4af37;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Loại</th>
+                <th style="text-align:right;padding:10px 14px;color:#d4af37;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Giá</th>
+                <th style="text-align:right;padding:10px 14px;color:#d4af37;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Tồn kho</th>
+                <th style="text-align:right;padding:10px 14px;color:#d4af37;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #1e3d23;" onmouseover="this.style.background='#162a1a'" onmouseout="this.style.background='transparent'">
+                <td style="padding:10px 14px;color:#e2e8f0;font-weight:500;">Bia Tiger</td>
+                <td style="padding:10px 14px;"><span style="background:#1e3d23;color:#4ade80;padding:2px 8px;border-radius:10px;font-size:10px;">🥤 Đồ uống</span></td>
+                <td style="padding:10px 14px;text-align:right;color:#4ade80;font-weight:600;">30,000đ</td>
+                <td style="padding:10px 14px;text-align:right;color:#e2e8f0;">110 lon</td>
+                <td style="padding:10px 14px;text-align:right;"><span style="color:#d4af37;font-size:10px;cursor:pointer;margin-right:8px;">Nhập kho</span><span style="color:#6b7280;font-size:10px;cursor:pointer;">Sửa</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid #1e3d23;background:#0d1a0f;" onmouseover="this.style.background='#162a1a'" onmouseout="this.style.background='#0d1a0f'">
+                <td style="padding:10px 14px;color:#e2e8f0;font-weight:500;">Coca Cola</td>
+                <td style="padding:10px 14px;"><span style="background:#1e3d23;color:#4ade80;padding:2px 8px;border-radius:10px;font-size:10px;">🥤 Đồ uống</span></td>
+                <td style="padding:10px 14px;text-align:right;color:#4ade80;font-weight:600;">20,000đ</td>
+                <td style="padding:10px 14px;text-align:right;color:#f87171;font-weight:600;">3 lon ⚠</td>
+                <td style="padding:10px 14px;text-align:right;"><span style="color:#d4af37;font-size:10px;cursor:pointer;margin-right:8px;">Nhập kho</span><span style="color:#6b7280;font-size:10px;cursor:pointer;">Sửa</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid #1e3d23;" onmouseover="this.style.background='#162a1a'" onmouseout="this.style.background='transparent'">
+                <td style="padding:10px 14px;color:#e2e8f0;font-weight:500;">Bánh cuốn</td>
+                <td style="padding:10px 14px;"><span style="background:#292524;color:#fb923c;padding:2px 8px;border-radius:10px;font-size:10px;">🍜 Đồ ăn</span></td>
+                <td style="padding:10px 14px;text-align:right;color:#4ade80;font-weight:600;">25,000đ</td>
+                <td style="padding:10px 14px;text-align:right;color:#e2e8f0;">100 đĩa</td>
+                <td style="padding:10px 14px;text-align:right;"><span style="color:#d4af37;font-size:10px;cursor:pointer;margin-right:8px;">Nhập kho</span><span style="color:#6b7280;font-size:10px;cursor:pointer;">Sửa</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Session view -->
+      <div id="view-session" style="flex:1;overflow:auto;padding:20px;display:none;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <span style="color:#6b7280;font-size:11px;cursor:pointer;">← Quay lại</span>
+          <h2 style="color:#d4af37;font-size:18px;margin:0;">Bàn 2 — Phiên chơi</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <!-- Timer -->
+          <div style="background:#2d1515;border-radius:10px;padding:16px;border:1px solid #7f1d1d;text-align:center;">
+            <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Thời gian chơi</div>
+            <div style="color:#f87171;font-size:36px;font-weight:700;font-family:monospace;letter-spacing:2px;">01:24:05</div>
+            <div style="color:#f87171;font-size:16px;font-weight:600;margin-top:6px;">125,000đ</div>
+            <div style="color:#6b7280;font-size:10px;">50,000đ/giờ</div>
+          </div>
+          <!-- Order items -->
+          <div style="background:#162a1a;border-radius:10px;padding:16px;border:1px solid #1e3d23;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Đồ uống</div>
+              <button style="background:#d4af37;color:#0d1f12;border:none;padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">+ Thêm</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e3d23;">
+              <span style="color:#e2e8f0;font-size:11px;">Bia Tiger x2</span>
+              <span style="color:#4ade80;font-size:11px;">60,000đ</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;">
+              <span style="color:#e2e8f0;font-size:11px;">Coca Cola x1</span>
+              <span style="color:#4ade80;font-size:11px;">20,000đ</span>
+            </div>
+            <div style="border-top:1px solid #d4af37;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
+              <span style="color:#d4af37;font-size:11px;font-weight:600;">Tổng đồ uống</span>
+              <span style="color:#d4af37;font-size:11px;font-weight:600;">80,000đ</span>
+            </div>
+          </div>
+        </div>
+        <button style="background:#d4af37;color:#0d1f12;border:none;padding:12px;border-radius:8px;font-size:13px;font-weight:700;width:100%;margin-top:12px;cursor:pointer;">Kết thúc & Thanh toán — 205,000đ</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(tab) {
+  ['dashboard','products','session'].forEach(t => {
+    document.getElementById('view-' + t).style.display = t === tab ? 'flex' : 'none';
+    document.getElementById('view-' + t).style.flexDirection = 'column';
+  });
+  document.getElementById('nav-dashboard').style.color = tab === 'dashboard' ? '#4ade80' : '#6b7280';
+  document.getElementById('nav-dashboard').style.background = tab === 'dashboard' ? '#1e3d23' : 'transparent';
+  document.getElementById('nav-dashboard').style.borderLeft = tab === 'dashboard' ? '3px solid #4ade80' : 'none';
+  ['tab-dashboard','tab-products','tab-session'].forEach(id => {
+    const btn = document.getElementById(id);
+    const isActive = id === 'tab-' + tab;
+    btn.style.background = isActive ? '#d4af37' : '#162a1a';
+    btn.style.color = isActive ? '#0d1f12' : '#6b7280';
+    btn.style.border = isActive ? 'none' : '1px solid #1e3d23';
+    btn.style.fontWeight = isActive ? '600' : 'normal';
+  });
+}
+</script>

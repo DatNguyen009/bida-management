@@ -106,7 +106,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
   return (
     <div className="relative">
       <Input
-        className="bg-[#0a1a0d] border-[#1e3d23] text-white"
+        className="bg-[#161515] border-[#272525] text-white"
         placeholder="Nhập số điện thoại (≥3 số)..."
         value={input}
         onChange={(e) => handleInputChange(e.target.value)}
@@ -115,11 +115,11 @@ export default function CustomerSearchInput({ onSelect }: Props) {
       />
       {isLoading && <p className="text-xs text-[#6b7280] mt-1">Đang tìm...</p>}
       {isOpen && !showCreate && (
-        <div className="absolute z-50 w-full mt-1 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg overflow-auto max-h-64 shadow-lg">
+        <div className="absolute z-50 w-full mt-1 bg-[#161515] border border-[#272525] rounded-lg overflow-auto max-h-64 shadow-lg">
           {results.map((c) => (
             <button
               key={c.id}
-              className="w-full text-left px-3 py-2 hover:bg-[#162a1a] flex justify-between items-center"
+              className="w-full text-left px-3 py-2 hover:bg-[#1c1b1b] flex justify-between items-center"
               onMouseDown={() => handleSelect(c)}
             >
               <div>
@@ -131,7 +131,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
           ))}
           {results.length === 0 && input.length >= 3 && !isLoading && (
             <button
-              className="w-full text-left px-3 py-2 text-green-400 hover:bg-[#162a1a] text-sm"
+              className="w-full text-left px-3 py-2 text-green-400 hover:bg-[#1c1b1b] text-sm"
               onMouseDown={() => { setShowCreate(true); setIsOpen(false) }}
             >
               + Thêm khách "{input}"
@@ -140,10 +140,10 @@ export default function CustomerSearchInput({ onSelect }: Props) {
         </div>
       )}
       {showCreate && (
-        <div className="mt-2 bg-[#0a1a0d] border border-[#1e3d23] rounded-lg p-3 space-y-2">
+        <div className="mt-2 bg-[#161515] border border-[#272525] rounded-lg p-3 space-y-2">
           <p className="text-xs text-[#6b7280]">Tạo khách mới — SĐT: {input}</p>
           <Input
-            className="bg-[#162a1a] border-[#1e3d23] text-white text-sm"
+            className="bg-[#1c1b1b] border-[#272525] text-white text-sm"
             placeholder="Tên khách hàng..."
             value={createName}
             onChange={(e) => setCreateName(e.target.value)}
@@ -163,7 +163,7 @@ export default function CustomerSearchInput({ onSelect }: Props) {
             <Button
               size="sm"
               variant="outline"
-              className="border-[#1e3d23] text-[#6b7280]"
+              className="border-[#272525] text-[#6b7280]"
               onClick={() => { setShowCreate(false); setCreateError('') }}
             >
               Huỷ

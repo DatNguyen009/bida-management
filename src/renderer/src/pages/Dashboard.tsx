@@ -103,7 +103,7 @@ export default function Dashboard({ onViewSession }: Props) {
         </div>
         <button
           onClick={handleAddNew}
-          className="bg-[#d4af37] text-[#0d1f12] text-xs font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+          className="bg-[#d4af37] text-[#0f0e0f] text-xs font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
         >
           + Thêm bàn
         </button>
@@ -111,17 +111,17 @@ export default function Dashboard({ onViewSession }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 text-center">
+        <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)'}}>
           <div className="text-green-400 text-2xl font-bold">{idleCount}</div>
-          <div className="text-[#6b7280] text-xs mt-1">Bàn trống</div>
+          <div className="text-white/40 text-xs mt-1">Bàn trống</div>
         </div>
-        <div className="bg-[#2d1515] border border-[#7f1d1d] rounded-xl p-4 text-center">
+        <div className="backdrop-blur-xl bg-red-950/30 border border-red-500/25 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.08)'}}>
           <div className="text-red-400 text-2xl font-bold">{playingCount}</div>
-          <div className="text-[#6b7280] text-xs mt-1">Đang chơi</div>
+          <div className="text-white/40 text-xs mt-1">Đang chơi</div>
         </div>
-        <div className="bg-[#162a1a] border border-[#d4af37] rounded-xl p-4 text-center">
+        <div className="backdrop-blur-xl bg-white/[0.07] border border-[#d4af37]/30 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)'}}>
           <div className="text-[#d4af37] text-2xl font-bold">{tables.length}</div>
-          <div className="text-[#6b7280] text-xs mt-1">Tổng số bàn</div>
+          <div className="text-white/40 text-xs mt-1">Tổng số bàn</div>
         </div>
       </div>
 

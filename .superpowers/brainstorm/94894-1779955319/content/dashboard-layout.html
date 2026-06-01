@@ -1,0 +1,117 @@
+<h2>Master Dashboard — Cấu trúc màn hình</h2>
+<p class="subtitle">Chọn cách tổ chức navigation và layout chính</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;color:#cdd6f4">
+        <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-bottom:8px;display:flex;gap:16px;color:#89b4fa">
+          <span>📊 Overview</span><span>🏪 Quán</span><span>📈 Báo cáo</span><span>👥 Agents</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:#313244;padding:8px;border-radius:4px;text-align:center">
+            <div style="color:#a6e3a1;font-size:16px;font-weight:bold">8</div>
+            <div style="color:#6c7086;font-size:10px">Quán hoạt động</div>
+          </div>
+          <div style="background:#313244;padding:8px;border-radius:4px;text-align:center">
+            <div style="color:#fab387;font-size:16px;font-weight:bold">23</div>
+            <div style="color:#6c7086;font-size:10px">Bàn đang chơi</div>
+          </div>
+          <div style="background:#313244;padding:8px;border-radius:4px;text-align:center">
+            <div style="color:#89b4fa;font-size:16px;font-weight:bold">4.2M</div>
+            <div style="color:#6c7086;font-size:10px">Doanh thu hôm nay</div>
+          </div>
+        </div>
+        <div style="background:#313244;padding:6px;border-radius:4px">
+          <div style="color:#cdd6f4;font-size:10px;margin-bottom:4px">Doanh thu 7 ngày — tất cả quán</div>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:30px">
+            <div style="background:#89b4fa;width:14%;height:60%"></div>
+            <div style="background:#89b4fa;width:14%;height:75%"></div>
+            <div style="background:#89b4fa;width:14%;height:50%"></div>
+            <div style="background:#89b4fa;width:14%;height:90%"></div>
+            <div style="background:#89b4fa;width:14%;height:65%"></div>
+            <div style="background:#89b4fa;width:14%;height:80%"></div>
+            <div style="background:#a6e3a1;width:14%;height:100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Top nav + Overview page</h3>
+      <p>Tab navigation trên cùng. Trang chủ là overview tổng hợp tất cả quán. Click "Quán" để xem danh sách + drill-down từng quán.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;color:#cdd6f4;display:flex;gap:8px">
+        <div style="background:#181825;width:90px;border-radius:4px;padding:8px;flex-shrink:0">
+          <div style="color:#cba6f7;font-weight:bold;margin-bottom:8px;font-size:10px">MASTER</div>
+          <div style="color:#89b4fa;background:#313244;padding:4px 6px;border-radius:3px;margin-bottom:3px;font-size:10px">📊 Overview</div>
+          <div style="color:#6c7086;padding:4px 6px;margin-bottom:3px;font-size:10px">🏪 Quán Bida A</div>
+          <div style="color:#6c7086;padding:4px 6px;margin-bottom:3px;font-size:10px">🏪 Quán Bida B</div>
+          <div style="color:#6c7086;padding:4px 6px;margin-bottom:3px;font-size:10px">🏪 Quán Bida C</div>
+          <div style="border-top:1px solid #313244;margin-top:6px;padding-top:6px">
+            <div style="color:#6c7086;font-size:10px">📈 Báo cáo</div>
+            <div style="color:#6c7086;font-size:10px;margin-top:3px">👥 Agents</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="color:#cdd6f4;font-size:10px;margin-bottom:6px">Overview</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+            <div style="background:#313244;padding:6px;border-radius:4px;text-align:center">
+              <div style="color:#a6e3a1;font-size:14px;font-weight:bold">8</div>
+              <div style="color:#6c7086;font-size:9px">Quán</div>
+            </div>
+            <div style="background:#313244;padding:6px;border-radius:4px;text-align:center">
+              <div style="color:#fab387;font-size:14px;font-weight:bold">23</div>
+              <div style="color:#6c7086;font-size:9px">Bàn chơi</div>
+            </div>
+          </div>
+          <div style="background:#313244;padding:6px;border-radius:4px;margin-top:4px;font-size:9px;color:#6c7086">
+            Bảng xếp hạng doanh thu quán hôm nay...
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Sidebar + danh sách quán</h3>
+      <p>Sidebar bên trái liệt kê từng quán. Click quán để xem chi tiết ngay. Overview ở trên, báo cáo + agents ở dưới.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="C" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e2e;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;color:#cdd6f4">
+        <div style="background:#313244;padding:6px 10px;border-radius:4px;margin-bottom:8px;display:flex;gap:16px;color:#89b4fa">
+          <span style="background:#45475a;padding:2px 8px;border-radius:3px;color:#cdd6f4">Tất cả quán</span>
+          <span>Quán A</span><span>Quán B</span><span>Quán C</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="background:#313244;padding:8px;border-radius:4px">
+            <div style="color:#6c7086;font-size:9px">TỔNG DOANH THU HÔM NAY</div>
+            <div style="color:#a6e3a1;font-size:14px;font-weight:bold">4,200,000đ</div>
+          </div>
+          <div style="background:#313244;padding:8px;border-radius:4px">
+            <div style="color:#6c7086;font-size:9px">BÀN ĐANG CHƠI</div>
+            <div style="color:#fab387;font-size:14px;font-weight:bold">23 / 64</div>
+          </div>
+          <div style="background:#313244;padding:8px;border-radius:4px">
+            <div style="color:#6c7086;font-size:9px">HÓA ĐƠN HÔM NAY</div>
+            <div style="color:#89b4fa;font-size:14px;font-weight:bold">47</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="background:#313244;padding:6px;border-radius:4px;font-size:9px;color:#6c7086">📊 Biểu đồ doanh thu 7 ngày</div>
+          <div style="background:#313244;padding:6px;border-radius:4px;font-size:9px;color:#6c7086">🏆 Xếp hạng quán theo doanh thu</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Tab filter theo quán</h3>
+      <p>Tab "Tất cả quán" + tab từng quán. Cùng layout nhưng filter data theo quán được chọn. Đơn giản, dễ compare.</p>
+    </div>
+  </div>
+
+</div>

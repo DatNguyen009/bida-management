@@ -40,10 +40,11 @@ export function registerAuthHandlers(): void {
       authStore.set('role', 'owner')
       authStore.set('agentId', data.agentId)
       authStore.set('allowedScreens', [])
+      authStore.set('username', username)
       if (data.agentId) {
         await ensureDefaultCategories(data.agentId)
       }
-      return { role: 'owner', agentId: data.agentId, allowedScreens: [] }
+      return { role: 'owner', agentId: data.agentId, allowedScreens: [], username }
     } catch (ownerErr) {
       // 2. Try cloud_staff
       const staff = await queryOne<{
@@ -60,7 +61,8 @@ export function registerAuthHandlers(): void {
       authStore.set('role', 'staff')
       authStore.set('agentId', staff.agent_id)
       authStore.set('allowedScreens', staff.allowed_screens)
-      return { role: 'staff', agentId: staff.agent_id, allowedScreens: staff.allowed_screens }
+      authStore.set('username', username)
+      return { role: 'staff', agentId: staff.agent_id, allowedScreens: staff.allowed_screens, username }
     }
   })
 
@@ -88,6 +90,7 @@ export function registerAuthHandlers(): void {
         role: 'staff',
         agentId,
         allowedScreens: authStore.get('allowedScreens') ?? [],
+        username: authStore.get('username') ?? '',
       }
     }
 
@@ -99,7 +102,7 @@ export function registerAuthHandlers(): void {
     const expiresAt = authStore.get('expiresAt')
 
     if (accessToken && expiresAt && Date.now() < expiresAt - 60_000) {
-      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [] }
+      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [], username: authStore.get('username') ?? '' }
     }
 
     try {
@@ -110,7 +113,7 @@ export function registerAuthHandlers(): void {
       authStore.set('accessToken', data.accessToken)
       authStore.set('refreshToken', data.refreshToken)
       authStore.set('expiresAt', parseExpiry(data.accessToken))
-      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [] }
+      return { role: authStore.get('role'), agentId: authStore.get('agentId'), allowedScreens: [], username: authStore.get('username') ?? '' }
     } catch {
       authStore.clear()
       return null

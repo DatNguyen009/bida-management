@@ -48,7 +48,7 @@ declare global {
       invoices: {
         create(input: InvoiceCreateInput): Promise<Invoice | null>
         print(invoiceId: number, input: InvoiceCreateInput, invoiceNumber: string, printerPath: string): Promise<void>
-        getList(input: { fromDate?: string; toDate?: string; page?: number; pageSize?: number }): Promise<{ data: InvoiceListRow[]; total: number }>
+        getList(input: { fromDate?: string; toDate?: string; completedBy?: string; page?: number; pageSize?: number }): Promise<{ data: InvoiceListRow[]; total: number }>
         getOrderItems(sessionId: number): Promise<InvoiceOrderItem[]>
       }
       settings: {
@@ -70,9 +70,9 @@ declare global {
         lowStock(): Promise<unknown[]>
       }
       auth: {
-        login(username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[] }>
+        login(username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[]; username: string }>
         logout(): Promise<void>
-        getSession(): Promise<{ role: string; agentId: string | null; allowedScreens: string[] } | null>
+        getSession(): Promise<{ role: string; agentId: string | null; allowedScreens: string[]; username: string } | null>
       }
       loyalty: {
         getSettings(): Promise<LoyaltySettings>

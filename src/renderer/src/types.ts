@@ -86,6 +86,8 @@ export interface InvoiceCreateInput {
   bankId?: string
   bankAccount?: string
   bankAccountName?: string
+  vatRate?: number
+  vatAmount?: number
 }
 
 export interface Customer {
@@ -132,6 +134,7 @@ export interface InvoiceListRow {
   points_earned: number
   printed_at: string | null
   created_at: string
+  completed_by: string | null
   table_name: string | null
   customer_name: string | null
   customer_phone: string | null

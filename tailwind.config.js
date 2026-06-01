@@ -46,12 +46,12 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))'
         },
         bida: {
-          bg:      '#0d1f12',
-          sidebar: '#0a1a0d',
-          card:    '#162a1a',
+          bg:      '#0f0e0f',
+          sidebar: '#141313',
+          card:    '#1c1b1b',
           playing: '#2d1515',
           gold:    '#d4af37',
-          border:  '#1e3d23',
+          border:  '#272525',
           'border-playing': '#7f1d1d',
         }
       },

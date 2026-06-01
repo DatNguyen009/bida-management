@@ -83,11 +83,11 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
       </div>
 
       {/* Order section */}
-      <div className="bg-[#162a1a] border border-[#1e3d23] rounded-xl p-4 mb-4">
+      <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 mb-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold text-[#e2e8f0] text-sm">Đồ uống / thức ăn</h3>
           <button
-            className="bg-[#d4af37] text-[#0d1f12] font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-400"
+            className="bg-[#d4af37] text-[#0f0e0f] font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-400"
             onClick={() => setShowPicker(true)}
           >
             + Gọi
@@ -99,7 +99,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
           onAdjust={(id, delta) => adjustQtyMutation.mutate({ itemId: id, delta })}
         />
         {itemsAmount > 0 && (
-          <div className="mt-3 pt-3 border-t border-[#1e3d23] flex justify-between text-sm">
+          <div className="mt-3 pt-3 border-t border-white/10 flex justify-between text-sm">
             <span className="text-[#6b7280]">Tổng đồ uống:</span>
             <span className="text-[#d4af37] font-bold">{formatCurrency(itemsAmount)}</span>
           </div>
@@ -107,7 +107,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
       </div>
 
       <button
-        className="w-full bg-[#d4af37] text-[#0d1f12] font-bold py-4 rounded-xl text-base hover:bg-yellow-400 transition-colors"
+        className="w-full bg-[#d4af37] text-[#0f0e0f] font-bold py-4 rounded-xl text-base hover:bg-yellow-400 transition-colors"
         onClick={() => onCheckout(session, playAmount)}
       >
         Kết thúc & Thanh toán — {formatCurrency(playAmount)}

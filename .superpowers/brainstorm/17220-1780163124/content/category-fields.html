@@ -1,0 +1,40 @@
+<h2>Một category có những thông tin gì?</h2>
+<p class="subtitle">Ngoài tên, bạn cần thêm gì không?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Chỉ tên — đơn giản nhất</h3>
+      <p>Mỗi category chỉ có tên. Ví dụ: "Bia", "Nước ngọt", "Snack", "Khăn lạnh".</p>
+      <div style="margin-top:8px;background:#0a1a0d;border:1px solid #1e3d23;border-radius:6px;padding:8px;font-size:12px">
+        <div style="color:#6b7280;font-size:10px;text-transform:uppercase;margin-bottom:4px">Tên category</div>
+        <div style="background:#162a1a;border:1px solid #1e3d23;border-radius:4px;padding:4px 8px;color:#e2e8f0">Bia</div>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Tên + màu sắc</h3>
+      <p>Mỗi category có tên và một màu để hiển thị badge trong danh sách sản phẩm — dễ phân biệt hơn.</p>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;font-size:12px">
+        <span style="background:#14532d;color:#4ade80;padding:2px 8px;border-radius:12px">🍺 Bia</span>
+        <span style="background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:12px">🥤 Nước ngọt</span>
+        <span style="background:#3b1a1a;color:#f87171;padding:2px 8px;border-radius:12px">🍟 Snack</span>
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Tên + emoji icon</h3>
+      <p>Chọn emoji đại diện cho category. Hiển thị icon trong badge — trực quan, không cần chọn màu.</p>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;font-size:12px">
+        <span style="background:#1e3d23;color:#e2e8f0;padding:2px 8px;border-radius:12px">🍺 Bia</span>
+        <span style="background:#1e3d23;color:#e2e8f0;padding:2px 8px;border-radius:12px">🥤 Nước ngọt</span>
+        <span style="background:#1e3d23;color:#e2e8f0;padding:2px 8px;border-radius:12px">🍟 Snack</span>
+      </div>
+    </div>
+  </div>
+</div>

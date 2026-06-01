@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Demo — Background Comparison</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: #000; overflow: hidden; height: 100vh;
+    }
+
+    /* ─── SWITCHER ─── */
+    .switcher {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; gap: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 999px; padding: 5px;
+    }
+    .switcher button {
+      padding: 6px 22px; border-radius: 999px; border: none;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.22s; color: rgba(255,255,255,0.45);
+      background: transparent; letter-spacing: 0.01em;
+    }
+    .switcher button.active {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.18) inset;
+    }
+
+    /* ─── BG VERSIONS ─── */
+
+    /* V1 — Blur nhẹ, ảnh rõ, overlay tím-xanh */
+    .scene-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      transition: filter 0.6s ease, opacity 0.6s ease;
+    }
+    .scene-bg.v1 {
+      background-image: url('https://images.unsplash.com/photo-1603194040785-2ec37b8e9a22?w=1920&q=95');
+      filter: blur(0px) brightness(0.52) saturate(1.2);
+    }
+    /* colour wash overlay for v1 */
+    .scene-bg.v1::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(20,10,40,0.45) 0%, rgba(0,20,40,0.35) 100%);
+    }
+
+    /* V2 — Blur nặng, cinematic, ảnh bida khác, warm amber */
+    .scene-bg.v2 {
+      background-image: url('https://plus.unsplash.com/premium_photo-1670624654509-bc6ea3222917?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+      filter: blur(14px) brightness(0.42) saturate(1.4);
+      transform: scale(1.06);
+    }
+    .scene-bg.v2::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(30,10,0,0.5) 0%, rgba(10,5,0,0.3) 100%);
+    }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+    /* ═══════════════════════════════════════
+       SIDEBAR — Liquid Glass Premium
+       ═══════════════════════════════════════ */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      position: relative;
+
+      /* Liquid glass base */
+      background: linear-gradient(
+        170deg,
+        rgba(255,255,255,0.16) 0%,
+        rgba(255,255,255,0.07) 40%,
+        rgba(255,255,255,0.04) 100%
+      );
+      backdrop-filter: blur(72px) saturate(200%) brightness(1.08);
+      -webkit-backdrop-filter: blur(72px) saturate(200%) brightness(1.08);
+
+      /* Right edge */
+      border-right: 1px solid rgba(255,255,255,0.18);
+
+      /* Depth shadow */
+      box-shadow:
+        inset 1px 0 0 rgba(255,255,255,0.28),   /* inner left shine */
+        inset -1px 0 0 rgba(255,255,255,0.04),   /* inner right */
+        6px 0 40px rgba(0,0,0,0.35);
+    }
+
+    /* Top shine strip */
+    .sidebar::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 180px;
+      background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.13) 0%,
+        rgba(255,255,255,0.04) 60%,
+        transparent 100%
+      );
+      pointer-events: none; border-radius: 0;
+    }
+
+    /* ─── LOGO ─── */
+    .logo {
+      padding: 22px 18px 16px;
+      display: flex; align-items: center; gap: 12px;
+      position: relative;
+    }
+    .logo::after {
+      content: '';
+      position: absolute; bottom: 0; left: 18px; right: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f0d060 0%, #c49a10 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow:
+        0 4px 12px rgba(212,175,55,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -1px 0 rgba(0,0,0,0.2);
+    }
+    .logo-name { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+    .logo-tagline { font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 0.05em; margin-top: 1px; }
+
+    /* ─── SEARCH ─── */
+    .search-wrap { padding: 14px 14px 8px; }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px; padding: 8px 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+    }
+    .search-box:hover {
+      background: rgba(255,255,255,0.11);
+      border-color: rgba(255,255,255,0.22);
+    }
+    .search-icon { font-size: 12px; opacity: 0.4; }
+    .search-text { font-size: 12px; color: rgba(255,255,255,0.35); }
+    .search-kbd {
+      margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.08); border-radius: 4px; padding: 1px 5px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ─── NAV ─── */
+    nav { flex: 1; padding: 4px 10px; overflow-y: auto; }
+    nav::-webkit-scrollbar { width: 0; }
+    .nav-section { margin-bottom: 6px; }
+    .nav-section-label {
+      padding: 10px 8px 5px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 12px;
+      font-size: 13px; color: rgba(255,255,255,0.5);
+      cursor: pointer; margin-bottom: 1px;
+      transition: all 0.18s ease;
+      position: relative;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.85);
+    }
+    .nav-item.active {
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.09) 100%
+      );
+      color: #fff; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .nav-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+    }
+    .nav-item.active .nav-icon {
+      background: rgba(255,255,255,0.15);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .nav-label-text { flex: 1; }
+
+    .nav-badge {
+      font-size: 10px; font-weight: 700;
+      background: rgba(239,68,68,0.25);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 999px; padding: 1px 7px;
+    }
+    .nav-arrow {
+      font-size: 10px; color: rgba(255,255,255,0.3);
+      margin-left: auto;
+    }
+
+    /* Active indicator bar */
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 18px; border-radius: 0 3px 3px 0;
+      background: linear-gradient(180deg, #f0d060, #d4af37);
+      box-shadow: 0 0 8px rgba(212,175,55,0.6);
+    }
+
+    /* ─── DIVIDER ─── */
+    .nav-divider {
+      height: 1px; margin: 8px 8px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+
+    /* ─── STATUS PILL (quán đang mở) ─── */
+    .status-pill {
+      margin: 0 14px 12px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 12px;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.22);
+      box-shadow: 0 0 20px rgba(34,197,94,0.08) inset;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74,222,128,0.8);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+    .status-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+    .status-time { font-size: 11px; font-weight: 700; color: #4ade80; margin-left: auto; }
+
+    /* ─── FOOTER ─── */
+    .sidebar-footer {
+      padding: 12px 14px;
+      position: relative;
+    }
+    .sidebar-footer::before {
+      content: '';
+      position: absolute; top: 0; left: 14px; right: 14px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    }
+    .footer-inner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .footer-inner:hover { background: rgba(255,255,255,0.1); }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(212,175,55,0.4), rgba(212,175,55,0.15));
+      border: 1px solid rgba(212,175,55,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      box-shadow: 0 0 12px rgba(212,175,55,0.2);
+    }
+    .user-name { font-size: 12px; font-weight: 600; color: #fff; }
+    .user-role { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+    .logout-btn {
+      margin-left: auto; font-size: 14px; color: rgba(255,255,255,0.25);
+      background: none; border: none; cursor: pointer;
+      transition: color 0.15s; padding: 2px 4px; border-radius: 6px;
+    }
+    .logout-btn:hover { color: #f87171; }
+
+    /* ═══ MAIN ═══ */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      height: 52px; flex-shrink: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%);
+      backdrop-filter: blur(60px) saturate(180%);
+      -webkit-backdrop-filter: blur(60px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 4px 20px rgba(0,0,0,0.15);
+      display: flex; align-items: center; padding: 0 28px; gap: 8px; font-size: 12px; color: #fff;
+    }
+    .crumb-dim { color: rgba(255,255,255,0.35); }
+    .crumb-sep { color: rgba(255,255,255,0.2); margin: 0 2px; }
+    .crumb-bold { color: #fff; font-weight: 600; }
+    .topbar-right { margin-left: auto; display: flex; gap: 8px; }
+    .topbar-chip {
+      padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* ═══ CONTENT ═══ */
+    .content { flex: 1; padding: 24px; overflow-y: auto; }
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+
+    .glass-card {
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.16) 0%,
+        rgba(255,255,255,0.06) 60%,
+        rgba(255,255,255,0.10) 100%
+      );
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border-radius: 20px; padding: 18px;
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.32),
+        inset 0 -1px 0 rgba(0,0,0,0.12);
+      position: relative; overflow: hidden;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 45%;
+      background: linear-gradient(rgba(255,255,255,0.1), transparent);
+      border-radius: 20px 20px 0 0; pointer-events: none;
+    }
+
+    .stat-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-bottom: 8px; position: relative; z-index: 1; }
+    .stat-value { font-size: 26px; font-weight: 800; color: #fff; position: relative; z-index: 1; letter-spacing: -0.5px; }
+    .stat-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 5px; position: relative; z-index: 1; }
+
+    .section-title {
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;
+    }
+
+    .tables-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; }
+    .table-card { border-radius: 18px; padding: 16px; text-align: center; }
+    .table-name { font-size: 13px; font-weight: 700; color: #fff; position: relative; z-index:1; }
+    .table-status { font-size: 10px; margin-top: 3px; position: relative; z-index:1; }
+    .table-time { font-size: 22px; font-weight: 800; margin-top: 10px; color: #d4af37; position: relative; z-index:1; }
+  </style>
+</head>
+<body>
+
+<!-- Switcher -->
+<div class="switcher">
+  <button id="btnV1" class="active" onclick="setBg('v1')">V1 — Blur nhẹ · Tím xanh</button>
+  <button id="btnV2"                onclick="setBg('v2')">V2 — Blur nặng · Cinematic</button>
+</div>
+
+<div class="scene-bg v1" id="bg"></div>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">🎱</div>
+      <div>
+        <div class="logo-name">Bida</div>
+        <div class="logo-tagline">Management System</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <span class="search-text">Tìm kiếm...</span>
+        <span class="search-kbd">⌘K</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-label">Workspace</div>
+
+        <div class="nav-item active">
+          <div class="nav-icon">🏠</div>
+          <span class="nav-label-text">Dashboard</span>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-icon">📦</div>
+          <span class="nav-label-text">Sản phẩm</span>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-icon">🏪</div>
+          <span class="nav-label-text">Kho hàng</span>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-icon">🧾</div>
+          <span class="nav-label-text">Hóa đơn</span>
+          <span class="nav-badge">5</span>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-icon">👥</div>
+          <span class="nav-label-text">Khách hàng</span>
+        </div>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Quản lý</div>
+
+        <div class="nav-item">
+          <div class="nav-icon">📊</div>
+          <span class="nav-label-text">Báo cáo</span>
+        </div>
+
+        <div class="nav-item">
+          <div class="nav-icon">⚙️</div>
+          <span class="nav-label-text">Cài đặt</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Status pill -->
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span class="status-text">Quán đang mở</span>
+      <span class="status-time">08:00 – 23:00</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <div class="footer-inner">
+        <div class="avatar">👤</div>
+        <div>
+          <div class="user-name">Nguyễn Đạt</div>
+          <div class="user-role">Owner · Admin</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất">↩</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+
+    <header class="topbar">
+      <span class="crumb-dim">Workspace</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-bold">Dashboard</span>
+      <div class="topbar-right">
+        <span class="topbar-chip">Thứ Hai, 02/06/2026</span>
+        <span class="topbar-chip">🎱 4 bàn đang chơi</span>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="glass-card">
+          <div class="stat-label">Bàn đang chơi</div>
+          <div class="stat-value" style="color:#f87171">4</div>
+          <div class="stat-sub">/ 12 bàn</div>
+        </div>
+        <div class="glass-card">
+          <div class="stat-label">Doanh thu hôm nay</div>
+          <div class="stat-value" style="color:#d4af37">2.4M</div>
+          <div class="stat-sub">↑ 12% so với hôm qua</div>
+        </div>
+        <div class="glass-card">
+          <div class="stat-label">Khách hàng</div>
+          <div class="stat-value" style="color:#60a5fa">18</div>
+          <div class="stat-sub">đang trong quán</div>
+        </div>
+        <div class="glass-card">
+          <div class="stat-label">Hóa đơn hôm nay</div>
+          <div class="stat-value">23</div>
+          <div class="stat-sub">đã thanh toán</div>
+        </div>
+      </div>
+
+      <!-- Tables -->
+      <div>
+        <p class="section-title">Danh sách bàn</p>
+        <div class="tables-grid">
+          <div class="glass-card table-card" style="border-color:rgba(239,68,68,0.35)">
+            <div class="table-name">Bàn 1</div>
+            <div class="table-status" style="color:#f87171">Đang chơi</div>
+            <div class="table-time">1:24</div>
+          </div>
+          <div class="glass-card table-card" style="border-color:rgba(34,197,94,0.35)">
+            <div class="table-name">Bàn 2</div>
+            <div class="table-status" style="color:#4ade80">Trống</div>
+            <div class="table-time" style="color:#4ade80;font-size:13px;margin-top:14px">Sẵn sàng</div>
+          </div>
+          <div class="glass-card table-card" style="border-color:rgba(239,68,68,0.35)">
+            <div class="table-name">Bàn 3</div>
+            <div class="table-status" style="color:#f87171">Đang chơi</div>
+            <div class="table-time">0:45</div>
+          </div>
+          <div class="glass-card table-card" style="border-color:rgba(34,197,94,0.35)">
+            <div class="table-name">Bàn 4</div>
+            <div class="table-status" style="color:#4ade80">Trống</div>
+            <div class="table-time" style="color:#4ade80;font-size:13px;margin-top:14px">Sẵn sàng</div>
+          </div>
+          <div class="glass-card table-card" style="border-color:rgba(239,68,68,0.35)">
+            <div class="table-name">Bàn 5</div>
+            <div class="table-status" style="color:#f87171">Đang chơi</div>
+            <div class="table-time">2:10</div>
+          </div>
+          <div class="glass-card table-card" style="border-color:rgba(34,197,94,0.35)">
+            <div class="table-name">Bàn 6</div>
+            <div class="table-status" style="color:#4ade80">Trống</div>
+            <div class="table-time" style="color:#4ade80;font-size:13px;margin-top:14px">Sẵn sàng</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function setBg(v) {
+  const bg = document.getElementById('bg');
+  bg.className = 'scene-bg ' + v;
+  document.getElementById('btnV1').classList.toggle('active', v === 'v1');
+  document.getElementById('btnV2').classList.toggle('active', v === 'v2');
+}
+</script>
+</body>
+</html>

@@ -83,7 +83,7 @@ export default function StockHistoryPage() {
         <div>
           <p className="text-xs text-[#6b7280] mb-1">Sản phẩm</p>
           <Input
-            className="bg-[#162a1a] border-[#1e3d23] text-white w-48"
+            className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-48"
             placeholder="Tìm tên sản phẩm..."
             value={productFilter}
             onChange={(e) => setProductFilter(e.target.value)}
@@ -94,7 +94,7 @@ export default function StockHistoryPage() {
           <p className="text-xs text-[#6b7280] mb-1">Từ ngày</p>
           <Input
             type="date"
-            className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
+            className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
           />
@@ -103,13 +103,13 @@ export default function StockHistoryPage() {
           <p className="text-xs text-[#6b7280] mb-1">Đến ngày</p>
           <Input
             type="date"
-            className="bg-[#162a1a] border-[#1e3d23] text-white w-40"
+            className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white w-40"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
           />
         </div>
         <Button
-          className="bg-[#d4af37] text-[#0d1f12] font-bold hover:bg-yellow-400"
+          className="bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
           onClick={handleFilter}
           disabled={isFetching}
         >
@@ -117,10 +117,10 @@ export default function StockHistoryPage() {
         </Button>
       </div>
 
-      <div className="bg-[#0a1a0d] rounded-xl overflow-hidden border border-[#1e3d23]">
+      <div className="backdrop-blur-xl bg-white/[0.04] rounded-xl overflow-hidden border border-white/10">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#162a1a] border-b-2 border-[#d4af37]">
+            <tr className="bg-white/[0.06] border-b-2 border-[#d4af37]">
               <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Thời gian</th>
               <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Sản phẩm</th>
               <th className="text-left px-4 py-3 text-[#d4af37] text-[10px] uppercase tracking-widest font-semibold">Loại</th>
@@ -141,7 +141,7 @@ export default function StockHistoryPage() {
             ) : (
               <>
                 {transactions.map((t, i) => (
-                  <tr key={t.id} className={`border-b border-[#1e3d23] hover:bg-[#162a1a] transition-colors ${i % 2 === 1 ? 'bg-[#0d1a0f]' : ''}`}>
+                  <tr key={t.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                     <td className="px-4 py-3 text-[#6b7280] whitespace-nowrap">{formatDateTime(t.created_at)}</td>
                     <td className="px-4 py-3 font-medium text-[#e2e8f0]">{t.product_name}</td>
                     <td className="px-4 py-3">{typeBadge(t.type)}</td>
