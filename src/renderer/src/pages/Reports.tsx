@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
@@ -7,19 +7,28 @@ import { formatCurrency } from '../lib/utils'
 type Period = 'today' | 'week' | 'month' | 'year' | 'custom'
 type ReportTab = 'overview' | 'staff' | 'products'
 
+// Use local date (not UTC) to avoid timezone shift in VN (UTC+7)
+function localDateStr(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 function getPeriodDates(period: Period, customFrom: string, customTo: string): [string, string] {
   const today = new Date()
-  const fmt = (d: Date) => d.toISOString().split('T')[0]
-  if (period === 'today') return [fmt(today), fmt(today)]
+  if (period === 'today') return [localDateStr(today), localDateStr(today)]
   if (period === 'week') {
     const from = new Date(today); from.setDate(today.getDate() - 6)
-    return [fmt(from), fmt(today)]
+    return [localDateStr(from), localDateStr(today)]
   }
   if (period === 'month') {
-    return [`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`, fmt(today)]
+    const y = today.getFullYear()
+    const m = String(today.getMonth() + 1).padStart(2, '0')
+    return [`${y}-${m}-01`, localDateStr(today)]
   }
   if (period === 'year') {
-    return [`${today.getFullYear()}-01-01`, fmt(today)]
+    return [`${today.getFullYear()}-01-01`, localDateStr(today)]
   }
   return [customFrom, customTo]
 }
@@ -42,20 +51,20 @@ export default function ReportsPage() {
   const [fromDate, toDate] = getPeriodDates(period, customFrom, customTo)
   const enabled = !!fromDate && !!toDate
 
-  const { data: revenueData = [] } = useQuery({
+  const { data: revenueData = [], isFetching: f1 } = useQuery({
     queryKey: ['reports', 'revenue', fromDate, toDate],
     queryFn: () => api().reports.revenue(fromDate, toDate),
-    enabled,
+    enabled, placeholderData: keepPreviousData,
   })
-  const { data: summaryData = [] } = useQuery({
+  const { data: summaryData = [], isFetching: f2 } = useQuery({
     queryKey: ['reports', 'summary', fromDate, toDate],
     queryFn: () => api().reports.summary(fromDate, toDate),
-    enabled,
+    enabled, placeholderData: keepPreviousData,
   })
   const { data: tableStats = [] } = useQuery({
     queryKey: ['reports', 'tableStats', fromDate, toDate],
     queryFn: () => api().reports.tableStats(fromDate, toDate),
-    enabled,
+    enabled, placeholderData: keepPreviousData,
   })
   const { data: lowStock = [] } = useQuery({
     queryKey: ['reports', 'lowStock'],
@@ -64,13 +73,14 @@ export default function ReportsPage() {
   const { data: staffData = [] } = useQuery({
     queryKey: ['reports', 'staffStats', fromDate, toDate],
     queryFn: () => api().reports.staffStats(fromDate, toDate),
-    enabled,
+    enabled, placeholderData: keepPreviousData,
   })
   const { data: productData = [] } = useQuery({
     queryKey: ['reports', 'productStats', fromDate, toDate],
     queryFn: () => api().reports.productStats(fromDate, toDate),
-    enabled,
+    enabled, placeholderData: keepPreviousData,
   })
+  const isFetching = f1 || f2
 
   const summary = summaryData[0] as { total_revenue: string; total_invoices: string; avg_invoice: string } | undefined
   const chartData = (revenueData as Array<{ date: string; total: string; invoice_count: string }>).map((d) => ({
@@ -98,6 +108,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-5">
       {/* Period filter */}
+      {/* isFetching dot indicator */}
       <div className="flex items-center gap-3 flex-wrap">
         <h1 className="text-xl font-bold text-[#d4af37] mr-2">Báo cáo</h1>
         {(['today', 'week', 'month', 'year', 'custom'] as Period[]).map((p) => (
@@ -120,8 +131,8 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Summary stats — fade when fetching, keep previous data visible */}
+      <div className="grid grid-cols-3 gap-4" style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.25s ease' }}>
         {[
           { label: 'Tổng doanh thu', value: summary ? formatCurrency(Number(summary.total_revenue)) : '—', color: 'text-[#d4af37]' },
           { label: 'Số hóa đơn', value: summary?.total_invoices ?? '—', color: 'text-blue-400' },
@@ -147,6 +158,9 @@ export default function ReportsPage() {
           </button>
         ))}
       </div>
+
+      {/* Tab content — fade on period change */}
+      <div style={{ opacity: isFetching ? 0.65 : 1, transition: 'opacity 0.25s ease' }}>
 
       {/* TAB: TỔNG QUAN */}
       {activeTab === 'overview' && (
@@ -370,6 +384,8 @@ export default function ReportsPage() {
           )}
         </div>
       )}
+
+      </div>{/* end fade wrapper */}
     </div>
   )
 }
