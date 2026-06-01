@@ -4,6 +4,7 @@ interface InvoiceInput {
   discount: number
   pointsRedeemed: number
   vndPerPoint: number
+  promoDiscount?: number
 }
 
 interface InvoiceResult {
@@ -13,10 +14,10 @@ interface InvoiceResult {
 }
 
 export function calcInvoice(input: InvoiceInput): InvoiceResult {
-  const { playAmount, itemsAmount, discount, pointsRedeemed, vndPerPoint } = input
+  const { playAmount, itemsAmount, discount, pointsRedeemed, vndPerPoint, promoDiscount } = input
   const totalAmount = playAmount + itemsAmount
   const discountFromPoints = pointsRedeemed * vndPerPoint
-  const finalAmount = totalAmount - discount - discountFromPoints
+  const finalAmount = totalAmount - (promoDiscount ?? 0) - discount - discountFromPoints
   return { totalAmount, discountFromPoints, finalAmount: Math.max(0, finalAmount) }
 }
 
