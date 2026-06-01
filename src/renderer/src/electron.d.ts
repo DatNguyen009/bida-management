@@ -68,6 +68,8 @@ declare global {
         summary(from: string, to: string): Promise<unknown[]>
         tableStats(from: string, to: string): Promise<unknown[]>
         lowStock(): Promise<unknown[]>
+        staffStats(from: string, to: string): Promise<unknown[]>
+        productStats(from: string, to: string): Promise<unknown[]>
       }
       auth: {
         login(username: string, password: string): Promise<{ role: string; agentId: string | null; allowedScreens: string[]; username: string }>
