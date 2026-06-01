@@ -5,9 +5,6 @@ import { api } from '../lib/ipc'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
-} from '@/components/ui/dialog'
 import type { StaffMember } from '../types'
 import { useThemeStore, type AppTheme } from '../stores/themeStore'
 import bgV1 from '../assets/bg-v1.jpg'
@@ -47,6 +44,7 @@ export default function SettingsPage() {
     { key: 'invoices', label: '🧾 Hóa đơn' },
     { key: 'customers', label: '👥 Khách hàng' },
     { key: 'reports', label: '📊 Báo cáo' },
+    { key: 'promotions', label: '🏷 Khuyến mãi' },
     { key: 'settings', label: '⚙️ Cài đặt' },
   ]
 
@@ -360,66 +358,78 @@ export default function SettingsPage() {
             </table>
           </div>
 
-          <Dialog open={staffMode === 'create' || staffMode === 'edit'} onOpenChange={(o) => !o && setStaffMode(null)}>
-            <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
-              <DialogHeader>
-                <DialogTitle>{staffMode === 'create' ? 'Thêm nhân viên' : 'Sửa nhân viên'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-white/55 text-xs">Tên đăng nhập</Label>
-                  <Input
-                    className="bg-white/[0.04] border-white/10 text-white mt-1"
-                    value={staffForm.username}
-                    onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
-                    disabled={staffMode === 'edit'}
-                  />
-                </div>
-                <div>
-                  <Label className="text-white/55 text-xs">
-                    {staffMode === 'edit' ? 'Mật khẩu mới (để trống = không đổi)' : 'Mật khẩu'}
-                  </Label>
-                  <Input
-                    type="password"
-                    className="bg-white/[0.04] border-white/10 text-white mt-1"
-                    value={staffForm.password}
-                    onChange={(e) => setStaffForm({ ...staffForm, password: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label className="text-white/55 text-xs mb-2 block">Màn hình được phép truy cập</Label>
-                  <div className="space-y-2">
-                    {SCREENS.map(({ key, label }) => (
-                      <label key={key} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="accent-[#d4af37]"
-                          checked={staffForm.allowedScreens.includes(key)}
-                          onChange={(e) => {
-                            const screens = e.target.checked
-                              ? [...staffForm.allowedScreens, key]
-                              : staffForm.allowedScreens.filter((s) => s !== key)
-                            setStaffForm({ ...staffForm, allowedScreens: screens })
-                          }}
-                        />
-                        <span style={{ color: '#000' }} className="text-sm">{label}</span>
-                      </label>
-                    ))}
+          {(staffMode === 'create' || staffMode === 'edit') && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setStaffMode(null)} />
+              <div className="modal-glass relative w-full max-w-sm mx-4 p-6 overflow-hidden">
+                <div className="mb-5">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">👤</div>
+                    <h2 className="text-base font-bold text-white">
+                      {staffMode === 'create' ? 'Thêm nhân viên' : 'Sửa nhân viên'}
+                    </h2>
                   </div>
                 </div>
+                <div className="mb-5 h-px" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)' }} />
+
+                <div className="space-y-4 mb-5">
+                  <div>
+                    <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Tên đăng nhập</label>
+                    <input
+                      className="input-glass w-full px-4 py-2.5 text-sm"
+                      value={staffForm.username}
+                      onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
+                      disabled={staffMode === 'edit'}
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">
+                      {staffMode === 'edit' ? 'Mật khẩu mới (để trống = không đổi)' : 'Mật khẩu'}
+                    </label>
+                    <input
+                      type="password"
+                      className="input-glass w-full px-4 py-2.5 text-sm"
+                      value={staffForm.password}
+                      onChange={(e) => setStaffForm({ ...staffForm, password: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Màn hình được phép truy cập</label>
+                    <div className="space-y-2 mt-1">
+                      {SCREENS.map(({ key, label }) => (
+                        <label key={key} className="flex items-center gap-2.5 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            className="accent-[#d4af37] w-4 h-4"
+                            checked={staffForm.allowedScreens.includes(key)}
+                            onChange={(e) => {
+                              const screens = e.target.checked
+                                ? [...staffForm.allowedScreens, key]
+                                : staffForm.allowedScreens.filter((s) => s !== key)
+                              setStaffForm({ ...staffForm, allowedScreens: screens })
+                            }}
+                          />
+                          <span className="text-sm text-white/90 group-hover:text-white transition-colors">{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button className="btn-glass flex-1" onClick={() => setStaffMode(null)}>Huỷ</button>
+                  <button
+                    className="btn-gold flex-1"
+                    disabled={staffMode === 'create' && (!staffForm.username || !staffForm.password)}
+                    onClick={() => staffMode === 'create' ? createStaffMutation.mutate() : updateStaffMutation.mutate()}
+                  >
+                    {staffMode === 'create' ? '＋ Thêm nhân viên' : 'Lưu thay đổi'}
+                  </button>
+                </div>
               </div>
-              <DialogFooter>
-                <Button onClick={() => setStaffMode(null)} className="btn-glass">Huỷ</Button>
-                <Button
-                  className="btn-gold"
-                  disabled={staffMode === 'create' && (!staffForm.username || !staffForm.password)}
-                  onClick={() => staffMode === 'create' ? createStaffMutation.mutate() : updateStaffMutation.mutate()}
-                >
-                  Lưu
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+            </div>
+          )}
         </div>
       )}
     </div>
