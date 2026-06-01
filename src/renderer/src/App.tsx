@@ -5,6 +5,7 @@ import InvoicePage from './pages/Invoice'
 import ProductsPage from './pages/Products'
 import CustomersPage from './pages/Customers'
 import ReportsPage from './pages/Reports'
+import PromotionsPage from './pages/Promotions'
 import SettingsPage from './pages/Settings'
 import type { Session } from './types'
 import LoginPage from './pages/LoginPage'
@@ -24,6 +25,7 @@ type View =
   | { page: 'invoices' }
   | { page: 'customers' }
   | { page: 'reports' }
+  | { page: 'promotions' }
   | { page: 'settings' }
 
 export default function App() {
@@ -100,6 +102,7 @@ export default function App() {
     { page: 'invoices', label: 'Hóa đơn', icon: '🧾' },
     { page: 'customers', label: 'Khách hàng', icon: '👥' },
     { page: 'reports', label: 'Báo cáo', icon: '📊' },
+    { page: 'promotions', label: 'Khuyến mãi', icon: '🏷' },
   ]
 
   const visibleNavItems = isOwner
@@ -115,7 +118,7 @@ export default function App() {
   const pageLabels: Record<string, string> = {
     dashboard: 'Dashboard', products: 'Sản phẩm', stock: 'Kho',
     invoices: 'Hóa đơn', customers: 'Khách hàng', reports: 'Báo cáo',
-    settings: 'Cài đặt', session: 'Phiên chơi', invoice: 'Thanh toán',
+    promotions: 'Khuyến mãi', settings: 'Cài đặt', session: 'Phiên chơi', invoice: 'Thanh toán',
   }
 
   return (
@@ -152,7 +155,7 @@ export default function App() {
 
           {/* Workspace section */}
           <p className="px-2 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/25">Workspace</p>
-          {visibleNavItems.filter(i => !['reports'].includes(i.page)).map(({ page, label, icon }) => (
+          {visibleNavItems.filter(i => !['reports', 'promotions'].includes(i.page)).map(({ page, label, icon }) => (
             <button
               key={page}
               onClick={() => setView({ page: page as NavPage } as View)}
@@ -178,7 +181,7 @@ export default function App() {
           {(isOwner || visibleNavItems.some(i => i.page === 'reports')) && (
             <>
               <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/25">Quản lý</p>
-              {visibleNavItems.filter(i => ['reports'].includes(i.page)).map(({ page, label, icon }) => (
+              {visibleNavItems.filter(i => ['reports', 'promotions'].includes(i.page)).map(({ page, label, icon }) => (
                 <button
                   key={page}
                   onClick={() => setView({ page: page as NavPage } as View)}
@@ -301,6 +304,11 @@ export default function App() {
         {view.page === 'reports' && (
           canAccess('reports')
             ? <ReportsPage />
+            : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
+        )}
+        {view.page === 'promotions' && (
+          canAccess('promotions')
+            ? <PromotionsPage />
             : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
         )}
         {view.page === 'settings' && (
