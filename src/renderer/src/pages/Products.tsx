@@ -5,11 +5,6 @@ import type { Product, Category } from '../types'
 import { api } from '../lib/ipc'
 import { formatCurrency } from '../lib/utils'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
-} from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Pagination from '../components/Pagination'
 import TableSkeleton from '../components/TableSkeleton'
@@ -298,195 +293,195 @@ export default function ProductsPage() {
             </table>
           </div>
 
-          <Dialog open={catMode === 'create' || catMode === 'edit'} onOpenChange={(o) => !o && setCatMode(null)}>
-            <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
-              <DialogHeader>
-                <DialogTitle>{catMode === 'create' ? 'Thêm category' : 'Sửa category'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div>
-                  <Label>Icon (gõ 1 emoji)</Label>
-                  <Input className="bg-white/[0.04] border-white/10 text-white mt-1 text-2xl" value={catForm.icon}
-                    onChange={(e) => setCatForm({ ...catForm, icon: e.target.value })} maxLength={2} />
-                </div>
-                <div>
-                  <Label>Tên category</Label>
-                  <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={catForm.name}
-                    onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setCatMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-                <Button className="btn-gold"
-                  onClick={() => catMode === 'create' ? createCatMutation.mutate() : updateCatMutation.mutate()}>
-                  Lưu
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
-
-      <Dialog open={mode === 'create' || mode === 'edit'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle>{mode === 'create' ? 'Thêm sản phẩm' : 'Sửa sản phẩm'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>Loại sản phẩm</Label>
-              <div className="flex gap-4 mt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="stock"
-                    checked={form.product_type === 'stock'}
-                    onChange={() => setForm({ ...form, product_type: 'stock' })}
-                    className="accent-[#d4af37]"
-                  />
-                  <span className="text-sm text-white">Hàng nhập</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="composite"
-                    checked={form.product_type === 'composite'}
-                    onChange={() => setForm({ ...form, product_type: 'composite' })}
-                    className="accent-[#d4af37]"
-                  />
-                  <span className="text-sm text-white">Chế biến</span>
-                </label>
-              </div>
-            </div>
-            <div>
-              <Label>Category</Label>
-              <select
-                className="w-full mt-1 backdrop-blur-xl bg-white/[0.04] border border-white/10 text-white rounded-md px-3 py-2 text-sm"
-                value={form.category_id}
-                onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div><Label>Tên</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-            <div><Label>Giá (đồng)</Label>
-              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.price}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} /></div>
-            <div><Label>Đơn vị</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.unit}
-                onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
-            <div><Label>Cảnh báo tồn dưới</Label>
-              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.min_stock_alert}
-                onChange={(e) => setForm({ ...form, min_stock_alert: Number(e.target.value) })} /></div>
-          </div>
-          {form.product_type === 'composite' && (
-            <div className="border-t border-white/10 pt-3 mt-1">
-              <Label className="text-[#d4af37] text-sm font-semibold">Nguyên liệu</Label>
-              <div className="space-y-2 mt-2">
-                {recipeItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="text-sm text-white flex-1">{item.ingredientName}</span>
-                    <input
-                      type="number"
-                      min={0.01}
-                      step={0.01}
-                      className="w-20 backdrop-blur-xl bg-white/[0.04] border border-white/10 text-white rounded px-2 py-1 text-sm"
-                      value={item.quantity}
-                      onChange={(e) => {
-                        const updated = [...recipeItems]
-                        updated[idx] = { ...updated[idx], quantity: Number(e.target.value) }
-                        setRecipeItems(updated)
-                      }}
-                    />
-                    <button
-                      className="text-red-400 hover:text-red-300 px-1"
-                      onClick={() => setRecipeItems(recipeItems.filter((_, i) => i !== idx))}
-                    >
-                      ✕
-                    </button>
+          {(catMode === 'create' || catMode === 'edit') && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setCatMode(null)} />
+              <div className="modal-glass relative w-full max-w-sm mx-4 p-6 overflow-hidden">
+                <div className="mb-5">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-lg">{catForm.icon || '📦'}</div>
+                    <h2 className="text-base font-bold text-white">{catMode === 'create' ? 'Thêm category' : 'Sửa category'}</h2>
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-2 mt-2">
-                <Select
-                  value=""
-                  onValueChange={(productId) => {
-                    const p = products.find((pr) => pr.id === Number(productId))
-                    if (p && !recipeItems.find((r) => r.ingredientId === p.id)) {
-                      setRecipeItems([...recipeItems, { ingredientId: p.id, ingredientName: p.name, quantity: 1 }])
-                    }
-                  }}
-                >
-                  <SelectTrigger className="flex-1 bg-white/[0.04] border-white/10 text-white text-sm h-8">
-                    <SelectValue placeholder="+ Thêm nguyên liệu..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white/[0.04] border-white/10">
-                    {products
-                      .filter((p) => p.product_type === 'stock' && !recipeItems.find((r) => r.ingredientId === p.id))
-                      .map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)} className="text-white hover:bg-white/[0.06]">
-                          {p.name} (tồn: {p.stock_quantity} {p.unit})
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                </div>
+                <div className="mb-5 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Icon (1 emoji)</label>
+                    <input className="input-glass w-full px-4 py-2.5 text-2xl" value={catForm.icon}
+                      onChange={(e) => setCatForm({ ...catForm, icon: e.target.value })} maxLength={2} autoFocus />
+                  </div>
+                  <div>
+                    <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Tên category</label>
+                    <input className="input-glass w-full px-4 py-2.5 text-sm" value={catForm.name}
+                      onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button className="btn-glass flex-1" onClick={() => setCatMode(null)}>Huỷ</button>
+                  <button className="btn-gold flex-1"
+                    onClick={() => catMode === 'create' ? createCatMutation.mutate() : updateCatMutation.mutate()}>
+                    {catMode === 'create' ? '＋ Thêm' : '✓ Lưu'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="btn-gold"
-              onClick={() => mode === 'create' ? createMutation.mutate() : updateMutation.mutate()}>
-              Lưu
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
-      <Dialog open={mode === 'stock'} onOpenChange={(o) => !o && setMode(null)}>
-        <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle>Nhập kho — {selected?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-[#6b7280]">
-              Tồn hiện tại: <span className="text-white">{selected?.stock_quantity} {selected?.unit}</span>
-            </p>
-            <div>
-              <Label>Số lượng nhập thêm</Label>
-              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1" value={stockQty}
-                onChange={(e) => setStockQty(Number(e.target.value))} />
+      {(mode === 'create' || mode === 'edit') && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMode(null)} />
+          <div className="modal-glass relative w-full max-w-md mx-4 p-6 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div className="mb-5">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">{mode === 'create' ? '＋' : '✎'}</div>
+                <h2 className="text-base font-bold text-white">{mode === 'create' ? 'Thêm sản phẩm' : 'Sửa sản phẩm'}</h2>
+              </div>
             </div>
-            <div>
-              <Label>Giá nhập (đ/đơn vị) — tuỳ chọn</Label>
-              <Input type="number" className="bg-white/[0.04] border-white/10 text-white mt-1"
-                placeholder="Để trống nếu không cần theo dõi"
-                value={stockCostPrice}
-                onChange={(e) => setStockCostPrice(e.target.value === '' ? '' : Number(e.target.value))} />
+            <div className="mb-5 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
+
+            <div className="space-y-4 mb-4">
+              {/* Loại sản phẩm */}
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Loại sản phẩm</label>
+                <div className="flex gap-4">
+                  {(['stock','composite'] as const).map((type) => (
+                    <label key={type} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" value={type} checked={form.product_type === type}
+                        onChange={() => setForm({ ...form, product_type: type })} className="accent-[#d4af37]" />
+                      <span className="text-sm text-white">{type === 'stock' ? 'Hàng nhập' : 'Chế biến'}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {/* Category */}
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Category</label>
+                <select className="input-glass w-full px-4 py-2.5 text-sm" value={form.category_id}
+                  onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}>
+                  {categories.map((cat) => <option key={cat.id} value={cat.id} style={{background:'#1a1a1a'}}>{cat.icon} {cat.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Tên</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Giá (đồng)</label>
+                <input type="number" className="input-glass w-full px-4 py-2.5 text-sm" value={form.price}
+                  onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Đơn vị</label>
+                  <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.unit}
+                    onChange={(e) => setForm({ ...form, unit: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Cảnh báo tồn</label>
+                  <input type="number" className="input-glass w-full px-4 py-2.5 text-sm" value={form.min_stock_alert}
+                    onChange={(e) => setForm({ ...form, min_stock_alert: Number(e.target.value) })} />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Ghi chú</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={stockNote}
-                onChange={(e) => setStockNote(e.target.value)} />
-            </div>
-            {stockQty > 0 && (
-              <p className="text-sm text-green-400">
-                Tồn sau khi nhập: {(selected?.stock_quantity ?? 0) + stockQty} {selected?.unit}
-              </p>
+
+            {/* Recipe section */}
+            {form.product_type === 'composite' && (
+              <div className="border-t border-white/10 pt-4 mb-4">
+                <p className="text-[#d4af37] text-xs uppercase tracking-widest font-semibold mb-3">Nguyên liệu</p>
+                <div className="space-y-2">
+                  {recipeItems.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="text-sm text-white flex-1">{item.ingredientName}</span>
+                      <input type="number" min={0.01} step={0.01}
+                        className="input-glass w-20 px-2 py-1.5 text-sm text-center"
+                        value={item.quantity}
+                        onChange={(e) => { const u=[...recipeItems]; u[idx]={...u[idx],quantity:Number(e.target.value)}; setRecipeItems(u) }} />
+                      <button className="text-red-400 hover:text-red-300 px-1 text-sm"
+                        onClick={() => setRecipeItems(recipeItems.filter((_,i)=>i!==idx))}>✕</button>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2">
+                  <Select value="" onValueChange={(productId) => {
+                    const p = products.find((pr) => pr.id === Number(productId))
+                    if (p && !recipeItems.find((r) => r.ingredientId === p.id))
+                      setRecipeItems([...recipeItems, { ingredientId: p.id, ingredientName: p.name, quantity: 1 }])
+                  }}>
+                    <SelectTrigger className="input-glass w-full text-sm h-9">
+                      <SelectValue placeholder="+ Thêm nguyên liệu..." />
+                    </SelectTrigger>
+                    <SelectContent style={{background:'rgba(14,12,16,0.95)',border:'1px solid rgba(255,255,255,0.15)'}}>
+                      {products.filter((p) => p.product_type === 'stock' && !recipeItems.find((r) => r.ingredientId === p.id))
+                        .map((p) => (
+                          <SelectItem key={p.id} value={String(p.id)} className="text-white">
+                            {p.name} (tồn: {p.stock_quantity} {p.unit})
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             )}
+
+            <div className="flex gap-3">
+              <button className="btn-glass flex-1" onClick={() => setMode(null)}>Huỷ</button>
+              <button className="btn-gold flex-1"
+                onClick={() => mode === 'create' ? createMutation.mutate() : updateMutation.mutate()}>
+                {mode === 'create' ? '＋ Thêm' : '✓ Lưu'}
+              </button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="btn-gold" onClick={() => stockMutation.mutate()}>
-              Nhập kho
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
+
+      {mode === 'stock' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMode(null)} />
+          <div className="modal-glass relative w-full max-w-sm mx-4 p-6 overflow-hidden">
+            <div className="mb-5">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">📦</div>
+                <h2 className="text-base font-bold text-white">Nhập kho</h2>
+              </div>
+              <p className="text-white/35 text-xs ml-11">{selected?.name} · Tồn: {selected?.stock_quantity} {selected?.unit}</p>
+            </div>
+            <div className="mb-5 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Số lượng nhập thêm</label>
+                <input type="number" className="input-glass w-full px-4 py-2.5 text-sm" value={stockQty}
+                  onChange={(e) => setStockQty(Number(e.target.value))} autoFocus />
+                {stockQty > 0 && (
+                  <p className="text-xs text-green-400 mt-1.5">
+                    → Tồn sau nhập: {(selected?.stock_quantity ?? 0) + stockQty} {selected?.unit}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Giá nhập (đ/đv) — tuỳ chọn</label>
+                <input type="number" className="input-glass w-full px-4 py-2.5 text-sm"
+                  placeholder="Để trống nếu không theo dõi"
+                  value={stockCostPrice}
+                  onChange={(e) => setStockCostPrice(e.target.value === '' ? '' : Number(e.target.value))} />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Ghi chú</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={stockNote}
+                  onChange={(e) => setStockNote(e.target.value)} />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button className="btn-glass flex-1" onClick={() => setMode(null)}>Huỷ</button>
+              <button className="btn-gold flex-1" onClick={() => stockMutation.mutate()}>
+                📦 Nhập kho
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
