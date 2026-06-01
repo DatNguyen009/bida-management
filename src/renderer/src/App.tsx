@@ -156,14 +156,15 @@ export default function App() {
             <button
               key={page}
               onClick={() => setView({ page: page as NavPage } as View)}
-              className={`w-full text-left px-2.5 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5 mb-0.5
+              className={`w-full text-left px-2.5 py-2 rounded-xl text-xs flex items-center gap-2.5 mb-0.5
                 ${currentPage === page
                   ? 'glass-nav-active text-white font-semibold'
                   : 'text-white/45 hover:bg-white/[0.07] hover:text-white/85'
                 }`}
             >
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0 transition-all
-                ${currentPage === page ? 'bg-white/15' : 'bg-white/[0.05]'}`}>
+              <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0
+                ${currentPage === page ? 'bg-white/15' : 'bg-white/[0.05]'}`}
+                style={{transition:'background 0.18s ease'}}>
                 {icon}
               </span>
               <span className="flex-1">{label}</span>
