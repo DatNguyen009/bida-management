@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label'
 import { formatCurrency } from '../lib/utils'
 import { buildVietQRUrl, isBankConfigured } from '../lib/vietqr'
 import { toast } from 'sonner'
+import { applyPromotions, formatPromoLabel } from '../lib/promoCalc'
+import type { Promotion, AppliedPromoResult } from '../types'
 
 interface Props {
   session: Session & { table_name: string; hourly_rate: number }
@@ -23,6 +25,9 @@ interface Props {
 export default function InvoicePage({ session, playAmount, onComplete }: Props) {
   const queryClient = useQueryClient()
   const [discount, setDiscount] = useState(0)
+  const [appliedPromos, setAppliedPromos] = useState<Promotion[]>([])
+  const [voucherCode, setVoucherCode] = useState('')
+  const [voucherLoading, setVoucherLoading] = useState(false)
   const [pointsToRedeem, setPointsToRedeem] = useState(0)
   const [pointsError, setPointsError] = useState('')
   const [showPicker, setShowPicker] = useState(false)
@@ -48,12 +53,26 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     queryFn: () => window.api.loyalty.getSettings(),
   })
 
+  const { data: autoPromos = [] } = useQuery({
+    queryKey: ['promotions', 'active'],
+    queryFn: () => window.api.promotions.getActive(new Date().toISOString()),
+    refetchInterval: 60000,
+  })
+
+  // Merge auto promos with manually added vouchers (avoid duplicates)
+  const allAppliedPromos: Promotion[] = [
+    ...autoPromos,
+    ...appliedPromos.filter(p => !autoPromos.some(a => a.id === p.id)),
+  ]
+
   const VND_PER_POINT = loyaltySettings?.vndPerPoint ?? 100
   const POINTS_PER_10K = loyaltySettings?.pointsPer10k ?? 1
   const MIN_REDEEM = loyaltySettings?.minRedeemPoints ?? 100
 
   const itemsAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
   const discountFromPoints = calcDiscountFromPoints(pointsToRedeem, VND_PER_POINT)
+  const promoResult = applyPromotions(allAppliedPromos, playAmount, itemsAmount)
+  const promoDiscount = promoResult.totalDiscount
 
   const shopName = settings?.find((s: { key: string }) => s.key === 'shop_name')?.value ?? 'Quán Bida'
   const shopAddress = settings?.find((s: { key: string }) => s.key === 'address')?.value ?? ''
@@ -65,7 +84,8 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const bankConfigured = isBankConfigured(bankId, bankAccount, bankAccountName)
   const vatRate = Number(settings?.find((s: { key: string }) => s.key === 'vat_rate')?.value ?? '10')
   const { finalAmount: preVatAmount } = calcInvoice({
-    playAmount, itemsAmount, discount, pointsRedeemed: pointsToRedeem, vndPerPoint: VND_PER_POINT,
+    playAmount, itemsAmount, discount, promoDiscount,
+    pointsRedeemed: pointsToRedeem, vndPerPoint: VND_PER_POINT,
   })
   const vatAmount = vatRate > 0 ? Math.round(preVatAmount * vatRate / 100) : 0
   const finalAmount = preVatAmount + vatAmount
@@ -146,6 +166,25 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     },
   })
 
+  async function applyVoucher() {
+    if (!voucherCode.trim()) return
+    setVoucherLoading(true)
+    try {
+      const promo = await window.api.promotions.validateVoucher(voucherCode)
+      if (!promo) { toast.error('Mã không hợp lệ hoặc đã hết hạn'); return }
+      if (appliedPromos.some(p => p.id === (promo as Promotion).id)) { toast.error('Mã đã được áp dụng'); return }
+      setAppliedPromos(prev => [...prev, promo as Promotion])
+      setVoucherCode('')
+      toast.success(`Áp dụng "${(promo as Promotion).name}" thành công`)
+    } finally {
+      setVoucherLoading(false)
+    }
+  }
+
+  function removeVoucher(id: number) {
+    setAppliedPromos(prev => prev.filter(p => p.id !== id))
+  }
+
   const invoiceNumber = '-----'
 
   return (
@@ -193,6 +232,47 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
             onRemove={(id) => removeItemMutation.mutate(id)}
             onAdjust={(id, delta) => adjustQtyMutation.mutate({ itemId: id, delta })}
           />
+        </div>
+
+        {/* Section Khuyến mãi */}
+        <div className="backdrop-blur-xl bg-white/[0.04] rounded-xl border border-white/10 p-4 space-y-2 mb-4">
+          <p className="text-[#d4af37] text-xs uppercase tracking-widest font-semibold mb-2">Khuyến mãi</p>
+
+          {allAppliedPromos.map(p => (
+            <div key={p.id} className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-1.5 text-white/80">
+                <span className="text-xs">🏷</span>
+                {formatPromoLabel(p)}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-[#d4af37]">
+                  −{(promoResult.items.find((r: AppliedPromoResult) => r.id === p.id)?.amount ?? 0).toLocaleString('vi-VN')}đ
+                </span>
+                {p.type === 'voucher' && (
+                  <button onClick={() => removeVoucher(p.id)}
+                    className="text-white/30 hover:text-red-400 transition-colors text-xs">✕</button>
+                )}
+              </span>
+            </div>
+          ))}
+
+          {allAppliedPromos.length === 0 && (
+            <p className="text-white/30 text-xs">Chưa có khuyến mãi nào áp dụng</p>
+          )}
+
+          {/* Voucher input */}
+          <div className="flex gap-2 pt-1">
+            <input
+              className="input-glass flex-1 px-3 py-2 text-sm uppercase"
+              placeholder="Nhập mã voucher..."
+              value={voucherCode}
+              onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === 'Enter' && applyVoucher()}
+            />
+            <button className="btn-glass text-xs px-3" onClick={applyVoucher} disabled={voucherLoading || !voucherCode.trim()}>
+              {voucherLoading ? '...' : 'Áp dụng'}
+            </button>
+          </div>
         </div>
 
         <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 space-y-3">
