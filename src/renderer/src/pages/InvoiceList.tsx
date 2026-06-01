@@ -105,7 +105,7 @@ export default function InvoiceListPage({ role, username }: Props) {
               </select>
             </div>
           )}
-          <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
+          <Button className="btn-gold"
             onClick={handleFilter} disabled={isFetching}>
             {isFetching ? 'Đang tải...' : 'Lọc'}
           </Button>

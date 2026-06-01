@@ -60,8 +60,8 @@ export default function OpenSessionModal({ table, onConfirm, onClose }: Props) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-gray-600">Huỷ</Button>
-          <Button onClick={handleConfirm} disabled={loading} className="bg-green-600 hover:bg-green-700">
+          <Button onClick={onClose} className="btn-glass">Huỷ</Button>
+          <Button onClick={handleConfirm} disabled={loading} className="btn-gold">
             {loading ? 'Đang mở...' : 'Bắt đầu chơi'}
           </Button>
         </DialogFooter>

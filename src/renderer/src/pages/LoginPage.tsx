@@ -68,7 +68,7 @@ export default function LoginPage({ onLogin }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#d4af37] text-[#0f0e0f] font-bold py-3 rounded-xl text-sm hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-gold"
         >
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>

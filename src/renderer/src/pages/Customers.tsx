@@ -68,7 +68,7 @@ export default function CustomersPage() {
       <div className="flex-1">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold text-[#d4af37]">Khách hàng</h1>
-          <Button onClick={() => setShowCreate(true)} className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors">
+          <Button onClick={() => setShowCreate(true)} className="btn-gold">
             + Thêm khách hàng
           </Button>
         </div>
@@ -135,12 +135,12 @@ export default function CustomersPage() {
                       placeholder="Ghi chú"
                     />
                     <div className="flex gap-2">
-                      <Button size="sm" className="bg-green-700 hover:bg-green-600"
+                      <Button className="btn-gold" size="sm"
                         disabled={!editForm.name || updateMutation.isPending}
                         onClick={() => updateMutation.mutate()}>
                         Lưu
                       </Button>
-                      <Button size="sm" variant="outline" className="border-white/10 text-[#6b7280]"
+                      <Button size="sm" className="btn-glass"
                         onClick={() => setEditMode(false)}>
                         Huỷ
                       </Button>
@@ -229,7 +229,7 @@ export default function CustomersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold"
+            <Button className="btn-gold"
               disabled={!form.name || !form.phone}
               onClick={() => createMutation.mutate()}>
               Thêm

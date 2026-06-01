@@ -87,7 +87,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold text-[#e2e8f0] text-sm">Đồ uống / thức ăn</h3>
           <button
-            className="bg-[#d4af37] text-[#0f0e0f] font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-yellow-400"
+            className="btn-gold"
             onClick={() => setShowPicker(true)}
           >
             + Gọi
@@ -107,7 +107,7 @@ export default function SessionPage({ tableId, onBack, onCheckout }: Props) {
       </div>
 
       <button
-        className="w-full bg-[#d4af37] text-[#0f0e0f] font-bold py-4 rounded-xl text-base hover:bg-yellow-400 transition-colors"
+        className="btn-gold"
         onClick={() => onCheckout(session, playAmount)}
       >
         Kết thúc & Thanh toán — {formatCurrency(playAmount)}

@@ -10,7 +10,7 @@ export default function AccessDenied({ onBack }: Props) {
       <p className="text-[#6b7280] text-sm">Bạn không được phép vào màn hình này.</p>
       <button
         onClick={onBack}
-        className="bg-[#d4af37] text-[#0f0e0f] font-bold px-4 py-2 rounded-lg text-sm hover:bg-yellow-400 transition-colors"
+        className="btn-gold"
       >
         Về Dashboard
       </button>

@@ -294,7 +294,7 @@ export default function SettingsPage() {
           </section>
 
           <Button
-            className="bg-[#d4af37] text-[#0f0e0f] font-bold w-full hover:bg-yellow-400"
+            className="btn-gold"
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending}
           >
@@ -307,7 +307,7 @@ export default function SettingsPage() {
         <div>
           <div className="flex justify-end mb-4">
             <Button
-              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400"
+              className="btn-gold"
               onClick={() => { setStaffForm({ username: '', password: '', allowedScreens: [] }); setSelectedStaff(null); setStaffMode('create') }}
             >
               + Thêm nhân viên
@@ -338,7 +338,7 @@ export default function SettingsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right space-x-1">
-                      <Button size="sm" variant="ghost" className="text-[#6b7280] hover:text-white h-7 text-xs px-2"
+                      <Button className="btn-glass text-xs"
                         onClick={() => {
                           setSelectedStaff(s)
                           setStaffForm({ username: s.username, password: '', allowedScreens: s.allowed_screens })
@@ -346,7 +346,7 @@ export default function SettingsPage() {
                         }}>
                         Sửa
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
+                      <Button className="btn-danger text-xs"
                         onClick={() => deleteStaffMutation.mutate(s.id)}>
                         Xoá
                       </Button>
@@ -409,9 +409,9 @@ export default function SettingsPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setStaffMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
+                <Button onClick={() => setStaffMode(null)} className="btn-glass">Huỷ</Button>
                 <Button
-                  className="bg-[#d4af37] text-[#0f0e0f] font-bold"
+                  className="btn-gold"
                   disabled={staffMode === 'create' && (!staffForm.username || !staffForm.password)}
                   onClick={() => staffMode === 'create' ? createStaffMutation.mutate() : updateStaffMutation.mutate()}
                 >

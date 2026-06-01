@@ -61,7 +61,7 @@ export default function TableFormModal({ isOpen, table, onSave, onClose }: Props
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <Button type="submit" className="flex-1 bg-green-700 hover:bg-green-600">
+            <Button type="submit" className="btn-gold flex-1">
               Lưu
             </Button>
             <Button

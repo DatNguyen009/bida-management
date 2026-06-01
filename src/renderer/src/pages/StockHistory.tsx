@@ -109,7 +109,7 @@ export default function StockHistoryPage() {
           />
         </div>
         <Button
-          className="bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
+          className="btn-gold"
           onClick={handleFilter}
           disabled={isFetching}
         >

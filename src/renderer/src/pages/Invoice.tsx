@@ -184,7 +184,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[#e2e8f0]">Đồ uống / thức ăn</h3>
             <Button size="sm" onClick={() => setShowPicker(true)}
-              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-xs hover:bg-yellow-400">
+              className="btn-gold">
               + Thêm
             </Button>
           </div>
@@ -287,7 +287,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               </div>
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
+                  className="btn-gold"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >
@@ -332,7 +332,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               </div>
               <div className="flex gap-3">
                 <Button
-                  className="flex-1 bg-[#d4af37] text-[#0f0e0f] font-bold hover:bg-yellow-400"
+                  className="btn-gold"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >

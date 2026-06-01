@@ -159,7 +159,7 @@ export default function ProductsPage() {
           <div className="flex justify-end mb-4">
             <Button
               onClick={() => { setForm({ name: '', category_id: categories[0]?.id ?? 0, price: 0, unit: 'lon', min_stock_alert: 5, product_type: 'stock' }); setMode('create') }}
-              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+              className="btn-gold"
             >
               + Thêm sản phẩm
             </Button>
@@ -259,7 +259,7 @@ export default function ProductsPage() {
         <div>
           <div className="flex justify-end mb-4">
             <Button
-              className="bg-[#d4af37] text-[#0f0e0f] font-bold text-sm px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+              className="btn-gold"
               onClick={() => { setCatForm({ name: '', icon: '📦' }); setSelectedCat(null); setCatMode('create') }}
             >
               + Thêm category
@@ -317,7 +317,7 @@ export default function ProductsPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setCatMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-                <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold"
+                <Button className="btn-gold"
                   onClick={() => catMode === 'create' ? createCatMutation.mutate() : updateCatMutation.mutate()}>
                   Lưu
                 </Button>
@@ -439,7 +439,7 @@ export default function ProductsPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold"
+            <Button className="btn-gold"
               onClick={() => mode === 'create' ? createMutation.mutate() : updateMutation.mutate()}>
               Lưu
             </Button>
@@ -481,7 +481,7 @@ export default function ProductsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMode(null)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="bg-[#d4af37] text-[#0f0e0f] font-bold" onClick={() => stockMutation.mutate()}>
+            <Button className="btn-gold" onClick={() => stockMutation.mutate()}>
               Nhập kho
             </Button>
           </DialogFooter>
