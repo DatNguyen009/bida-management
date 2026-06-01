@@ -208,35 +208,58 @@ export default function CustomersPage() {
         </div>
       )}
 
-      <Dialog open={showCreate} onOpenChange={(o) => !o && setShowCreate(false)}>
-        <DialogContent className="backdrop-blur-xl bg-white/[0.07] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle>Thêm khách hàng mới</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Tên *</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-            <div><Label>Số điện thoại *</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-            <div><Label>Email</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-            <div><Label>Ghi chú</Label>
-              <Input className="bg-white/[0.04] border-white/10 text-white mt-1" value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
+      {/* Add Customer Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
+          <div className="modal-glass relative w-full max-w-sm mx-4 p-6 overflow-hidden">
+            {/* Header */}
+            <div className="mb-5">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-base">👤</div>
+                <h2 className="text-base font-bold text-white">Thêm khách hàng mới</h2>
+              </div>
+            </div>
+            <div className="mb-5 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)'}} />
+
+            {/* Fields */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Tên *</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Số điện thoại *</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Email</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Ghi chú</label>
+                <input className="input-glass w-full px-4 py-2.5 text-sm" value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3">
+              <button className="btn-glass flex-1" onClick={() => setShowCreate(false)}>Huỷ</button>
+              <button
+                className="btn-gold flex-1"
+                disabled={!form.name || !form.phone}
+                onClick={() => createMutation.mutate()}
+              >
+                ＋ Thêm khách hàng
+              </button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)} className="border-white/10 text-[#6b7280]">Huỷ</Button>
-            <Button className="btn-gold"
-              disabled={!form.name || !form.phone}
-              onClick={() => createMutation.mutate()}>
-              Thêm
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   )
 }
