@@ -259,7 +259,7 @@ export default function App() {
           <span className="text-[#333131] text-xs">/</span>
           <span className="text-white text-xs font-medium">{pageLabels[currentPage] ?? currentPage}</span>
         </header>
-      <main className="flex-1 overflow-auto p-6">
+      <main key={currentPage} className="page-enter flex-1 overflow-auto p-6">
         {view.page === 'dashboard' && (
           <Dashboard onViewSession={(tableId) => setView({ page: 'session', tableId })} />
         )}
