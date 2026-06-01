@@ -123,6 +123,8 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     bankAccountName,
     vatRate,
     vatAmount,
+    promotionsApplied: promoResult.items,
+    promoDiscount,
   }
 
   const addItemMutation = useMutation({
@@ -154,6 +156,9 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
     onSuccess: ({ invoice, print }) => {
       queryClient.invalidateQueries({ queryKey: ['tables'] })
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      for (const p of appliedPromos.filter(p => p.type === 'voucher')) {
+        window.api.promotions.incrementUsed(p.id).catch(() => {})
+      }
       if (print) {
         toast.success(`Đã in hoá đơn #${invoice?.invoice_number ?? ''}`)
       } else {

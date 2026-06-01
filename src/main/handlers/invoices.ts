@@ -25,8 +25,8 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
     `INSERT INTO cloud_invoices
        (session_id, invoice_number, play_amount, items_amount, total_amount,
         discount, points_redeemed, discount_from_points, final_amount, points_earned,
-        payment_method, agent_id, completed_by, customer_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+        payment_method, agent_id, completed_by, customer_id, promotions_applied)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb) RETURNING *`,
     [
       input.sessionId, invoiceNumber,
       input.playAmount, input.itemsAmount,
@@ -35,6 +35,7 @@ export async function createInvoice(input: InvoiceCreateInput): Promise<Invoice 
       input.finalAmount, input.pointsEarned,
       input.paymentMethod ?? 'cash', agentId, completedBy,
       input.customerId ?? null,
+      JSON.stringify(input.promotionsApplied ?? []),
     ]
   )
 

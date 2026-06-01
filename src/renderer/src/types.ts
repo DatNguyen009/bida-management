@@ -88,6 +88,8 @@ export interface InvoiceCreateInput {
   bankAccountName?: string
   vatRate?: number
   vatAmount?: number
+  promotionsApplied?: { id: number; name: string; amount: number }[]
+  promoDiscount?: number
 }
 
 export interface Customer {
