@@ -154,4 +154,29 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     0 4px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+.glass-nav-active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 18px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #f0d060, #d4af37);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+/* ─── Status dot pulse ─── */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+.status-pulse { animation: status-pulse 2s infinite; }
+
+/* ─── Sidebar footer card ─── */
+.sidebar-footer-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
