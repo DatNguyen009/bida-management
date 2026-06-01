@@ -1,14 +1,19 @@
 import { useState, FormEvent } from 'react'
 import { toast } from 'sonner'
+import { useThemeStore } from '../stores/themeStore'
+import bgV1 from '../assets/bg-v1.jpg'
+import bgV2 from '../assets/bg-v2.jpg'
 
 interface Props {
-  onLogin: (allowedScreens: string[]) => void
+  onLogin: (allowedScreens: string[], role: string, username: string) => void
 }
 
 export default function LoginPage({ onLogin }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const theme = useThemeStore((s) => s.theme)
+  const bgImage = theme === 'v1' ? bgV1 : bgV2
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -16,7 +21,7 @@ export default function LoginPage({ onLogin }: Props) {
     try {
       const result = await window.api.auth.login(username, password)
       toast.success('Đăng nhập thành công')
-      onLogin(result.allowedScreens)
+      onLogin(result.allowedScreens, result.role, result.username)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Đăng nhập thất bại. Kiểm tra lại thông tin.')
     } finally {
@@ -25,8 +30,12 @@ export default function LoginPage({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0d1f12]">
-      <form onSubmit={handleSubmit} className="bg-[#0a1a0d] border-2 border-[#d4af37] p-8 rounded-2xl w-96 space-y-5 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <div
+        className={`theme-bg theme-bg-${theme}`}
+        style={{ backgroundImage: `url(${bgImage})` }}
+      />
+      <form onSubmit={handleSubmit} className="relative z-10 bg-[#161515] border-2 border-[#d4af37] p-8 rounded-2xl w-96 space-y-5 shadow-2xl">
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🎱</div>
           <h1 className="text-2xl font-bold text-[#d4af37]">Bida Manager</h1>
@@ -41,7 +50,7 @@ export default function LoginPage({ onLogin }: Props) {
             onChange={(e) => setUsername(e.target.value)}
             required
             autoFocus
-            className="w-full bg-[#162a1a] border border-[#1e3d23] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            className="w-full bg-[#1c1b1b] border border-[#272525] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
             placeholder="Nhập tên đăng nhập"
           />
         </div>
@@ -53,7 +62,7 @@ export default function LoginPage({ onLogin }: Props) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-[#162a1a] border border-[#1e3d23] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
+            className="w-full bg-[#1c1b1b] border border-[#272525] text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#d4af37] transition-colors"
             placeholder="••••••••"
           />
         </div>
@@ -61,7 +70,7 @@ export default function LoginPage({ onLogin }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#d4af37] text-[#0d1f12] font-bold py-3 rounded-xl text-sm hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#d4af37] text-[#0f0e0f] font-bold py-3 rounded-xl text-sm hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
