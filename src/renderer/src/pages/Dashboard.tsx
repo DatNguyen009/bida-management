@@ -6,6 +6,7 @@ import TableCard from '../components/TableCard'
 import OpenSessionModal from '../components/OpenSessionModal'
 import TableFormModal from '../components/TableFormModal'
 import { api } from '../lib/ipc'
+import { formatCurrency } from '../lib/utils'
 
 interface Props {
   onViewSession: (tableId: number) => void
@@ -90,8 +91,26 @@ export default function Dashboard({ onViewSession }: Props) {
     )
   }
 
+  const today = new Date().toISOString().slice(0, 10)
+
+  const { data: summaryData = [] } = useQuery({
+    queryKey: ['reports', 'summary', today],
+    queryFn: () => api().reports.summary(today, today),
+    refetchInterval: 60000,
+  })
+  const summary = (summaryData as Array<{ total_revenue: string; total_invoices: string }>)[0]
+
+  const { data: todayInvoices } = useQuery({
+    queryKey: ['invoices', 'today'],
+    queryFn: () => window.api.invoices.getList({ fromDate: today, toDate: today, pageSize: 1 }),
+    refetchInterval: 60000,
+  })
+
   const idleCount = tables.filter((t) => t.status === 'idle').length
   const playingCount = tables.filter((t) => t.status === 'playing').length
+
+  const glassCard = 'backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-2xl p-5 relative overflow-hidden'
+  const glassCardInner = { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 8px 32px rgba(0,0,0,0.15)' }
 
   return (
     <div>
@@ -99,29 +118,52 @@ export default function Dashboard({ onViewSession }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-[#d4af37]">Dashboard</h1>
-          <p className="text-xs text-[#6b7280] mt-0.5">Quản lý bàn bida</p>
+          <p className="text-xs text-white/35 mt-0.5">Quản lý bàn bida</p>
         </div>
         <button
           onClick={handleAddNew}
-          className="bg-[#d4af37] text-[#0f0e0f] text-xs font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition-colors"
+          className="bg-[#d4af37] text-[#0f0e0f] text-xs font-bold px-4 py-2 rounded-xl hover:bg-yellow-400 transition-colors"
+          style={{boxShadow:'0 4px 12px rgba(212,175,55,0.35)'}}
         >
           + Thêm bàn
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)'}}>
-          <div className="text-green-400 text-2xl font-bold">{idleCount}</div>
-          <div className="text-white/40 text-xs mt-1">Bàn trống</div>
+      {/* Stats — 4 cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {/* Bàn đang chơi */}
+        <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(239,68,68,0.25)'}}>
+          <div className="absolute inset-0 bg-red-500/[0.04] pointer-events-none" />
+          <div className="text-white/45 text-xs mb-2">Bàn đang chơi</div>
+          <div className="text-red-400 text-3xl font-extrabold leading-none">{playingCount}</div>
+          <div className="text-white/35 text-xs mt-2">/ {tables.length} bàn</div>
         </div>
-        <div className="backdrop-blur-xl bg-red-950/30 border border-red-500/25 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.08)'}}>
-          <div className="text-red-400 text-2xl font-bold">{playingCount}</div>
-          <div className="text-white/40 text-xs mt-1">Đang chơi</div>
+
+        {/* Doanh thu hôm nay */}
+        <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(212,175,55,0.25)'}}>
+          <div className="absolute inset-0 bg-yellow-500/[0.04] pointer-events-none" />
+          <div className="text-white/45 text-xs mb-2">Doanh thu hôm nay</div>
+          <div className="text-[#d4af37] text-2xl font-extrabold leading-none truncate">
+            {summary ? formatCurrency(Number(summary.total_revenue)) : '—'}
+          </div>
+          <div className="text-white/35 text-xs mt-2">Cập nhật mỗi phút</div>
         </div>
-        <div className="backdrop-blur-xl bg-white/[0.07] border border-[#d4af37]/30 rounded-xl p-4 text-center" style={{boxShadow:'inset 0 1px 0 rgba(255,255,255,0.12)'}}>
-          <div className="text-[#d4af37] text-2xl font-bold">{tables.length}</div>
-          <div className="text-white/40 text-xs mt-1">Tổng số bàn</div>
+
+        {/* Khách hàng */}
+        <div className={glassCard} style={{...glassCardInner, borderColor:'rgba(96,165,250,0.25)'}}>
+          <div className="absolute inset-0 bg-blue-500/[0.04] pointer-events-none" />
+          <div className="text-white/45 text-xs mb-2">Khách hàng</div>
+          <div className="text-blue-400 text-3xl font-extrabold leading-none">{activeSessions.length}</div>
+          <div className="text-white/35 text-xs mt-2">đang trong quán</div>
+        </div>
+
+        {/* Hóa đơn hôm nay */}
+        <div className={glassCard} style={glassCardInner}>
+          <div className="text-white/45 text-xs mb-2">Hóa đơn hôm nay</div>
+          <div className="text-white text-3xl font-extrabold leading-none">
+            {todayInvoices ? todayInvoices.total : summary?.total_invoices ?? '—'}
+          </div>
+          <div className="text-white/35 text-xs mt-2">đã thanh toán</div>
         </div>
       </div>
 
