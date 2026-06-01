@@ -109,7 +109,7 @@ export default function App() {
         style={{ backgroundImage: `url(${bgImage})` }}
       />
       {/* Sidebar */}
-      <aside className="glass-sidebar w-48 flex-shrink-0 flex flex-col relative">
+      <aside className="glass-sidebar w-48 flex-shrink-0 flex flex-col relative z-10">
         {/* Logo */}
         <div className="px-4 py-4 flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-[#d4af37] flex items-center justify-center text-sm flex-shrink-0">🎱</div>
@@ -212,7 +212,7 @@ export default function App() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Topbar */}
         <header className="glass-topbar flex-shrink-0 h-12 flex items-center px-6 gap-2">
           <span className="text-[#555353] text-xs">Workspace</span>
