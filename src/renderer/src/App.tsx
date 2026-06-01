@@ -178,7 +178,7 @@ export default function App() {
           <div className="my-2 mx-2 h-px" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)'}} />
 
           {/* Manage section */}
-          {(isOwner || visibleNavItems.some(i => i.page === 'reports')) && (
+          {(isOwner || visibleNavItems.some(i => ['reports', 'promotions'].includes(i.page))) && (
             <>
               <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/25">Quản lý</p>
               {visibleNavItems.filter(i => ['reports', 'promotions'].includes(i.page)).map(({ page, label, icon }) => (

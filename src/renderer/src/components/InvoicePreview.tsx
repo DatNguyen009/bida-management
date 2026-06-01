@@ -56,6 +56,12 @@ export default function InvoicePreview({ input, invoiceNumber }: Props) {
           <span>-{formatCurrency(input.discount)}</span>
         </div>
       )}
+      {input.promotionsApplied && input.promotionsApplied.length > 0 && input.promotionsApplied.map((p) => (
+        <div key={p.id} className="flex justify-between">
+          <span>🏷 {p.name}:</span>
+          <span>-{formatCurrency(p.amount)}</span>
+        </div>
+      ))}
       {input.discountFromPoints > 0 && (
         <div className="flex justify-between">
           <span>Đổi điểm ({input.pointsRedeemed}đ):</span>

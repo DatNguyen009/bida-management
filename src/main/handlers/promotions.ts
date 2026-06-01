@@ -39,6 +39,7 @@ export async function validateVoucher(code: string) {
     `SELECT * FROM promotions
      WHERE agent_id = $1 AND code = $2 AND type = 'voucher' AND is_active = TRUE
        AND (max_uses IS NULL OR used_count < max_uses)
+       AND (valid_from IS NULL OR valid_from <= CURRENT_DATE)
        AND (valid_to IS NULL OR valid_to >= CURRENT_DATE)
      LIMIT 1`,
     [agentId, code.trim().toUpperCase()]
@@ -75,10 +76,12 @@ export async function updatePromotion(id: number, input: Partial<{
   valid_from: string | null; valid_to: string | null; is_active: boolean
 }>) {
   const agentId = getAgentId()
-  const fields = Object.entries(input)
-    .map(([k], i) => `${k} = $${i + 3}`)
-    .join(', ')
-  const values = Object.values(input)
+  const ALLOWED = new Set(['name','discount_type','discount_value','apply_to','max_discount',
+    'code','max_uses','days_of_week','time_from','time_to','valid_from','valid_to','is_active'])
+  const entries = Object.entries(input).filter(([k]) => ALLOWED.has(k))
+  if (entries.length === 0) return null
+  const fields = entries.map(([k], i) => `${k} = $${i + 3}`).join(', ')
+  const values = entries.map(([, v]) => v)
   return queryOne<object>(
     `UPDATE promotions SET ${fields} WHERE id = $1 AND agent_id = $2 RETURNING *`,
     [id, agentId, ...values]
