@@ -202,3 +202,10 @@ export interface AppliedPromoResult {
   name: string
   amount: number
 }
+
+export interface PayosLinkResult {
+  orderCode: number
+  qrCode: string
+  checkoutUrl: string
+  expiredAt: string
+}

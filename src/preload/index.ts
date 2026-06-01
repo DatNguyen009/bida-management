@@ -1,6 +1,6 @@
 // src/preload/index.ts
 import { contextBridge, ipcRenderer } from 'electron'
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category, StaffMember, Promotion } from '../renderer/src/types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, PageResult, RecipeItem, Category, StaffMember, Promotion, PayosLinkResult } from '../renderer/src/types'
 
 contextBridge.exposeInMainWorld('api', {
   tables: {
@@ -144,5 +144,25 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('promotions:delete', id),
     incrementUsed: (id: number): Promise<void> =>
       ipcRenderer.invoke('promotions:incrementUsed', id),
+  },
+  payos: {
+    createLink: (input: {
+      sessionId: number | null
+      amount: number
+      tableName: string
+      orderItems: { name: string; quantity: number; price: number }[]
+    }): Promise<PayosLinkResult> =>
+      ipcRenderer.invoke('payos:createLink', input),
+    cancelLink: (orderCode: number): Promise<{ success: boolean }> =>
+      ipcRenderer.invoke('payos:cancelLink', orderCode),
+    subscribe: (orderCode: number): void =>
+      ipcRenderer.send('payos:subscribe', orderCode),
+    unsubscribe: (orderCode: number): void =>
+      ipcRenderer.send('payos:unsubscribe', orderCode),
+    onEvent: (callback: (data: { type: string; orderCode?: number; message?: string }) => void): (() => void) => {
+      const handler = (_e: Electron.IpcRendererEvent, data: { type: string }) => callback(data)
+      ipcRenderer.on('payos:event', handler)
+      return () => ipcRenderer.removeListener('payos:event', handler)
+    },
   },
 })

@@ -1,5 +1,5 @@
 // src/renderer/src/electron.d.ts
-import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category, StaffMember, Promotion } from './types'
+import type { BidaTable, Session, Product, OrderItem, Invoice, InvoiceCreateInput, Customer, LoyaltySettings, StockTransaction, InvoiceListRow, InvoiceOrderItem, RecipeItem, Category, StaffMember, Promotion, PayosLinkResult } from './types'
 
 declare global {
   interface Window {
@@ -88,6 +88,18 @@ declare global {
         update(id: number, input: Partial<Promotion>): Promise<Promotion>
         delete(id: number): Promise<void>
         incrementUsed(id: number): Promise<void>
+      }
+      payos: {
+        createLink(input: {
+          sessionId: number | null
+          amount: number
+          tableName: string
+          orderItems: { name: string; quantity: number; price: number }[]
+        }): Promise<PayosLinkResult>
+        cancelLink(orderCode: number): Promise<{ success: boolean }>
+        subscribe(orderCode: number): void
+        unsubscribe(orderCode: number): void
+        onEvent(callback: (data: { type: string; orderCode?: number; message?: string }) => void): () => void
       }
     }
   }
