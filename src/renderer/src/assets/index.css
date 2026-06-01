@@ -54,8 +54,13 @@
     @apply border-border;
   }
   html, body {
-    background: transparent;
+    background: #0f0e0f;
     @apply text-foreground;
+    height: 100%;
+  }
+  #root {
+    height: 100%;
+    background: transparent;
   }
 }
 
@@ -99,35 +104,43 @@ button[class*="bg-green"]:hover {
   height: 100%;
 }
 
-/* ─── Background Themes ─── */
-.theme-bg {
+/* ─── Background layer injected into body ─── */
+#bida-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
   background-size: cover;
   background-position: center;
   transition: filter 0.5s ease;
+  pointer-events: none;
 }
-
-.theme-bg-v1 {
-  filter: brightness(0.52) saturate(1.2);
+#bida-bg.v1 {
+  filter: brightness(0.55) saturate(1.2);
 }
-.theme-bg-v1::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(20, 10, 40, 0.45) 0%, rgba(0, 20, 40, 0.35) 100%);
-}
-
-.theme-bg-v2 {
-  filter: blur(14px) brightness(0.42) saturate(1.4);
+#bida-bg.v2 {
+  filter: blur(14px) brightness(0.45) saturate(1.4);
   transform: scale(1.06);
 }
-.theme-bg-v2::after {
-  content: '';
-  position: absolute;
+/* colour overlay on top of blurred bg */
+#bida-overlay {
+  position: fixed;
   inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition: background 0.5s ease;
+}
+#bida-overlay.v1 {
+  background: linear-gradient(135deg, rgba(20, 10, 40, 0.4) 0%, rgba(0, 20, 40, 0.3) 100%);
+}
+#bida-overlay.v2 {
   background: linear-gradient(135deg, rgba(30, 10, 0, 0.5) 0%, rgba(10, 5, 0, 0.3) 100%);
+}
+/* root content above bg layers */
+#root {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  background: transparent;
 }
 
 /* ─── Liquid Glass Sidebar ─── */

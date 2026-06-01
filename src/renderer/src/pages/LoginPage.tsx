@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useThemeStore } from '../stores/themeStore'
 import bgV1 from '../assets/bg-v1.jpg'
@@ -15,6 +15,24 @@ export default function LoginPage({ onLogin }: Props) {
   const theme = useThemeStore((s) => s.theme)
   const bgImage = theme === 'v1' ? bgV1 : bgV2
 
+  useEffect(() => {
+    let bg = document.getElementById('bida-bg')
+    if (!bg) {
+      bg = document.createElement('div')
+      bg.id = 'bida-bg'
+      document.body.insertBefore(bg, document.body.firstChild)
+    }
+    bg.style.backgroundImage = `url(${bgImage})`
+    bg.className = theme
+    let overlay = document.getElementById('bida-overlay')
+    if (!overlay) {
+      overlay = document.createElement('div')
+      overlay.id = 'bida-overlay'
+      document.body.insertBefore(overlay, document.body.firstChild)
+    }
+    overlay.className = theme
+  }, [bgImage, theme])
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -30,9 +48,7 @@ export default function LoginPage({ onLogin }: Props) {
   }
 
   return (
-    <>
-      <div className={`theme-bg theme-bg-${theme}`} style={{ backgroundImage: `url(${bgImage})` }} />
-      <div className="min-h-screen flex items-center justify-center relative z-10">
+    <div className="min-h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit} className="relative bg-white/[0.08] backdrop-blur-xl border border-white/20 p-8 rounded-2xl w-96 space-y-5 shadow-2xl" style={{boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 20px 60px rgba(0,0,0,0.4)'}}>
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🎱</div>
@@ -73,7 +89,6 @@ export default function LoginPage({ onLogin }: Props) {
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>
-      </div>
-    </>
+    </div>
   )
 }

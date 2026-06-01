@@ -36,6 +36,26 @@ export default function App() {
   const theme = useThemeStore((s) => s.theme)
   const bgImage = theme === 'v1' ? bgV1 : bgV2
 
+  // Inject bg div directly into body (outside #root) — most reliable in Electron
+  useEffect(() => {
+    let bg = document.getElementById('bida-bg')
+    if (!bg) {
+      bg = document.createElement('div')
+      bg.id = 'bida-bg'
+      document.body.insertBefore(bg, document.body.firstChild)
+    }
+    bg.style.backgroundImage = `url(${bgImage})`
+    bg.className = theme
+
+    let overlay = document.getElementById('bida-overlay')
+    if (!overlay) {
+      overlay = document.createElement('div')
+      overlay.id = 'bida-overlay'
+      document.body.insertBefore(overlay, document.body.firstChild)
+    }
+    overlay.className = theme
+  }, [bgImage, theme])
+
   useEffect(() => {
     window.api.auth.getSession()
       .then((session) => {
@@ -55,12 +75,9 @@ export default function App() {
 
   if (authState === 'checking') {
     return (
-      <>
-        <div className={`theme-bg theme-bg-${theme}`} style={{ backgroundImage: `url(${bgImage})` }} />
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <p className="text-gray-500 text-sm">Đang tải...</p>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-white/40 text-sm">Đang tải...</p>
+      </div>
     )
   }
 
@@ -102,13 +119,7 @@ export default function App() {
   }
 
   return (
-    <>
-      {/* Background — sibling of layout, not inside overflow:hidden */}
-      <div
-        className={`theme-bg theme-bg-${theme}`}
-        style={{ backgroundImage: `url(${bgImage})` }}
-      />
-      <div className="flex h-screen text-white overflow-hidden relative z-10">
+    <div className="flex h-screen text-white overflow-hidden">
       {/* Sidebar */}
       <aside className="glass-sidebar w-56 flex-shrink-0 flex flex-col relative">
 
@@ -299,6 +310,5 @@ export default function App() {
       </main>
       </div>
     </div>
-    </>
   )
 }
