@@ -173,3 +173,30 @@ export interface StaffMember {
   is_active: boolean
   created_at: string
 }
+
+export interface Promotion {
+  id: number
+  agent_id: string
+  name: string
+  type: 'voucher' | 'time_slot' | 'event'
+  is_active: boolean
+  discount_type: 'percent' | 'fixed'
+  discount_value: number
+  apply_to: 'total' | 'play' | 'items'
+  max_discount: number | null
+  code: string | null
+  max_uses: number | null
+  used_count: number
+  days_of_week: number[] | null
+  time_from: string | null
+  time_to: string | null
+  valid_from: string | null
+  valid_to: string | null
+  created_at: string
+}
+
+export interface AppliedPromoResult {
+  id: number
+  name: string
+  amount: number
+}
