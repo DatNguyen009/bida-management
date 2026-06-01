@@ -139,26 +139,57 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-4">
-          <h3 className="font-semibold mb-3 text-[#e2e8f0]">
-            Cảnh báo tồn kho
+        <div className="rounded-2xl overflow-hidden"
+          style={{
+            background: lowStock.length > 0 ? 'rgba(239,68,68,0.07)' : 'rgba(34,197,94,0.07)',
+            border: `1px solid ${lowStock.length > 0 ? 'rgba(239,68,68,0.22)' : 'rgba(34,197,94,0.22)'}`,
+            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px ${lowStock.length > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(34,197,94,0.06)'}`
+          }}>
+          {/* Header */}
+          <div className="px-4 py-3 flex items-center gap-3"
+            style={{borderBottom: lowStock.length > 0 ? '1px solid rgba(239,68,68,0.15)' : 'none'}}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm flex-shrink-0"
+              style={{background: lowStock.length > 0 ? 'rgba(239,68,68,0.18)' : 'rgba(34,197,94,0.18)',
+                      border: `1px solid ${lowStock.length > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)'}`}}>
+              {lowStock.length > 0 ? '⚠️' : '✓'}
+            </div>
+            <div className="flex-1">
+              <p className={`text-xs font-bold uppercase tracking-widest ${lowStock.length > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                Cảnh báo tồn kho
+              </p>
+              <p className="text-white/35 text-[11px] mt-0.5">
+                {lowStock.length > 0 ? `${lowStock.length} sản phẩm cần nhập thêm` : 'Tất cả sản phẩm ổn định'}
+              </p>
+            </div>
             {lowStock.length > 0 && (
-              <span className="ml-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">{lowStock.length}</span>
-            )}
-          </h3>
-          <div className="space-y-2">
-            {(lowStock as Array<{ id: number; name: string; stock_quantity: number; unit: string; min_stock_alert: number }>).map((p) => (
-              <div key={p.id} className="flex justify-between items-center p-2 bg-red-950/30 border border-red-800 rounded">
-                <span className="text-sm text-[#e2e8f0]">{p.name}</span>
-                <span className="text-red-400 text-sm font-medium">
-                  {p.stock_quantity}/{p.min_stock_alert} {p.unit}
-                </span>
-              </div>
-            ))}
-            {lowStock.length === 0 && (
-              <p className="text-green-400 text-sm">✓ Tồn kho ổn định</p>
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                style={{background:'rgba(239,68,68,0.2)', border:'1px solid rgba(239,68,68,0.3)', color:'#fca5a5'}}>
+                {lowStock.length}
+              </span>
             )}
           </div>
+
+          {/* Items */}
+          {lowStock.length > 0 && (
+            <div className="px-4 py-3 space-y-2">
+              {(lowStock as Array<{ id: number; name: string; stock_quantity: number; unit: string; min_stock_alert: number }>).map((p) => {
+                const pct = Math.round((p.stock_quantity / p.min_stock_alert) * 100)
+                return (
+                  <div key={p.id} className="flex items-center gap-3">
+                    <span className="text-sm text-white/80 flex-1 truncate">{p.name}</span>
+                    {/* Progress bar */}
+                    <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,0.08)'}}>
+                      <div className="h-full rounded-full transition-all"
+                        style={{width:`${Math.min(pct,100)}%`, background: pct < 50 ? '#ef4444' : '#f97316'}} />
+                    </div>
+                    <span className="text-red-400 text-xs font-mono font-semibold w-20 text-right flex-shrink-0">
+                      {p.stock_quantity} / {p.min_stock_alert} {p.unit}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
