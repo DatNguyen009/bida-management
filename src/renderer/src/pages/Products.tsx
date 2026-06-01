@@ -240,23 +240,39 @@ export default function ProductsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right space-x-1">
-                        <Button size="sm" variant="ghost" className="text-[#d4af37] hover:text-yellow-300 h-7 text-xs px-2"
-                          onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}>
-                          Nhập kho
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-white/55 hover:text-white h-7 text-xs px-2"
-                          onClick={() => {
-                            setSelected(p)
-                            setForm({ name: p.name, category_id: p.category_id, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert, product_type: p.product_type ?? 'stock' })
-                            setMode('edit')
-                          }}>
-                          Sửa
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
-                          onClick={() => deactivateMutation.mutate(p.id)}>
-                          Xoá
-                        </Button>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {/* Nhập kho */}
+                          <button
+                            onClick={() => { setSelected(p); setStockQty(0); setStockNote(''); setStockCostPrice(''); setMode('stock') }}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                            style={{background:'rgba(212,175,55,0.12)', border:'1px solid rgba(212,175,55,0.25)', color:'#d4af37'}}
+                            onMouseEnter={e => (e.currentTarget.style.background='rgba(212,175,55,0.22)')}
+                            onMouseLeave={e => (e.currentTarget.style.background='rgba(212,175,55,0.12)')}
+                          >
+                            📦 Kho
+                          </button>
+                          {/* Sửa */}
+                          <button
+                            onClick={() => { setSelected(p); setForm({ name: p.name, category_id: p.category_id, price: p.price, unit: p.unit, min_stock_alert: p.min_stock_alert, product_type: p.product_type ?? 'stock' }); setMode('edit') }}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                            style={{background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.85)'}}
+                            onMouseEnter={e => (e.currentTarget.style.background='rgba(255,255,255,0.13)')}
+                            onMouseLeave={e => (e.currentTarget.style.background='rgba(255,255,255,0.07)')}
+                          >
+                            ✎ Sửa
+                          </button>
+                          {/* Xoá */}
+                          <button
+                            onClick={() => deactivateMutation.mutate(p.id)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                            style={{background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.22)', color:'#fca5a5'}}
+                            onMouseEnter={e => (e.currentTarget.style.background='rgba(239,68,68,0.2)')}
+                            onMouseLeave={e => (e.currentTarget.style.background='rgba(239,68,68,0.1)')}
+                          >
+                            ✕ Xoá
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
