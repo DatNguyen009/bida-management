@@ -109,7 +109,7 @@ export default function Dashboard({ onViewSession }: Props) {
   const idleCount = tables.filter((t) => t.status === 'idle').length
   const playingCount = tables.filter((t) => t.status === 'playing').length
 
-  const glassCard = 'backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-2xl p-5 relative overflow-hidden'
+  const glassCard = 'bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-5 relative overflow-hidden'
   const glassCardInner = { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 8px 32px rgba(0,0,0,0.15)' }
 
   return (
