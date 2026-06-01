@@ -197,9 +197,34 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
         <div className="bg-[#1c1b1b] border border-[#272525] rounded-xl p-4 space-y-3">
           <div>
-            <Label className="text-white/55 text-xs">Giảm giá (đồng)</Label>
-            <Input type="number" className="mt-1 bg-[#161515] border-[#272525] text-white"
-              value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
+            <label className="text-white/55 text-xs block mb-2">Giảm giá (đồng)</label>
+            {/* Quick % buttons */}
+            <div className="flex gap-1.5 mb-2">
+              {[5, 10, 15, 20, 30, 50].map((pct) => {
+                const amt = Math.round((playAmount + itemsAmount) * pct / 100)
+                const active = discount === amt && amt > 0
+                return (
+                  <button
+                    key={pct}
+                    onClick={() => setDiscount(active ? 0 : amt)}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-all"
+                    style={active
+                      ? { background:'linear-gradient(135deg,#f0d060,#d4af37)', color:'#0f0e0f', borderColor:'transparent' }
+                      : { background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.75)', borderColor:'rgba(255,255,255,0.1)' }
+                    }
+                  >
+                    {pct}%
+                  </button>
+                )
+              })}
+            </div>
+            <input
+              type="number"
+              className="input-glass w-full px-3 py-2 text-sm"
+              value={discount}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              placeholder="Hoặc nhập số tiền..."
+            />
           </div>
           <div className="pt-2 border-t border-[#272525] space-y-1 text-sm">
             <div className="flex justify-between">
