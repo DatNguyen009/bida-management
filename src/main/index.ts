@@ -14,6 +14,7 @@ import { registerLoyaltyHandlers } from './handlers/loyalty'
 import { registerRecipeHandlers } from './handlers/recipes'
 import { registerCategoryHandlers } from './handlers/categories'
 import { registerStaffHandlers } from './handlers/staff'
+import { registerPromotionHandlers } from './handlers/promotions'
 
 function createWindow(): void {
   // Create the browser window.
@@ -101,6 +102,7 @@ app.whenReady().then(() => {
   registerRecipeHandlers()
   registerCategoryHandlers()
   registerStaffHandlers()
+  registerPromotionHandlers()
 
   createWindow()
 
