@@ -286,24 +286,23 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 )}
               </div>
               <div className="flex gap-3">
-                <Button
-                  className="btn-gold"
+                <button
+                  className="btn-gold flex-1 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >
-                  In hóa đơn
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#1c1b1b]"
+                  🖨 In hóa đơn
+                </button>
+                <button
+                  className="btn-glass flex-1 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: false })}
                 >
-                  Lưu không in
-                </Button>
+                  ✓ Lưu không in
+                </button>
               </div>
               <button
-                className="w-full text-xs text-white/55 hover:text-white text-center mt-1"
+                className="w-full text-xs text-white/40 hover:text-white text-center mt-1 transition-colors"
                 onClick={() => { setPaymentStep('select'); setCashReceived('') }}
               >
                 ← Quay lại chọn phương thức
@@ -331,24 +330,23 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 <p className="text-[#d4af37] font-bold text-lg mt-1">{formatCurrency(finalAmount)}</p>
               </div>
               <div className="flex gap-3">
-                <Button
-                  className="btn-gold"
+                <button
+                  className="btn-gold flex-1 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: true })}
                 >
-                  Đã nhận tiền + In HĐ
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-[#d4af37] text-[#d4af37] hover:bg-[#1c1b1b]"
+                  🖨 In hóa đơn
+                </button>
+                <button
+                  className="btn-glass flex-1 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={checkoutMutation.isPending || !!pointsError}
                   onClick={() => checkoutMutation.mutate({ print: false })}
                 >
-                  Đã nhận tiền
-                </Button>
+                  ✓ Đã nhận tiền
+                </button>
               </div>
               <button
-                className="w-full text-xs text-white/55 hover:text-white text-center"
+                className="w-full text-xs text-white/40 hover:text-white text-center transition-colors"
                 onClick={() => setPaymentStep('select')}
               >
                 ← Quay lại chọn phương thức
