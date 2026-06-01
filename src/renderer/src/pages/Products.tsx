@@ -315,15 +315,27 @@ export default function ProductsPage() {
                   <tr key={cat.id} className={`border-b border-white/10 hover:bg-white/[0.06] transition-colors ${i % 2 === 1 ? 'bg-white/[0.03]' : ''}`}>
                     <td className="px-4 py-3 text-2xl">{cat.icon}</td>
                     <td className="px-4 py-3 text-white/90 font-medium">{cat.name}</td>
-                    <td className="px-4 py-3 text-right space-x-1">
-                      <Button size="sm" variant="ghost" className="text-white/55 hover:text-white h-7 text-xs px-2"
-                        onClick={() => { setSelectedCat(cat); setCatForm({ name: cat.name, icon: cat.icon }); setCatMode('edit') }}>
-                        Sửa
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 text-xs px-2"
-                        onClick={() => deleteCatMutation.mutate(cat.id)}>
-                        Xoá
-                      </Button>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => { setSelectedCat(cat); setCatForm({ name: cat.name, icon: cat.icon }); setCatMode('edit') }}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                          style={{background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)', color:'rgba(255,255,255,0.85)'}}
+                          onMouseEnter={e => (e.currentTarget.style.background='rgba(255,255,255,0.13)')}
+                          onMouseLeave={e => (e.currentTarget.style.background='rgba(255,255,255,0.07)')}
+                        >
+                          ✎ Sửa
+                        </button>
+                        <button
+                          onClick={() => deleteCatMutation.mutate(cat.id)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                          style={{background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.22)', color:'#fca5a5'}}
+                          onMouseEnter={e => (e.currentTarget.style.background='rgba(239,68,68,0.2)')}
+                          onMouseLeave={e => (e.currentTarget.style.background='rgba(239,68,68,0.1)')}
+                        >
+                          ✕ Xoá
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
