@@ -322,6 +322,12 @@ nav button {
 .btn-danger:active { transform: translateY(0); }
 .btn-danger:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+/* ─── Fade in ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* ─── Page transition ─── */
 @keyframes page-enter {
   from {

@@ -125,12 +125,25 @@ export default function ReportsPage() {
           </button>
         ))}
         {period === 'custom' && (
-          <div className="flex items-center gap-2">
-            <input type="date" className="input-glass px-3 py-1.5 text-xs"
-              value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
-            <span className="text-white/55 text-xs">→</span>
-            <input type="date" className="input-glass px-3 py-1.5 text-xs"
-              value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10"
+            style={{background:'rgba(255,255,255,0.06)', animation:'fadeIn 0.15s ease'}}>
+            <span className="text-white/40 text-[10px] uppercase tracking-widest font-semibold">Từ</span>
+            <input
+              type="date"
+              className="bg-transparent text-white text-xs font-medium outline-none cursor-pointer"
+              style={{colorScheme:'dark'}}
+              value={customFrom}
+              onChange={(e) => setCustomFrom(e.target.value)}
+            />
+            <span className="text-white/25 text-xs">—</span>
+            <span className="text-white/40 text-[10px] uppercase tracking-widest font-semibold">Đến</span>
+            <input
+              type="date"
+              className="bg-transparent text-white text-xs font-medium outline-none cursor-pointer"
+              style={{colorScheme:'dark'}}
+              value={customTo}
+              onChange={(e) => setCustomTo(e.target.value)}
+            />
           </div>
         )}
       </div>
