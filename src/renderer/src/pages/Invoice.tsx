@@ -15,6 +15,7 @@ import { buildVietQRUrl, isBankConfigured } from '../lib/vietqr'
 import { toast } from 'sonner'
 import { applyPromotions, formatPromoLabel } from '../lib/promoCalc'
 import type { Promotion, AppliedPromoResult } from '../types'
+import type { PayosLinkResult } from '../types'
 
 interface Props {
   session: Session & { table_name: string; hourly_rate: number }
@@ -33,10 +34,13 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const [showPicker, setShowPicker] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
 
-  type PaymentStep = 'select' | 'cash' | 'bank'
+  type PaymentStep = 'select' | 'cash' | 'bank' | 'payos'
   const [paymentStep, setPaymentStep] = useState<PaymentStep>('select')
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash')
   const [cashReceived, setCashReceived] = useState<number | ''>('')
+  const [payosData, setPayosData] = useState<PayosLinkResult | null>(null)
+  const [payosStatus, setPayosStatus] = useState<'loading' | 'waiting' | 'expired' | 'reconnecting'>('loading')
+  const [payosCountdown, setPayosCountdown] = useState(15 * 60)
 
   const { data: orderItems = [] } = useQuery({
     queryKey: ['orderItems', session.id],
@@ -82,6 +86,8 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const bankAccount = settings?.find((s: { key: string }) => s.key === 'bank_account')?.value ?? ''
   const bankAccountName = settings?.find((s: { key: string }) => s.key === 'bank_account_name')?.value ?? ''
   const bankConfigured = isBankConfigured(bankId, bankAccount, bankAccountName)
+  const payosClientId = settings?.find((s: { key: string }) => s.key === 'payos_client_id')?.value ?? ''
+  const payosConfigured = payosClientId.trim() !== ''
   const vatRate = Number(settings?.find((s: { key: string }) => s.key === 'vat_rate')?.value ?? '10')
   const { finalAmount: preVatAmount } = calcInvoice({
     playAmount, itemsAmount, discount, promoDiscount,
@@ -191,6 +197,82 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   }
 
   const invoiceNumber = '-----'
+
+  function formatCountdown(seconds: number): string {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+    const s = (seconds % 60).toString().padStart(2, '0')
+    return `${m}:${s}`
+  }
+
+  async function startPayos() {
+    setPaymentStep('payos')
+    setPayosStatus('loading')
+    setPayosData(null)
+    setPayosCountdown(15 * 60)
+
+    try {
+      const result = await window.api.payos.createLink({
+        sessionId: session.id,
+        amount: finalAmount,
+        tableName: session.table_name,
+        orderItems: orderItems.map(i => ({
+          name: i.product_name ?? 'Sản phẩm',
+          quantity: i.quantity,
+          price: i.unit_price,
+        })),
+      })
+      setPayosData(result)
+      setPayosStatus('waiting')
+
+      // Countdown timer
+      const countdownTimer = setInterval(() => {
+        setPayosCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownTimer)
+            setPayosStatus('expired')
+            window.api.payos.unsubscribe(result.orderCode)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      // Subscribe to SSE events
+      window.api.payos.subscribe(result.orderCode)
+      const unsubscribeEvent = window.api.payos.onEvent((data) => {
+        if (data.orderCode !== undefined && data.orderCode !== result.orderCode) return
+        if (data.type === 'PAID') {
+          clearInterval(countdownTimer)
+          unsubscribeEvent()
+          window.api.payos.unsubscribe(result.orderCode)
+          toast.success('Thanh toán PayOS thành công!')
+          checkoutMutation.mutate({ print: false })
+        } else if (data.type === 'CANCELLED') {
+          clearInterval(countdownTimer)
+          unsubscribeEvent()
+          setPayosStatus('expired')
+        } else if (data.type === 'RECONNECTING') {
+          setPayosStatus('reconnecting')
+        } else if (data.type === 'ERROR') {
+          clearInterval(countdownTimer)
+          unsubscribeEvent()
+          toast.error('Lỗi kết nối PayOS')
+          setPayosStatus('expired')
+        }
+      })
+    } catch {
+      toast.error('Không thể tạo QR PayOS. Kiểm tra cài đặt PayOS.')
+      setPaymentStep('select')
+    }
+  }
+
+  async function retryPayos() {
+    if (payosData) {
+      await window.api.payos.cancelLink(payosData.orderCode).catch(() => {})
+      window.api.payos.unsubscribe(payosData.orderCode)
+    }
+    startPayos()
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
@@ -357,6 +439,14 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
                 >
                   🏦 Chuyển khoản
                 </Button>
+                <button
+                  className={`btn-gold flex-1 ${!payosConfigured ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  disabled={!payosConfigured}
+                  title={!payosConfigured ? 'Chưa cấu hình PayOS trong Cài đặt' : undefined}
+                  onClick={payosConfigured ? startPayos : undefined}
+                >
+                  📱 PayOS QR
+                </button>
               </div>
               {!bankConfigured && (
                 <p className="text-xs text-white/55 text-center">
@@ -461,6 +551,68 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               >
                 ← Quay lại chọn phương thức
               </button>
+            </div>
+          )}
+
+          {paymentStep === 'payos' && (
+            <div className="backdrop-blur-xl bg-white/[0.04] rounded-xl border border-white/10 p-6 text-center space-y-4">
+              <p className="text-[#d4af37] text-xs uppercase tracking-widest font-semibold">Thanh toán PayOS</p>
+
+              {payosStatus === 'loading' && (
+                <div className="py-8">
+                  <div className="w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-white/55 text-sm">Đang tạo mã QR...</p>
+                </div>
+              )}
+
+              {(payosStatus === 'waiting' || payosStatus === 'reconnecting') && payosData && (
+                <>
+                  <img
+                    src={payosData.qrCode}
+                    alt="PayOS QR"
+                    className="w-48 h-48 mx-auto rounded-xl border border-white/10"
+                  />
+                  <div>
+                    <p className="text-white font-bold text-lg">{formatCurrency(finalAmount)}</p>
+                    <p className="text-white/40 text-xs mt-0.5">Mã đơn: #{payosData.orderCode}</p>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-sm">
+                    <span className="text-white/40">⏱ Hết hạn sau:</span>
+                    <span className={`font-mono font-bold ${payosCountdown < 60 ? 'text-red-400' : 'text-[#d4af37]'}`}>
+                      {formatCountdown(payosCountdown)}
+                    </span>
+                  </div>
+                  {payosStatus === 'reconnecting' ? (
+                    <p className="text-amber-400 text-xs animate-pulse">Đang kết nối lại...</p>
+                  ) : (
+                    <p className="text-white/40 text-xs animate-pulse">● Đang chờ xác nhận thanh toán...</p>
+                  )}
+                </>
+              )}
+
+              {payosStatus === 'expired' && (
+                <div className="py-6">
+                  <p className="text-red-400 text-sm mb-1">⌛ Mã QR đã hết hạn</p>
+                  <p className="text-white/40 text-xs">Tạo mã mới để tiếp tục</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button className="btn-glass flex-1" onClick={() => {
+                  if (payosData) {
+                    window.api.payos.cancelLink(payosData.orderCode).catch(() => {})
+                    window.api.payos.unsubscribe(payosData.orderCode)
+                  }
+                  setPaymentStep('select')
+                }}>
+                  Quay lại
+                </button>
+                {payosStatus === 'expired' && (
+                  <button className="btn-gold flex-1" onClick={retryPayos}>
+                    Tạo lại QR
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
