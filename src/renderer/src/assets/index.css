@@ -98,6 +98,15 @@ button[class*="bg-green"]:hover {
   background: linear-gradient(135deg, rgba(34,197,94,0.4) 0%, rgba(22,163,74,0.35) 100%) !important;
 }
 
+/* ─── Hide scrollbars globally but keep scrollable ─── */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari/Electron */
+}
+
 /* ─── Root transparent ─── */
 #root {
   background: transparent;
