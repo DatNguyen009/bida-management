@@ -190,6 +190,26 @@ CREATE UNIQUE INDEX IF NOT EXISTS promotions_code_agent_idx
 ALTER TABLE cloud_invoices
   ADD COLUMN IF NOT EXISTS promotions_applied JSONB DEFAULT '[]'::jsonb;
 
+-- PayOS payment orders
+CREATE TABLE IF NOT EXISTS payos_orders (
+  id           SERIAL PRIMARY KEY,
+  order_code   BIGINT UNIQUE NOT NULL,
+  agent_id     VARCHAR(50) NOT NULL,
+  session_id   INT NULL,
+  amount       DECIMAL(10,0) NOT NULL,
+  status       VARCHAR(20) DEFAULT 'PENDING'
+                 CHECK (status IN ('PENDING','PAID','CANCELLED','EXPIRED')),
+  checkout_url TEXT NULL,
+  qr_code      TEXT NULL,
+  description  TEXT NULL,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  paid_at      TIMESTAMPTZ NULL,
+  expires_at   TIMESTAMPTZ NULL
+);
+
+CREATE INDEX IF NOT EXISTS payos_orders_agent_idx ON payos_orders (agent_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS payos_orders_session_idx ON payos_orders (session_id);
+
 -- Seed 8 sample tables
 INSERT INTO tables (name, hourly_rate) VALUES
   ('Bàn 1', 50000), ('Bàn 2', 50000), ('Bàn 3', 50000), ('Bàn 4', 50000),
