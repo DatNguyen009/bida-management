@@ -1,5 +1,4 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 
 interface Props {
   page: number
@@ -37,27 +36,23 @@ export default function Pagination({ page, pageSize, total, onPageChange, onPage
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 border-white/10 text-white hover:bg-white/[0.06] disabled:opacity-30"
+        <button
+          className="btn-glass text-xs px-3 py-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
           ← Trước
-        </Button>
+        </button>
         <span className="text-xs text-white px-2">
           Trang {page} / {totalPages}
         </span>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 border-white/10 text-white hover:bg-white/[0.06] disabled:opacity-30"
+        <button
+          className="btn-glass text-xs px-3 py-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
           Sau →
-        </Button>
+        </button>
       </div>
     </div>
   )
