@@ -161,8 +161,33 @@ export default function ProductsPage() {
           </div>
 
           {lowStockProducts.length > 0 && (
-            <div className="bg-[#2d1515] border border-red-800 rounded-xl p-3 mb-4 text-red-400 font-medium">
-              ⚠️ Sắp hết hàng: {lowStockProducts.map((p) => p.name).join(', ')}
+            <div className="mb-4 rounded-2xl overflow-hidden"
+              style={{background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.25)', boxShadow:'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(239,68,68,0.1)'}}>
+              <div className="px-4 py-3 flex items-start gap-3">
+                {/* Icon */}
+                <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-sm mt-0.5"
+                  style={{background:'rgba(239,68,68,0.2)', border:'1px solid rgba(239,68,68,0.3)'}}>
+                  ⚠️
+                </div>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1.5">
+                    Sắp hết hàng · {lowStockProducts.length} sản phẩm
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {lowStockProducts.map((p) => {
+                      const qty = p.product_type === 'composite' ? (p.effective_stock ?? 0) : p.stock_quantity
+                      return (
+                        <span key={p.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium"
+                          style={{background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.25)', color:'#fca5a5'}}>
+                          {p.name}
+                          <span className="text-red-500/70 font-mono">{qty} {p.unit}</span>
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
