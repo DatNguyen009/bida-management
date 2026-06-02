@@ -143,6 +143,7 @@ export interface InvoiceListRow {
 }
 
 export interface InvoiceOrderItem {
+  product_id: number
   product_name: string
   quantity: number
   unit_price: number

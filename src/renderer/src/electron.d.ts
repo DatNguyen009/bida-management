@@ -50,6 +50,7 @@ declare global {
         print(invoiceId: number, input: InvoiceCreateInput, invoiceNumber: string, printerPath: string): Promise<void>
         getList(input: { fromDate?: string; toDate?: string; completedBy?: string; page?: number; pageSize?: number }): Promise<{ data: InvoiceListRow[]; total: number }>
         getOrderItems(sessionId: number): Promise<InvoiceOrderItem[]>
+        requestEdit(input: { invoiceId: number; newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[]; note: string }): Promise<void>
       }
       settings: {
         getAll(): Promise<{ key: string; value: string }[]>

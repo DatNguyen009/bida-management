@@ -69,6 +69,59 @@ export default function InvoiceListPage({ role, username }: Props) {
     enabled: !!selected,
   })
 
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editItems, setEditItems] = useState<{ product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[]>([])
+  const [editNote, setEditNote] = useState('')
+  const [editSubmitting, setEditSubmitting] = useState(false)
+  const [editSuccess, setEditSuccess] = useState(false)
+
+  function openEditModal() {
+    setEditItems(orderItems.map(i => ({
+      product_id: i.product_id,
+      product_name: i.product_name,
+      quantity: i.quantity,
+      unit_price: i.unit_price,
+      subtotal: i.subtotal,
+    })))
+    setEditNote('')
+    setEditSuccess(false)
+    setShowEditModal(true)
+  }
+
+  function updateEditQty(productId: number, qty: number) {
+    setEditItems(items =>
+      qty <= 0
+        ? items.filter(i => i.product_id !== productId)
+        : items.map(i => i.product_id === productId
+            ? { ...i, quantity: qty, subtotal: i.unit_price * qty }
+            : i
+          )
+    )
+  }
+
+  async function submitEditRequest() {
+    if (!selected || editSubmitting) return
+    setEditSubmitting(true)
+    try {
+      await window.api.invoices.requestEdit({
+        invoiceId: selected.id,
+        newItems: editItems,
+        note: editNote,
+      })
+      setEditSuccess(true)
+      setTimeout(() => setShowEditModal(false), 1500)
+    } catch (err: unknown) {
+      const e = err as { message?: string }
+      alert(e.message ?? 'Gửi yêu cầu thất bại')
+    } finally {
+      setEditSubmitting(false)
+    }
+  }
+
+  function isToday(isoDate: string) {
+    return new Date(isoDate).toDateString() === new Date().toDateString()
+  }
+
   const handleFilter = () => {
     setAppliedFilter({ fromDate, toDate, completedBy: isOwner ? selectedStaff : username })
     setSelected(null)
@@ -247,6 +300,86 @@ export default function InvoiceListPage({ role, username }: Props) {
               <p className="text-xs text-white/55 mt-3 text-center">
                 Đã in lúc {new Date(selected.printed_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
               </p>
+            )}
+            {isToday(selected.created_at) && role !== 'owner' && (
+              <button
+                onClick={openEditModal}
+                disabled={!orderItems.length}
+                className="mt-3 w-full py-2 text-xs rounded-lg border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ✏️ Yêu cầu chỉnh sửa đồ uống
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showEditModal && selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !editSubmitting && setShowEditModal(false)} />
+          <div className="relative bg-[rgba(14,12,16,0.95)] border border-white/15 rounded-2xl w-full max-w-sm mx-4 p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-bold">Yêu cầu sửa HĐ #{selected.invoice_number}</h2>
+              <button className="text-white/40 hover:text-white" onClick={() => setShowEditModal(false)}>✕</button>
+            </div>
+            <p className="text-white/50 text-xs">Chỉnh số lượng đồ uống. Xoá hết = bỏ sản phẩm.</p>
+
+            {editSuccess ? (
+              <div className="text-center py-4">
+                <p className="text-green-400 font-bold text-lg">✓ Đã gửi yêu cầu</p>
+                <p className="text-white/50 text-xs mt-1">Chờ chủ quán phê duyệt</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  {editItems.map(item => (
+                    <div key={item.product_id} className="flex items-center justify-between gap-3">
+                      <span className="text-white/80 text-sm flex-1">{item.product_name}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateEditQty(item.product_id, item.quantity - 1)}
+                          className="w-7 h-7 rounded-lg bg-white/10 text-white hover:bg-white/20 text-sm font-bold"
+                        >−</button>
+                        <span className="text-white font-mono w-6 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateEditQty(item.product_id, item.quantity + 1)}
+                          className="w-7 h-7 rounded-lg bg-white/10 text-white hover:bg-white/20 text-sm font-bold"
+                        >+</button>
+                      </div>
+                      <span className="text-white/40 text-xs w-20 text-right">
+                        {(item.unit_price * item.quantity).toLocaleString('vi-VN')}đ
+                      </span>
+                    </div>
+                  ))}
+                  {editItems.length === 0 && (
+                    <p className="text-white/30 text-xs text-center py-2">Tất cả sản phẩm đã bị xoá</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-white/50 text-xs uppercase tracking-widest block mb-1">Lý do chỉnh sửa</label>
+                  <textarea
+                    className="w-full bg-white/[0.07] border border-white/14 rounded-lg px-3 py-2 text-white text-sm resize-none outline-none focus:border-yellow-500/60"
+                    rows={2}
+                    placeholder="VD: nhân viên nhập nhầm số lượng..."
+                    value={editNote}
+                    onChange={e => setEditNote(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button className="flex-1 py-2 text-sm rounded-lg bg-white/[0.08] text-white/80 hover:bg-white/14 border border-white/15"
+                    onClick={() => setShowEditModal(false)}>Huỷ</button>
+                  <button
+                    className="flex-1 py-2 text-sm rounded-lg font-bold disabled:opacity-45 disabled:cursor-not-allowed"
+                    style={{ background: 'linear-gradient(135deg,#f0d060,#d4af37,#b8960c)', color: '#0f0e0f' }}
+                    disabled={editSubmitting || editItems.length === 0}
+                    onClick={submitEditRequest}
+                  >
+                    {editSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
