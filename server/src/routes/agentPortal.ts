@@ -131,7 +131,7 @@ router.get('/products', async (req: AuthRequest, res: Response) => {
   const { rows } = await pool.query(
     `SELECT p.*, cat.name AS category_name, cat.icon AS category_icon
      FROM cloud_products p
-     LEFT JOIN categories cat ON cat.id = p.category_id AND cat.agent_id = $1
+     LEFT JOIN cloud_categories cat ON cat.id = p.category_id AND cat.agent_id = $1
      WHERE p.agent_id = $1 ORDER BY p.name`,
     [agentId]
   )
@@ -171,43 +171,43 @@ router.delete('/products/:id', async (req: AuthRequest, res: Response) => {
   res.json({ success: true })
 })
 
-// GET /agent/categories
-router.get('/categories', async (req: AuthRequest, res: Response) => {
+// GET /agent/cloud_categories
+router.get('/cloud_categories', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
-  const { rows } = await pool.query('SELECT * FROM categories WHERE agent_id=$1 ORDER BY name', [agentId])
+  const { rows } = await pool.query('SELECT * FROM cloud_categories WHERE agent_id=$1 ORDER BY name', [agentId])
   res.json(rows)
 })
 
-// POST /agent/categories
-router.post('/categories', async (req: AuthRequest, res: Response) => {
+// POST /agent/cloud_categories
+router.post('/cloud_categories', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, icon } = req.body
   if (!name) { res.status(400).json({ error: 'name required' }); return }
   const { rows } = await pool.query(
-    'INSERT INTO categories (agent_id, name, icon) VALUES ($1,$2,$3) RETURNING *',
+    'INSERT INTO cloud_categories (agent_id, name, icon) VALUES ($1,$2,$3) RETURNING *',
     [agentId, name, icon || '📦']
   )
   res.status(201).json(rows[0])
 })
 
-// PUT /agent/categories/:id
-router.put('/categories/:id', async (req: AuthRequest, res: Response) => {
+// PUT /agent/cloud_categories/:id
+router.put('/cloud_categories/:id', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, icon } = req.body
   const { rows } = await pool.query(
-    'UPDATE categories SET name=$3, icon=$4 WHERE id=$1 AND agent_id=$2 RETURNING *',
+    'UPDATE cloud_categories SET name=$3, icon=$4 WHERE id=$1 AND agent_id=$2 RETURNING *',
     [req.params.id, agentId, name, icon || '📦']
   )
   if (!rows[0]) { res.status(404).json({ error: 'Not found' }); return }
   res.json(rows[0])
 })
 
-// DELETE /agent/categories/:id
-router.delete('/categories/:id', async (req: AuthRequest, res: Response) => {
+// DELETE /agent/cloud_categories/:id
+router.delete('/cloud_categories/:id', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { rows } = await pool.query('SELECT COUNT(*) AS cnt FROM cloud_products WHERE category_id=$1 AND agent_id=$2', [req.params.id, agentId])
   if (parseInt(rows[0].cnt, 10) > 0) { res.status(409).json({ error: 'Danh mục đang được sử dụng' }); return }
-  await pool.query('DELETE FROM categories WHERE id=$1 AND agent_id=$2', [req.params.id, agentId])
+  await pool.query('DELETE FROM cloud_categories WHERE id=$1 AND agent_id=$2', [req.params.id, agentId])
   res.json({ success: true })
 })
 
