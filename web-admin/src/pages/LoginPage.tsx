@@ -19,12 +19,12 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const { data } = await axios.post(`${BASE_URL}/auth/login`, { username, password })
-      if (data.role !== 'master') {
-        setError('Chỉ tài khoản master mới được truy cập trang này')
+      if (data.role !== 'master' && data.role !== 'agent') {
+        setError('Tài khoản không có quyền truy cập')
         return
       }
-      setAuth(data.accessToken, data.refreshToken)
-      navigate('/')
+      setAuth(data.accessToken, data.refreshToken, data.role, data.agentId ?? null)
+      navigate(data.role === 'agent' ? '/agent' : '/')
     } catch (err: any) {
       setError(err.response?.data?.error ?? 'Đăng nhập thất bại')
     } finally {
@@ -33,22 +33,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow w-80 space-y-4">
-        <h1 className="text-xl font-bold text-center">Bida Admin</h1>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f0e0f' }}>
+      <form onSubmit={handleSubmit} className="modal-glass p-8 w-80 space-y-5">
+        <div className="text-center">
+          <div className="text-3xl mb-2">🎱</div>
+          <h1 className="text-xl font-bold text-white">Bida Admin</h1>
+          <p className="text-white/40 text-xs mt-1">Đăng nhập để quản lý</p>
+        </div>
+        {error && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
         <div>
-          <label className="block text-sm font-medium mb-1">Username</label>
+          <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Username</label>
           <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-            className="w-full border rounded px-3 py-2 text-sm" required autoFocus />
+            className="input-glass" required autoFocus />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
+          <label className="text-white/50 text-xs uppercase tracking-widest block mb-2">Mật khẩu</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2 text-sm" required />
+            className="input-glass" required />
         </div>
-        <button type="submit" disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+        <button type="submit" disabled={loading} className="btn-gold w-full">
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>

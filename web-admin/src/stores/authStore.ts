@@ -4,7 +4,9 @@ import { api } from '../lib/api'
 interface AuthState {
   accessToken: string | null
   refreshToken: string | null
-  setAuth: (accessToken: string, refreshToken: string) => void
+  role: string | null
+  agentId: string | null
+  setAuth: (accessToken: string, refreshToken: string, role: string, agentId: string | null) => void
   setAccessToken: (token: string) => void
   logout: () => Promise<void>
 }
@@ -12,9 +14,14 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   refreshToken: localStorage.getItem('refreshToken'),
-  setAuth: (accessToken, refreshToken) => {
+  role: localStorage.getItem('userRole'),
+  agentId: localStorage.getItem('agentId'),
+  setAuth: (accessToken, refreshToken, role, agentId) => {
     localStorage.setItem('refreshToken', refreshToken)
-    set({ accessToken, refreshToken })
+    localStorage.setItem('userRole', role)
+    if (agentId) localStorage.setItem('agentId', agentId)
+    else localStorage.removeItem('agentId')
+    set({ accessToken, refreshToken, role, agentId })
   },
   setAccessToken: (token) => set({ accessToken: token }),
   logout: async () => {
@@ -22,7 +29,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (refreshToken) {
       try { await api.post('/auth/logout', { refreshToken }) } catch { /* ignore */ }
     }
-    set({ accessToken: null, refreshToken: null })
     localStorage.removeItem('refreshToken')
+    localStorage.removeItem('userRole')
+    localStorage.removeItem('agentId')
+    set({ accessToken: null, refreshToken: null, role: null, agentId: null })
   },
 }))
