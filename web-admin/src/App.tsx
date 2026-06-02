@@ -21,11 +21,20 @@ function useAuthGuard(requiredRole: string) {
   useEffect(() => {
     if (!accessToken && refreshToken) {
       api.post('/auth/refresh', { refreshToken })
-        .then(({ data }) => setAccessToken(data.accessToken))
+        .then(({ data }) => {
+          setAccessToken(data.accessToken)
+          // /auth/refresh rotates the refresh token — persist the new one.
+          // role and agentId are not returned by /auth/refresh but are already
+          // correct: they were loaded from localStorage when the store initialised.
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken)
+            useAuthStore.setState({ refreshToken: data.refreshToken })
+          }
+        })
         .catch(() => logout())
         .finally(() => setChecking(false))
     }
-  }, [])
+  }, [refreshToken, setAccessToken, logout])
 
   return { checking, authed: !!accessToken && role === requiredRole }
 }
