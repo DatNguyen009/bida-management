@@ -88,6 +88,11 @@ router.post('/create-link', authenticate, requireAgent, async (req: AuthRequest,
   }
 })
 
+// GET /webhook — PayOS verify URL bằng GET trước khi gửi POST
+router.get('/webhook', (_req, res: Response) => {
+  res.json({ success: true })
+})
+
 // POST /webhook
 router.post('/webhook', async (req: AuthRequest, res: Response) => {
   try {
