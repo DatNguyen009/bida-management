@@ -209,3 +209,11 @@ export interface PayosLinkResult {
   checkoutUrl: string
   expiredAt: string
 }
+
+export interface EditRequestItem {
+  product_id: number
+  product_name: string
+  quantity: number
+  unit_price: number
+  subtotal: number
+}

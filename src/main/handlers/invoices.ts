@@ -1,7 +1,7 @@
 // src/main/handlers/invoices.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
-import { getAgentId, getUsername, getRole } from '../lib/authStore'
+import { getAgentId, getAccessToken, getUsername, getRole } from '../lib/authStore'
 import type { Invoice, InvoiceCreateInput, PageResult, InvoiceListRow } from '../../renderer/src/types'
 import { printInvoice } from './printer'
 
@@ -213,4 +213,30 @@ export function registerInvoiceHandlers() {
   ipcMain.handle('invoices:getOrderItems',
     (_e, sessionId: number) => getInvoiceOrderItems(sessionId)
   )
+
+  ipcMain.handle('invoices:requestEdit', async (_e, payload: {
+    invoiceId: number
+    newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[]
+    note: string
+  }) => {
+    const token = getAccessToken()
+    if (!token) throw new Error('Chưa đăng nhập')
+    const username = getUsername()
+    const apiUrl = process.env.VITE_API_URL ?? 'https://bida-management.onrender.com/api/v1'
+    const response = await fetch(`${apiUrl}/agent/invoices/${payload.invoiceId}/edit-requests`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        requested_by: username,
+        new_items: payload.newItems,
+        note: payload.note,
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error ?? 'Gửi yêu cầu thất bại')
+    return data
+  })
 }

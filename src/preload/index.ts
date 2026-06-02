@@ -80,6 +80,11 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('invoices:getList', input),
     getOrderItems: (sessionId: number): Promise<InvoiceOrderItem[]> =>
       ipcRenderer.invoke('invoices:getOrderItems', sessionId),
+    requestEdit: (payload: {
+      invoiceId: number
+      newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[]
+      note: string
+    }) => ipcRenderer.invoke('invoices:requestEdit', payload),
   },
   settings: {
     getAll: (): Promise<{ key: string; value: string }[]> =>
