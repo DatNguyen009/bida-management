@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/authStore'
 const NAV_ITEMS = [
   { path: '/agent', label: 'Dashboard', icon: '🏠' },
   { path: '/agent/invoices', label: 'Hóa đơn', icon: '🧾' },
+  { path: '/agent/edit-requests', label: 'Sửa HĐ', icon: '✏️' },
   { path: '/agent/reports', label: 'Báo cáo', icon: '📊' },
   { path: '/agent/products', label: 'Sản phẩm', icon: '📦' },
   { path: '/agent/categories', label: 'Danh mục', icon: '🗂' },

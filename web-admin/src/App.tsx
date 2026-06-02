@@ -7,6 +7,7 @@ import AgentListPage from './pages/AgentListPage'
 import AgentDetailPage from './pages/AgentDetailPage'
 import AgentDashboardPage from './pages/agent/AgentDashboardPage'
 import AgentInvoicesPage from './pages/agent/AgentInvoicesPage'
+import AgentEditRequestsPage from './pages/agent/AgentEditRequestsPage'
 import AgentReportsPage from './pages/agent/AgentReportsPage'
 import AgentProductsPage from './pages/agent/AgentProductsPage'
 import AgentCategoriesPage from './pages/agent/AgentCategoriesPage'
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="/agents/:id" element={<RequireMaster><AgentDetailPage /></RequireMaster>} />
         <Route path="/agent" element={<RequireAgent><AgentDashboardPage /></RequireAgent>} />
         <Route path="/agent/invoices" element={<RequireAgent><AgentInvoicesPage /></RequireAgent>} />
+        <Route path="/agent/edit-requests" element={<RequireAgent><AgentEditRequestsPage /></RequireAgent>} />
         <Route path="/agent/reports" element={<RequireAgent><AgentReportsPage /></RequireAgent>} />
         <Route path="/agent/products" element={<RequireAgent><AgentProductsPage /></RequireAgent>} />
         <Route path="/agent/categories" element={<RequireAgent><AgentCategoriesPage /></RequireAgent>} />
