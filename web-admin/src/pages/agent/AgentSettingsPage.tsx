@@ -3,7 +3,7 @@ import { api } from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
 import AgentLayout from '../../components/AgentLayout'
 
-const VITE_API = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api/v1'
+const VITE_API = import.meta.env.VITE_API_URL ?? '/api/v1'
 const SERVER_URL = VITE_API.replace('/api/v1', '')
 
 interface Setting { key: string; value: string }
