@@ -47,7 +47,7 @@ app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = Number(process.env.PORT ?? 4000)
-  runMigrations().then(() => {
+  runMigrations().finally(() => {
     app.listen(PORT, () => console.log(`Bida API server running on port ${PORT}`))
   })
 }

@@ -43,7 +43,6 @@ export async function runMigrations() {
     await pool.query(MIGRATION)
     console.log('✓ Migrations applied')
   } catch (err) {
-    console.error('Migration error:', err)
-    throw err
+    console.error('Migration error (non-fatal):', err)
   }
 }
