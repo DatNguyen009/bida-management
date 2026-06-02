@@ -7,7 +7,8 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dashboard:build": "cd dashboard && npm install --include=dev && npm run build"
+    "dashboard:build": "cd dashboard && npm install --include=dev && npm run build",
+    "build:agent-admin": "cd ../web-admin && npm run build && mkdir -p ../server/public/agent-admin && cp -r dist/* ../server/public/agent-admin/"
   },
   "dependencies": {
     "@payos/node": "^2.0.5",
