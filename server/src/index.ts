@@ -9,6 +9,7 @@ import syncRouter from './routes/sync'
 import masterRouter from './routes/master'
 import payosRouter from './routes/payos'
 import agentPortalRouter from './routes/agentPortal'
+import { runMigrations } from './migrate'
 
 dotenv.config()
 
@@ -46,5 +47,7 @@ app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = Number(process.env.PORT ?? 4000)
-  app.listen(PORT, () => console.log(`Bida API server running on port ${PORT}`))
+  runMigrations().then(() => {
+    app.listen(PORT, () => console.log(`Bida API server running on port ${PORT}`))
+  })
 }
