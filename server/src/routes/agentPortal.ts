@@ -125,6 +125,94 @@ router.get('/reports/revenue', async (req: AuthRequest, res: Response) => {
   res.json(rows)
 })
 
+// GET /agent/reports/tables
+router.get('/reports/tables', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { fromDate, toDate } = req.query as Record<string, string>
+  const { rows } = await pool.query(
+    `SELECT t.name AS table_name,
+            COUNT(s.id) AS session_count,
+            COALESCE(SUM(i.final_amount),0) AS total_revenue,
+            COALESCE(AVG(s.duration_minutes),0) AS avg_duration_minutes
+     FROM cloud_sessions s
+     JOIN cloud_tables t ON t.id = s.table_id AND t.agent_id = $1
+     JOIN cloud_invoices i ON i.session_id = s.id AND i.agent_id = $1
+     WHERE s.agent_id = $1
+       AND ($2::date IS NULL OR DATE(s.start_time ${VN}) >= $2)
+       AND ($3::date IS NULL OR DATE(s.start_time ${VN}) <= $3)
+     GROUP BY t.id, t.name
+     ORDER BY total_revenue DESC`,
+    [agentId, fromDate || null, toDate || null]
+  )
+  res.json(rows)
+})
+
+// GET /agent/reports/products
+router.get('/reports/products', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { fromDate, toDate } = req.query as Record<string, string>
+  const { rows } = await pool.query(
+    `SELECT p.name AS product_name,
+            COALESCE(c.name, 'Khác') AS category_name,
+            COALESCE(c.icon, '📦') AS category_icon,
+            SUM(oi.quantity) AS total_qty,
+            COALESCE(SUM(oi.subtotal),0) AS total_revenue
+     FROM cloud_order_items oi
+     JOIN cloud_products p ON p.id = oi.product_id AND p.agent_id = $1
+     LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = $1
+     JOIN cloud_invoices i ON i.session_id = oi.session_id AND i.agent_id = $1
+     WHERE oi.agent_id = $1
+       AND ($2::date IS NULL OR DATE(i.created_at ${VN}) >= $2)
+       AND ($3::date IS NULL OR DATE(i.created_at ${VN}) <= $3)
+     GROUP BY p.id, p.name, c.name, c.icon
+     ORDER BY total_revenue DESC
+     LIMIT 50`,
+    [agentId, fromDate || null, toDate || null]
+  )
+  res.json(rows)
+})
+
+// GET /agent/reports/staff
+router.get('/reports/staff', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { fromDate, toDate } = req.query as Record<string, string>
+  const { rows } = await pool.query(
+    `SELECT i.completed_by AS staff_name,
+            COUNT(*) AS invoice_count,
+            COALESCE(SUM(i.final_amount),0) AS total_revenue,
+            COALESCE(SUM(i.play_amount),0) AS play_revenue,
+            COALESCE(SUM(i.items_amount),0) AS items_revenue
+     FROM cloud_invoices i
+     WHERE i.agent_id = $1
+       AND i.completed_by IS NOT NULL
+       AND ($2::date IS NULL OR DATE(i.created_at ${VN}) >= $2)
+       AND ($3::date IS NULL OR DATE(i.created_at ${VN}) <= $3)
+     GROUP BY i.completed_by
+     ORDER BY total_revenue DESC`,
+    [agentId, fromDate || null, toDate || null]
+  )
+  res.json(rows)
+})
+
+// GET /agent/reports/lowstock
+router.get('/reports/lowstock', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { rows } = await pool.query(
+    `SELECT p.id, p.name, p.stock_quantity, p.min_stock_alert, p.unit,
+            COALESCE(c.name, 'Khác') AS category_name,
+            COALESCE(c.icon, '📦') AS category_icon
+     FROM cloud_products p
+     LEFT JOIN cloud_categories c ON c.id = p.category_id AND c.agent_id = $1
+     WHERE p.agent_id = $1
+       AND p.is_active = TRUE
+       AND p.product_type = 'stock'
+       AND p.stock_quantity <= p.min_stock_alert
+     ORDER BY p.stock_quantity ASC`,
+    [agentId]
+  )
+  res.json(rows)
+})
+
 // GET /agent/products
 router.get('/products', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
