@@ -41,20 +41,25 @@ export default function AgentCategoriesPage() {
       <div className="flex justify-end mb-4">
         <button className="btn-gold" onClick={openCreate}>+ Thêm danh mục</button>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {cats.map(c => (
-          <div key={c.id} className="glass-card p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{c.icon}</span>
-              <span className="text-white font-medium text-sm">{c.name}</span>
-            </div>
-            <div className="flex gap-1">
-              <button className="btn-glass text-xs" onClick={() => openEdit(c)}>✏️</button>
-              <button className="btn-danger text-xs" onClick={() => del(c.id)}>✕</button>
-            </div>
-          </div>
-        ))}
-        {cats.length === 0 && <p className="col-span-4 text-center text-white/30 py-10">Chưa có danh mục</p>}
+      <div className="glass-card overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="gold-table-header">
+            <tr><th>Icon</th><th>Tên danh mục</th><th className="text-right pr-4">Thao tác</th></tr>
+          </thead>
+          <tbody>
+            {cats.map((c, i) => (
+              <tr key={c.id} className={`border-b border-white/[0.05] ${i%2===1?'bg-white/[0.02]':''}`}>
+                <td className="px-4 py-3 text-2xl">{c.icon}</td>
+                <td className="px-4 py-3 text-white font-medium">{c.name}</td>
+                <td className="px-4 py-3 text-right space-x-1">
+                  <button className="btn-glass text-xs" onClick={() => openEdit(c)}>Sửa</button>
+                  <button className="btn-danger text-xs" onClick={() => del(c.id)}>Xoá</button>
+                </td>
+              </tr>
+            ))}
+            {cats.length === 0 && <tr><td colSpan={3} className="px-4 py-10 text-center text-white/30">Chưa có danh mục</td></tr>}
+          </tbody>
+        </table>
       </div>
 
       {modal && (
