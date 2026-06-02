@@ -43,12 +43,13 @@ CREATE TABLE IF NOT EXISTS cloud_products (
   agent_id        UUID          NOT NULL REFERENCES agents(id),
   id              INT           NOT NULL,
   name            VARCHAR(100)  NOT NULL,
-  category        VARCHAR(50)   NOT NULL,
+  category_id     INT           NULL,
   price           DECIMAL(10,0) NOT NULL,
   stock_quantity  INT           NOT NULL DEFAULT 0,
   min_stock_alert INT           NOT NULL DEFAULT 5,
   unit            VARCHAR(20)   NOT NULL DEFAULT 'cái',
   is_active       BOOLEAN       NOT NULL DEFAULT TRUE,
+  product_type    VARCHAR(20)   NOT NULL DEFAULT 'stock',
   created_at      TIMESTAMPTZ,
   PRIMARY KEY (agent_id, id)
 );

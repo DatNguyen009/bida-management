@@ -131,7 +131,7 @@ router.get('/products', async (req: AuthRequest, res: Response) => {
   const { rows } = await pool.query(
     `SELECT p.*, cat.name AS category_name, cat.icon AS category_icon
      FROM cloud_products p
-     LEFT JOIN cloud_categories cat ON cat.name = p.category AND cat.agent_id = $1
+     LEFT JOIN cloud_categories cat ON cat.id = p.category_id AND cat.agent_id = $1
      WHERE p.agent_id = $1 ORDER BY p.name`,
     [agentId]
   )
@@ -143,15 +143,12 @@ router.post('/products', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, category_id, price, unit, min_stock_alert, product_type } = req.body
   if (!name || !price) { res.status(400).json({ error: 'name and price required' }); return }
-  const catName = category_id
-    ? (await pool.query('SELECT name FROM cloud_categories WHERE id=$1 AND agent_id=$2', [category_id, agentId])).rows[0]?.name ?? ''
-    : ''
   const { rows } = await pool.query(
-    `INSERT INTO cloud_products (agent_id, id, name, category, price, unit, min_stock_alert)
-     SELECT $1, COALESCE(MAX(id),0)+1, $2, $3, $4, $5, $6
+    `INSERT INTO cloud_products (agent_id, id, name, category_id, price, unit, min_stock_alert, product_type)
+     SELECT $1, COALESCE(MAX(id),0)+1, $2, $3, $4, $5, $6, $7
      FROM cloud_products WHERE agent_id=$1
      RETURNING *`,
-    [agentId, name, catName, price, unit || 'cái', min_stock_alert || 5]
+    [agentId, name, category_id || null, price, unit || 'cái', min_stock_alert || 5, product_type || 'stock']
   )
   res.status(201).json(rows[0])
 })
@@ -160,13 +157,10 @@ router.post('/products', async (req: AuthRequest, res: Response) => {
 router.put('/products/:id', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, price, unit, min_stock_alert, is_active, category_id } = req.body
-  const catName = category_id
-    ? (await pool.query('SELECT name FROM cloud_categories WHERE id=$1 AND agent_id=$2', [category_id, agentId])).rows[0]?.name ?? ''
-    : ''
   const { rows } = await pool.query(
-    `UPDATE cloud_products SET name=$3, category=$4, price=$5, unit=$6, min_stock_alert=$7, is_active=$8
+    `UPDATE cloud_products SET name=$3, category_id=$4, price=$5, unit=$6, min_stock_alert=$7, is_active=$8
      WHERE id=$1 AND agent_id=$2 RETURNING *`,
-    [req.params.id, agentId, name, catName, price, unit, min_stock_alert, is_active ?? true]
+    [req.params.id, agentId, name, category_id || null, price, unit, min_stock_alert, is_active ?? true]
   )
   if (!rows[0]) { res.status(404).json({ error: 'Not found' }); return }
   res.json(rows[0])
