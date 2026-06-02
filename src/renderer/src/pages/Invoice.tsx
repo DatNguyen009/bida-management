@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { applyPromotions, formatPromoLabel } from '../lib/promoCalc'
 import type { Promotion, AppliedPromoResult } from '../types'
 import type { PayosLinkResult } from '../types'
+import QRCode from 'qrcode'
 
 interface Props {
   session: Session & { table_name: string; hourly_rate: number }
@@ -39,6 +40,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash')
   const [cashReceived, setCashReceived] = useState<number | ''>('')
   const [payosData, setPayosData] = useState<PayosLinkResult | null>(null)
+  const [payosQrDataUrl, setPayosQrDataUrl] = useState<string>('')
   const [payosStatus, setPayosStatus] = useState<'loading' | 'waiting' | 'expired' | 'reconnecting'>('loading')
   const [payosCountdown, setPayosCountdown] = useState(15 * 60)
 
@@ -222,6 +224,10 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         })),
       })
       setPayosData(result)
+      // qrCode từ PayOS là chuỗi EMVCo — cần render thành data URL
+      QRCode.toDataURL(result.qrCode, { width: 256, margin: 1 })
+        .then(url => setPayosQrDataUrl(url))
+        .catch(() => setPayosQrDataUrl(''))
       setPayosStatus('waiting')
 
       // Countdown timer
@@ -568,7 +574,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
               {(payosStatus === 'waiting' || payosStatus === 'reconnecting') && payosData && (
                 <>
                   <img
-                    src={payosData.qrCode}
+                    src={payosQrDataUrl}
                     alt="PayOS QR"
                     className="w-48 h-48 mx-auto rounded-xl border border-white/10"
                   />
