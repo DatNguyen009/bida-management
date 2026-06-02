@@ -54,14 +54,16 @@ export default function AgentEditRequestsPage() {
   }
 
   async function reject(id: number) {
-    if (!confirm('Từ chối yêu cầu này?')) return
+    if (!confirm('Từ chối yêu cầu này? Hóa đơn sẽ giữ nguyên, không thể hoàn tác.')) return
     setProcessing(true)
     try {
       await api.put(`/agent/edit-requests/${id}/reject`, { reviewed_by: role })
       setSelected(null)
       await load()
-    } catch { alert('Lỗi khi từ chối') }
-    finally { setProcessing(false) }
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { error?: string } } }
+      alert(err.response?.data?.error ?? 'Lỗi khi từ chối')
+    } finally { setProcessing(false) }
   }
 
   function diffItems(oldItems: EditItem[], newItems: EditItem[]) {
