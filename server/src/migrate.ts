@@ -1,10 +1,6 @@
 import { pool } from './db'
 
 const MIGRATION = `
--- Add category_id to cloud_products (references existing cloud_categories table)
-ALTER TABLE cloud_products ADD COLUMN IF NOT EXISTS category_id INT REFERENCES cloud_categories(id);
-ALTER TABLE cloud_products ADD COLUMN IF NOT EXISTS product_type VARCHAR(20) NOT NULL DEFAULT 'stock';
-
 CREATE TABLE IF NOT EXISTS promotions (
   id             SERIAL PRIMARY KEY,
   agent_id       UUID          NOT NULL REFERENCES agents(id),
