@@ -410,11 +410,35 @@ router.delete('/promotions/:id', async (req: AuthRequest, res: Response) => {
 // GET /agent/settings
 router.get('/settings', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
-  const { rows } = await pool.query('SELECT key, value FROM cloud_settings WHERE agent_id=$1', [agentId])
+  const [cloudRows, agentRow, loyaltyRow] = await Promise.all([
+    pool.query('SELECT key, value FROM cloud_settings WHERE agent_id=$1', [agentId]),
+    pool.query('SELECT name, phone, address FROM agents WHERE id=$1', [agentId]),
+    pool.query('SELECT points_per_10k_vnd, vnd_per_point FROM cloud_loyalty_settings WHERE agent_id=$1 LIMIT 1', [agentId]),
+  ])
+  const rows: { key: string; value: string }[] = cloudRows.rows.filter(
+    (r: { key: string }) => !['shop_name','address','phone'].includes(r.key)
+  )
+  const agent = agentRow.rows[0]
+  if (agent) {
+    rows.push({ key: 'shop_name', value: agent.name ?? '' })
+    rows.push({ key: 'address', value: agent.address ?? '' })
+    rows.push({ key: 'phone', value: agent.phone ?? '' })
+  }
+  const loyalty = loyaltyRow.rows[0]
+  if (loyalty) {
+    rows.push({ key: 'points_per_10k_vnd', value: String(loyalty.points_per_10k_vnd ?? 1) })
+    rows.push({ key: 'vnd_per_point', value: String(loyalty.vnd_per_point ?? 100) })
+  } else {
+    rows.push({ key: 'points_per_10k_vnd', value: '1' })
+    rows.push({ key: 'vnd_per_point', value: '100' })
+  }
   res.json(rows)
 })
 
 // PUT /agent/settings
+const AGENT_KEYS = new Set(['shop_name', 'address', 'phone'])
+const LOYALTY_KEYS = new Set(['points_per_10k_vnd', 'vnd_per_point'])
+
 router.put('/settings', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const updates: { key: string; value: string }[] = req.body
@@ -423,11 +447,22 @@ router.put('/settings', async (req: AuthRequest, res: Response) => {
   try {
     await client.query('BEGIN')
     for (const { key, value } of updates) {
-      await client.query(
-        `INSERT INTO cloud_settings (agent_id, key, value) VALUES ($1,$2,$3)
-         ON CONFLICT (agent_id, key) DO UPDATE SET value=$3`,
-        [agentId, key, value]
-      )
+      if (AGENT_KEYS.has(key)) {
+        const col = key === 'shop_name' ? 'name' : key
+        await client.query(`UPDATE agents SET ${col}=$1 WHERE id=$2`, [value, agentId])
+      } else if (LOYALTY_KEYS.has(key)) {
+        await client.query(
+          `INSERT INTO cloud_loyalty_settings (agent_id, ${key}) VALUES ($1,$2)
+           ON CONFLICT (agent_id) DO UPDATE SET ${key}=$2`,
+          [agentId, Number(value) || 0]
+        )
+      } else {
+        await client.query(
+          `INSERT INTO cloud_settings (agent_id, key, value) VALUES ($1,$2,$3)
+           ON CONFLICT (agent_id, key) DO UPDATE SET value=$3`,
+          [agentId, key, value]
+        )
+      }
     }
     await client.query('COMMIT')
     res.json({ success: true })
