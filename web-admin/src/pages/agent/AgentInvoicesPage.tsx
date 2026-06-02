@@ -4,10 +4,10 @@ import AgentLayout from '../../components/AgentLayout'
 
 interface InvoiceRow {
   id: number; invoice_number: string; table_name: string | null
-  play_amount: number; items_amount: number; final_amount: number
+  play_amount: number; items_amount: number; total_amount: number; final_amount: number
   payment_method: string; completed_by: string | null; created_at: string
   customer_name: string | null; customer_phone: string | null
-  discount: number; points_redeemed: number; discount_from_points: number
+  discount: number; points_redeemed: number; discount_from_points: number; points_earned: number
   promotions_applied: { id: number; name: string; amount: number }[] | null
 }
 interface InvoiceDetail { invoice: InvoiceRow; items: { product_name: string; quantity: number; unit_price: number; subtotal: number }[] }
@@ -110,9 +110,11 @@ export default function AgentInvoicesPage() {
                 ['Khách', selected.invoice.customer_name ?? '—'],
                 ['Tiền chơi', fmt(selected.invoice.play_amount)],
                 ['Đồ uống', fmt(selected.invoice.items_amount)],
+                ...(selected.invoice.total_amount && selected.invoice.total_amount !== selected.invoice.final_amount ? [['Tổng cộng', fmt(selected.invoice.total_amount)]] : []),
                 ...(selected.invoice.discount > 0 ? [['Giảm giá', `-${fmt(selected.invoice.discount)}`]] : []),
                 ...(selected.invoice.discount_from_points > 0 ? [['Đổi điểm', `-${fmt(selected.invoice.discount_from_points)}`]] : []),
                 ['Thành tiền', fmt(selected.invoice.final_amount)],
+                ...(selected.invoice.points_earned > 0 ? [['Điểm tích lũy', `+${selected.invoice.points_earned} điểm`]] : []),
                 ['Thanh toán', selected.invoice.payment_method === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'],
                 ['Thời gian', fmtDate(selected.invoice.created_at)],
               ].map(([k, v]) => (
