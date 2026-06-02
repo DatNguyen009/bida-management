@@ -146,7 +146,9 @@ export interface InvoiceListInput {
 export async function getInvoiceList(input: InvoiceListInput): Promise<PageResult<InvoiceListRow>> {
   const agentId = getAgentId()
   const role = getRole()
-  const offset = (input.page - 1) * input.pageSize
+  const page = Number(input.page) || 1
+  const pageSize = Number(input.pageSize) || 20
+  const offset = (page - 1) * pageSize
 
   // Staff always sees only their own invoices; owner can optionally filter by staff
   const completedByFilter = role === 'staff' ? getUsername() || null : (input.completedBy ?? null)
@@ -171,7 +173,7 @@ export async function getInvoiceList(input: InvoiceListInput): Promise<PageResul
          AND ($4::varchar IS NULL OR i.completed_by = $4)
        ORDER BY i.created_at DESC
        LIMIT $5 OFFSET $6`,
-      [agentId, input.fromDate ?? null, input.toDate ?? null, completedByFilter, input.pageSize, offset]
+      [agentId, input.fromDate ?? null, input.toDate ?? null, completedByFilter, pageSize, offset]
     ),
     query<{ count: string }>(
       `SELECT COUNT(*) AS count
