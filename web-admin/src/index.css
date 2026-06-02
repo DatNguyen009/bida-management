@@ -2,10 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Dark Glass Design System (matches Electron app) ─── */
+/* ─── Dark Glass Design System — V2 Cinematic Theme ─── */
 body.agent-portal {
-  background: #0f0e0f;
+  background: #1a0a00;
   color: #fff;
+  min-height: 100vh;
+}
+
+#agent-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/bg-v2.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.5) saturate(1.4);
+  transform: scale(1.05);
+}
+
+#agent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: rgba(30,10,0,0.5);
+}
+
+#agent-root {
+  position: relative;
+  z-index: 2;
 }
 
 .glass-card {

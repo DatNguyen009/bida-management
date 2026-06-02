@@ -33,7 +33,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f0e0f' }}>
+    <div className="min-h-screen flex items-center justify-center">
       <form onSubmit={handleSubmit} className="modal-glass p-8 w-80 space-y-5">
         <div className="text-center">
           <div className="text-3xl mb-2">🎱</div>

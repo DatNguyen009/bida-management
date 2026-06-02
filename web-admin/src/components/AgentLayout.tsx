@@ -24,7 +24,7 @@ export default function AgentLayout({ children, title }: Props) {
     path === '/agent' ? location.pathname === '/agent' : location.pathname.startsWith(path)
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#0f0e0f' }}>
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside className="glass-sidebar w-52 flex-shrink-0 flex flex-col">
         {/* Logo */}
