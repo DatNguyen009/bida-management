@@ -34,6 +34,7 @@ export default function App() {
   const [allowedScreens, setAllowedScreens] = useState<string[]>([])
   const [role, setRole] = useState<string>('owner')
   const [username, setUsername] = useState<string>('')
+  const [agentId, setAgentId] = useState<string | null>(null)
   const isOwner = allowedScreens.length === 0
   const theme = useThemeStore((s) => s.theme)
   const bgImage = theme === 'v1' ? bgV1 : bgV2
@@ -65,6 +66,7 @@ export default function App() {
           setAllowedScreens(session.allowedScreens ?? [])
           setRole(session.role ?? 'owner')
           setUsername(session.username ?? '')
+          setAgentId(session.agentId ?? null)
           setAuthState('authenticated')
         } else {
           setAuthState('unauthenticated')
@@ -313,7 +315,7 @@ export default function App() {
         )}
         {view.page === 'settings' && (
           canAccess('settings')
-            ? <SettingsPage />
+            ? <SettingsPage agentId={agentId} />
             : <AccessDenied onBack={() => setView({ page: 'dashboard' })} />
         )}
       </main>

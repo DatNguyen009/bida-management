@@ -88,56 +88,34 @@ router.post('/create-link', authenticate, requireAgent, async (req: AuthRequest,
   }
 })
 
-// GET /webhook — PayOS verify URL bằng GET trước khi gửi POST
-router.get('/webhook', (_req, res: Response) => {
-  res.json({ success: true })
-})
-
-// POST /webhook
-router.post('/webhook', async (req: AuthRequest, res: Response) => {
+// Shared webhook handler — dùng cho cả /webhook/:agentId và /webhook (legacy)
+async function handleWebhook(agentId: string, body: unknown, res: Response) {
   try {
-    const body = req.body
-    const orderCode = body?.data?.orderCode as number | undefined
-
-    if (!orderCode) {
-      res.status(400).json({ error: 'Missing orderCode' })
-      return
-    }
-
-    const { rows } = await pool.query(
-      'SELECT agent_id FROM payos_orders WHERE order_code = $1',
-      [orderCode]
-    )
-    if (!rows[0]) {
-      res.status(404).json({ error: 'Order not found' })
-      return
-    }
-    const agentId = rows[0].agent_id
-
     const payos = await getPayosInstance(agentId)
     if (!payos) {
       res.status(400).json({ error: 'PayOS not configured' })
       return
     }
 
-    // verifyPaymentWebhookData → payos.webhooks.verify(body)
-    // Returns WebhookData directly (throws on invalid signature)
-    // The top-level code field on the webhook body indicates payment outcome
-    await payos.webhooks.verify(body)
+    // Verify HMAC signature (throws nếu sai)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await payos.webhooks.verify(body as any)
 
-    const webhookCode = body?.code as string | undefined
+    const data = body as { code?: string; data?: { orderCode?: number } }
+    const orderCode = data?.data?.orderCode
+    const webhookCode = data?.code
+
+    // Nếu không có orderCode → đây là verify request từ PayOS dashboard
+    if (!orderCode) {
+      res.json({ success: true })
+      return
+    }
 
     if (webhookCode === '00') {
-      await pool.query(
-        `UPDATE payos_orders SET status='PAID', paid_at=NOW() WHERE order_code=$1`,
-        [orderCode]
-      )
+      await pool.query(`UPDATE payos_orders SET status='PAID', paid_at=NOW() WHERE order_code=$1`, [orderCode])
       pushSseEvent(orderCode, 'PAID')
     } else if (webhookCode === '01') {
-      await pool.query(
-        `UPDATE payos_orders SET status='CANCELLED' WHERE order_code=$1`,
-        [orderCode]
-      )
+      await pool.query(`UPDATE payos_orders SET status='CANCELLED' WHERE order_code=$1`, [orderCode])
       pushSseEvent(orderCode, 'CANCELLED')
     }
 
@@ -146,6 +124,39 @@ router.post('/webhook', async (req: AuthRequest, res: Response) => {
     console.error('[PayOS] webhook error:', err)
     res.status(400).json({ error: 'Invalid webhook' })
   }
+}
+
+// GET /webhook/:agentId — PayOS verify bằng GET
+router.get('/webhook/:agentId', (_req, res: Response) => {
+  res.json({ success: true })
+})
+
+// POST /webhook/:agentId — webhook chính, agentId trong URL
+router.post('/webhook/:agentId', async (req: AuthRequest, res: Response) => {
+  await handleWebhook(req.params.agentId, req.body, res)
+})
+
+// GET /webhook — fallback verify (không có agentId)
+router.get('/webhook', (_req, res: Response) => {
+  res.json({ success: true })
+})
+
+// POST /webhook — legacy, tra DB lấy agentId từ orderCode
+router.post('/webhook', async (req: AuthRequest, res: Response) => {
+  const body = req.body as { data?: { orderCode?: number } }
+  const orderCode = body?.data?.orderCode
+
+  if (!orderCode) {
+    // Không có orderCode và không có agentId → verify request không xác định được
+    res.json({ success: true })
+    return
+  }
+
+  const { rows } = await pool.query('SELECT agent_id FROM payos_orders WHERE order_code=$1', [orderCode])
+  const agentId = rows[0]?.agent_id
+  if (!agentId) { res.json({ success: true }); return }
+
+  await handleWebhook(agentId, req.body, res)
 })
 
 // GET /events/:orderCode — SSE stream

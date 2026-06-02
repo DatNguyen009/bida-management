@@ -12,7 +12,9 @@ import bgV2 from '../assets/bg-v2.jpg'
 
 interface SettingRow { key: string; value: string }
 
-export default function SettingsPage() {
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://bida-management.onrender.com/api/v1'
+
+export default function SettingsPage({ agentId }: { agentId?: string | null }) {
   const queryClient = useQueryClient()
   const { theme, setTheme } = useThemeStore()
 
@@ -251,6 +253,20 @@ export default function SettingsPage() {
           <section className="backdrop-blur-xl bg-white/[0.07] border border-white/10 rounded-xl p-5 space-y-4">
             <h2 className="font-semibold text-[#d4af37] text-xs uppercase tracking-widest mb-1">PayOS</h2>
             <p className="text-white/40 text-xs">Đăng ký miễn phí tại payos.vn để lấy thông tin bên dưới.</p>
+            {agentId && (
+              <div>
+                <Label className="text-white/55 text-xs">Webhook URL (dán vào PayOS dashboard)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="flex-1 bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 text-xs text-[#d4af37] font-mono break-all">
+                    {API_URL.replace('/api/v1', '')}/api/v1/payos/webhook/{agentId}
+                  </code>
+                  <button className="btn-glass text-xs px-3 py-2 flex-shrink-0"
+                    onClick={() => navigator.clipboard.writeText(`${API_URL.replace('/api/v1', '')}/api/v1/payos/webhook/${agentId}`)}>
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
             <div>
               <Label className="text-white/55 text-xs">Client ID</Label>
               <Input className="bg-white/[0.04] border-white/10 text-white mt-1 focus:border-[#d4af37]"
