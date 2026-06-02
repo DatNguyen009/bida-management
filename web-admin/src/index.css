@@ -1,3 +1,113 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─── Dark Glass Design System (matches Electron app) ─── */
+body.agent-portal {
+  background: #0f0e0f;
+  color: #fff;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+}
+
+.glass-sidebar {
+  background: rgba(10,9,11,0.85);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.glass-topbar {
+  background: rgba(15,14,15,0.80);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.glass-nav-active {
+  background: rgba(212,175,55,0.15);
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg,#f0d060 0%,#d4af37 50%,#b8960c 100%);
+  color: #0f0e0f;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,175,55,0.5); }
+.btn-gold:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.btn-glass {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-glass:hover { background: rgba(255,255,255,0.14); }
+.btn-glass:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-danger {
+  background: rgba(239,68,68,0.15);
+  color: #fca5a5;
+  font-weight: 600;
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+.modal-glass {
+  background: rgba(14,12,16,0.92);
+  backdrop-filter: blur(40px) saturate(160%);
+  -webkit-backdrop-filter: blur(40px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.input-glass {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px 16px;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-glass::placeholder { color: rgba(255,255,255,0.3); }
+.input-glass:focus { border-color: rgba(212,175,55,0.6); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+
+.gold-table-header {
+  background: rgba(255,255,255,0.06);
+  border-bottom: 2px solid #d4af37;
+}
+.gold-table-header th {
+  color: #d4af37;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  padding: 12px 16px;
+  text-align: left;
+}
