@@ -36,6 +36,25 @@ CREATE TABLE IF NOT EXISTS cloud_staff (
   created_at      TIMESTAMPTZ  DEFAULT NOW(),
   CONSTRAINT uq_cloud_staff_username UNIQUE (username, agent_id)
 );
+
+CREATE TABLE IF NOT EXISTS invoice_edit_requests (
+  id              SERIAL PRIMARY KEY,
+  agent_id        UUID          NOT NULL REFERENCES agents(id),
+  invoice_id      INT           NOT NULL,
+  session_id      INT           NOT NULL,
+  requested_by    VARCHAR(100)  NOT NULL,
+  status          VARCHAR(20)   NOT NULL DEFAULT 'pending'
+                  CHECK (status IN ('pending','approved','rejected')),
+  old_items       JSONB         NOT NULL,
+  new_items       JSONB         NOT NULL,
+  note            TEXT,
+  reviewed_by     VARCHAR(100),
+  reviewed_at     TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ   DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_edit_requests_agent_status
+  ON invoice_edit_requests (agent_id, status, created_at DESC);
 `
 
 export async function runMigrations() {

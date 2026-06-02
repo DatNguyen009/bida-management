@@ -474,4 +474,166 @@ router.put('/settings', async (req: AuthRequest, res: Response) => {
   }
 })
 
+// POST /agent/invoices/:id/edit-requests
+router.post('/invoices/:id/edit-requests', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { requested_by, new_items, note } = req.body
+  if (!requested_by || !Array.isArray(new_items)) {
+    res.status(400).json({ error: 'requested_by and new_items required' }); return
+  }
+
+  const invoiceRow = await pool.query(
+    `SELECT id, session_id FROM cloud_invoices
+     WHERE id=$1 AND agent_id=$2
+       AND DATE(created_at ${VN}) = CURRENT_DATE`,
+    [req.params.id, agentId]
+  )
+  if (!invoiceRow.rows[0]) {
+    res.status(404).json({ error: 'Hóa đơn không tồn tại hoặc không trong ngày hôm nay' }); return
+  }
+
+  const existing = await pool.query(
+    `SELECT id FROM invoice_edit_requests
+     WHERE invoice_id=$1 AND agent_id=$2 AND status='pending'`,
+    [req.params.id, agentId]
+  )
+  if (existing.rows.length > 0) {
+    res.status(409).json({ error: 'Đã có yêu cầu chỉnh sửa đang chờ duyệt' }); return
+  }
+
+  const { session_id } = invoiceRow.rows[0]
+
+  const oldItemsRow = await pool.query(
+    `SELECT oi.product_id, p.name AS product_name, oi.quantity, oi.unit_price, oi.subtotal
+     FROM cloud_order_items oi
+     JOIN cloud_products p ON p.id = oi.product_id AND p.agent_id = $2
+     WHERE oi.session_id=$1 AND oi.agent_id=$2`,
+    [session_id, agentId]
+  )
+
+  const { rows } = await pool.query(
+    `INSERT INTO invoice_edit_requests
+       (agent_id, invoice_id, session_id, requested_by, old_items, new_items, note)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+    [agentId, req.params.id, session_id, requested_by, JSON.stringify(oldItemsRow.rows), JSON.stringify(new_items), note || null]
+  )
+  res.status(201).json(rows[0])
+})
+
+// GET /agent/edit-requests
+router.get('/edit-requests', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const { status } = req.query as Record<string, string>
+  const { rows } = await pool.query(
+    `SELECT r.*, i.invoice_number
+     FROM invoice_edit_requests r
+     JOIN cloud_invoices i ON i.id = r.invoice_id AND i.agent_id = $1
+     WHERE r.agent_id = $1
+       AND ($2::varchar IS NULL OR r.status = $2)
+     ORDER BY r.created_at DESC
+     LIMIT 100`,
+    [agentId, status || null]
+  )
+  res.json(rows)
+})
+
+// PUT /agent/edit-requests/:id/approve
+router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const reviewed_by = req.body.reviewed_by ?? 'agent'
+
+  const reqRow = await pool.query(
+    `SELECT * FROM invoice_edit_requests WHERE id=$1 AND agent_id=$2 AND status='pending'`,
+    [req.params.id, agentId]
+  )
+  if (!reqRow.rows[0]) { res.status(404).json({ error: 'Yêu cầu không tồn tại hoặc đã xử lý' }); return }
+
+  const editReq = reqRow.rows[0]
+  const newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[] = editReq.new_items
+  const oldItems: { product_id: number; quantity: number }[] = editReq.old_items
+  const sessionId: number = editReq.session_id
+  const invoiceId: number = editReq.invoice_id
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+
+    const allProductIds = new Set([...oldItems.map(i => i.product_id), ...newItems.map(i => i.product_id)])
+    for (const productId of allProductIds) {
+      const oldQty = oldItems.find(i => i.product_id === productId)?.quantity ?? 0
+      const newQty = newItems.find(i => i.product_id === productId)?.quantity ?? 0
+      const diff = newQty - oldQty
+      if (diff === 0) continue
+
+      const prodRow = await client.query(
+        `SELECT stock_quantity, product_type FROM cloud_products WHERE id=$1 AND agent_id=$2`,
+        [productId, agentId]
+      )
+      if (!prodRow.rows[0] || prodRow.rows[0].product_type !== 'stock') continue
+
+      const before = prodRow.rows[0].stock_quantity
+      const after = before - diff
+      await client.query(
+        `UPDATE cloud_products SET stock_quantity=$1 WHERE id=$2 AND agent_id=$3`,
+        [after, productId, agentId]
+      )
+      await client.query(
+        `INSERT INTO cloud_stock_transactions
+           (agent_id, product_id, type, quantity, before_qty, after_qty, note)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [agentId, productId, diff > 0 ? 'out' : 'in', Math.abs(diff), before, after,
+         `Sửa HĐ #${invoiceId} - yêu cầu ID ${editReq.id}`]
+      )
+    }
+
+    await client.query(`DELETE FROM cloud_order_items WHERE session_id=$1 AND agent_id=$2`, [sessionId, agentId])
+    for (const item of newItems) {
+      await client.query(
+        `INSERT INTO cloud_order_items (agent_id, session_id, product_id, quantity, unit_price, subtotal)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [agentId, sessionId, item.product_id, item.quantity, item.unit_price, item.subtotal]
+      )
+    }
+
+    const newItemsAmount = newItems.reduce((sum, i) => sum + i.subtotal, 0)
+    await client.query(
+      `UPDATE cloud_invoices
+       SET items_amount=$1,
+           final_amount = play_amount + $1 - discount - discount_from_points
+       WHERE id=$2 AND agent_id=$3`,
+      [newItemsAmount, invoiceId, agentId]
+    )
+
+    await client.query(
+      `UPDATE invoice_edit_requests
+       SET status='approved', reviewed_by=$1, reviewed_at=NOW()
+       WHERE id=$2`,
+      [reviewed_by, editReq.id]
+    )
+
+    await client.query('COMMIT')
+    res.json({ success: true })
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
+})
+
+// PUT /agent/edit-requests/:id/reject
+router.put('/edit-requests/:id/reject', async (req: AuthRequest, res: Response) => {
+  const agentId = req.account!.agentId!
+  const reviewed_by = req.body.reviewed_by ?? 'agent'
+  const { rows } = await pool.query(
+    `UPDATE invoice_edit_requests
+     SET status='rejected', reviewed_by=$1, reviewed_at=NOW()
+     WHERE id=$2 AND agent_id=$3 AND status='pending'
+     RETURNING id`,
+    [reviewed_by, req.params.id, agentId]
+  )
+  if (!rows[0]) { res.status(404).json({ error: 'Yêu cầu không tồn tại hoặc đã xử lý' }); return }
+  res.json({ success: true })
+})
+
 export default router
