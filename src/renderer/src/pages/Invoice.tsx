@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Session, InvoiceCreateInput, Customer } from '../types'
 import { api } from '../lib/ipc'
@@ -41,6 +41,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
   const [cashReceived, setCashReceived] = useState<number | ''>('')
   const [payosData, setPayosData] = useState<PayosLinkResult | null>(null)
   const [payosQrDataUrl, setPayosQrDataUrl] = useState<string>('')
+  const payosPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [payosStatus, setPayosStatus] = useState<'loading' | 'waiting' | 'expired' | 'reconnecting'>('loading')
   const [payosCountdown, setPayosCountdown] = useState(15 * 60)
 
@@ -235,6 +236,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         setPayosCountdown(prev => {
           if (prev <= 1) {
             clearInterval(countdownTimer)
+            if (payosPollRef.current) { clearInterval(payosPollRef.current); payosPollRef.current = null }
             setPayosStatus('expired')
             window.api.payos.unsubscribe(result.orderCode)
             return 0
@@ -243,27 +245,42 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
         })
       }, 1000)
 
+      let paidHandled = false
+      const handlePaid = () => {
+        if (paidHandled) return
+        paidHandled = true
+        clearInterval(countdownTimer)
+        if (payosPollRef.current) { clearInterval(payosPollRef.current); payosPollRef.current = null }
+        window.api.payos.unsubscribe(result.orderCode)
+        toast.success('Thanh toán PayOS thành công!')
+        checkoutMutation.mutate({ print: false })
+      }
+
+      // Polling fallback mỗi 3 giây (đề phòng webhook/SSE chậm)
+      const pollTimer = setInterval(async () => {
+        if (paidHandled) { clearInterval(pollTimer); return }
+        const { status } = await window.api.payos.getStatus(result.orderCode)
+        if (status === 'PAID') handlePaid()
+        else if (status === 'CANCELLED') { clearInterval(pollTimer); setPayosStatus('expired') }
+      }, 3000)
+      payosPollRef.current = pollTimer
+
       // Subscribe to SSE events
       window.api.payos.subscribe(result.orderCode)
       const unsubscribeEvent = window.api.payos.onEvent((data) => {
         if (data.orderCode !== undefined && data.orderCode !== result.orderCode) return
         if (data.type === 'PAID') {
-          clearInterval(countdownTimer)
           unsubscribeEvent()
-          window.api.payos.unsubscribe(result.orderCode)
-          toast.success('Thanh toán PayOS thành công!')
-          checkoutMutation.mutate({ print: false })
+          handlePaid()
         } else if (data.type === 'CANCELLED') {
-          clearInterval(countdownTimer)
+          clearInterval(pollTimer)
           unsubscribeEvent()
           setPayosStatus('expired')
         } else if (data.type === 'RECONNECTING') {
           setPayosStatus('reconnecting')
         } else if (data.type === 'ERROR') {
-          clearInterval(countdownTimer)
-          unsubscribeEvent()
-          toast.error('Lỗi kết nối PayOS')
-          setPayosStatus('expired')
+          // SSE lỗi nhưng polling vẫn chạy — không cần báo lỗi
+          setPayosStatus('waiting')
         }
       })
     } catch {
@@ -605,6 +622,7 @@ export default function InvoicePage({ session, playAmount, onComplete }: Props) 
 
               <div className="flex gap-3 pt-2">
                 <button className="btn-glass flex-1" onClick={() => {
+                  if (payosPollRef.current) { clearInterval(payosPollRef.current); payosPollRef.current = null }
                   if (payosData) {
                     window.api.payos.cancelLink(payosData.orderCode).catch(() => {})
                     window.api.payos.unsubscribe(payosData.orderCode)

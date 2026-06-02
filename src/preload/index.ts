@@ -164,5 +164,7 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.on('payos:event', handler)
       return () => ipcRenderer.removeListener('payos:event', handler)
     },
+    getStatus: (orderCode: number): Promise<{ status: string }> =>
+      ipcRenderer.invoke('payos:getStatus', orderCode),
   },
 })

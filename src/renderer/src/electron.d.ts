@@ -100,6 +100,7 @@ declare global {
         subscribe(orderCode: number): void
         unsubscribe(orderCode: number): void
         onEvent(callback: (data: { type: string; orderCode?: number; message?: string }) => void): () => void
+        getStatus(orderCode: number): Promise<{ status: string }>
       }
     }
   }

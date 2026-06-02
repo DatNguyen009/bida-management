@@ -112,4 +112,18 @@ export function registerPayosHandlers() {
     sseControllers.get(orderCode)?.abort()
     sseControllers.delete(orderCode)
   })
+
+  // Poll order status — fallback khi webhook/SSE không hoạt động
+  ipcMain.handle('payos:getStatus', async (_e, orderCode: number) => {
+    const token = getAccessToken()
+    if (!token) return { status: 'ERROR' }
+    try {
+      const res = await fetch(`${API_BASE}/payos/status/${orderCode}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return res.json()
+    } catch {
+      return { status: 'ERROR' }
+    }
+  })
 }

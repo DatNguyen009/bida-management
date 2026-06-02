@@ -202,4 +202,17 @@ router.post('/cancel/:orderCode', authenticate, requireAgent, async (req: AuthRe
   }
 })
 
+// GET /status/:orderCode — polling fallback khi SSE không hoạt động
+router.get('/status/:orderCode', authenticate, async (req: AuthRequest, res: Response) => {
+  const orderCode = Number(req.params.orderCode)
+  if (isNaN(orderCode)) { res.status(400).json({ error: 'Invalid orderCode' }); return }
+
+  const { rows } = await pool.query(
+    'SELECT status FROM payos_orders WHERE order_code = $1 AND agent_id = $2',
+    [orderCode, req.account!.agentId!]
+  ).catch(() => ({ rows: [] as { status: string }[] }))
+
+  res.json({ status: rows[0]?.status ?? 'NOT_FOUND' })
+})
+
 export default router
