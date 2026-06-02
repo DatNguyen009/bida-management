@@ -171,15 +171,15 @@ router.delete('/products/:id', async (req: AuthRequest, res: Response) => {
   res.json({ success: true })
 })
 
-// GET /agent/cloud_categories
-router.get('/cloud_categories', async (req: AuthRequest, res: Response) => {
+// GET /agent/categories
+router.get('/categories', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { rows } = await pool.query('SELECT * FROM cloud_categories WHERE agent_id=$1 ORDER BY name', [agentId])
   res.json(rows)
 })
 
-// POST /agent/cloud_categories
-router.post('/cloud_categories', async (req: AuthRequest, res: Response) => {
+// POST /agent/categories
+router.post('/categories', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, icon } = req.body
   if (!name) { res.status(400).json({ error: 'name required' }); return }
@@ -190,8 +190,8 @@ router.post('/cloud_categories', async (req: AuthRequest, res: Response) => {
   res.status(201).json(rows[0])
 })
 
-// PUT /agent/cloud_categories/:id
-router.put('/cloud_categories/:id', async (req: AuthRequest, res: Response) => {
+// PUT /agent/categories/:id
+router.put('/categories/:id', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { name, icon } = req.body
   const { rows } = await pool.query(
@@ -202,8 +202,8 @@ router.put('/cloud_categories/:id', async (req: AuthRequest, res: Response) => {
   res.json(rows[0])
 })
 
-// DELETE /agent/cloud_categories/:id
-router.delete('/cloud_categories/:id', async (req: AuthRequest, res: Response) => {
+// DELETE /agent/categories/:id
+router.delete('/categories/:id', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { rows } = await pool.query('SELECT COUNT(*) AS cnt FROM cloud_products WHERE category_id=$1 AND agent_id=$2', [req.params.id, agentId])
   if (parseInt(rows[0].cnt, 10) > 0) { res.status(409).json({ error: 'Danh mục đang được sử dụng' }); return }
