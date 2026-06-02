@@ -55,6 +55,10 @@ CREATE TABLE IF NOT EXISTS invoice_edit_requests (
 
 CREATE INDEX IF NOT EXISTS idx_edit_requests_agent_status
   ON invoice_edit_requests (agent_id, status, created_at DESC);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_edit_requests_pending_unique
+  ON invoice_edit_requests (agent_id, invoice_id)
+  WHERE status = 'pending';
 `
 
 export async function runMigrations() {

@@ -482,6 +482,18 @@ router.post('/invoices/:id/edit-requests', async (req: AuthRequest, res: Respons
     res.status(400).json({ error: 'requested_by and new_items required' }); return
   }
 
+  const validItems = new_items.every((item: unknown) => {
+    if (typeof item !== 'object' || item === null) return false
+    const i = item as Record<string, unknown>
+    return typeof i.product_id === 'number' &&
+      typeof i.quantity === 'number' && i.quantity > 0 &&
+      typeof i.unit_price === 'number' && i.unit_price >= 0 &&
+      typeof i.subtotal === 'number' && i.subtotal >= 0
+  })
+  if (!validItems) {
+    res.status(400).json({ error: 'new_items must be array of {product_id, quantity, unit_price, subtotal}' }); return
+  }
+
   const invoiceRow = await pool.query(
     `SELECT id, session_id FROM cloud_invoices
      WHERE id=$1 AND agent_id=$2
@@ -542,21 +554,24 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
   const agentId = req.account!.agentId!
   const reviewed_by = req.body.reviewed_by ?? 'agent'
 
-  const reqRow = await pool.query(
-    `SELECT * FROM invoice_edit_requests WHERE id=$1 AND agent_id=$2 AND status='pending'`,
-    [req.params.id, agentId]
-  )
-  if (!reqRow.rows[0]) { res.status(404).json({ error: 'Yêu cầu không tồn tại hoặc đã xử lý' }); return }
-
-  const editReq = reqRow.rows[0]
-  const newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[] = editReq.new_items
-  const oldItems: { product_id: number; quantity: number }[] = editReq.old_items
-  const sessionId: number = editReq.session_id
-  const invoiceId: number = editReq.invoice_id
-
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+
+    const reqRow = await client.query(
+      `SELECT * FROM invoice_edit_requests WHERE id=$1 AND agent_id=$2 AND status='pending' FOR UPDATE`,
+      [req.params.id, agentId]
+    )
+    if (!reqRow.rows[0]) {
+      await client.query('ROLLBACK')
+      res.status(404).json({ error: 'Yêu cầu không tồn tại hoặc đã xử lý' }); return
+    }
+
+    const editReq = reqRow.rows[0]
+    const newItems: { product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }[] = editReq.new_items
+    const oldItems: { product_id: number; quantity: number }[] = editReq.old_items
+    const sessionId: number = editReq.session_id
+    const invoiceId: number = editReq.invoice_id
 
     const allProductIds = new Set([...oldItems.map(i => i.product_id), ...newItems.map(i => i.product_id)])
     for (const productId of allProductIds) {
@@ -614,7 +629,7 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
     await client.query('COMMIT')
     res.json({ success: true })
   } catch (err) {
-    await client.query('ROLLBACK')
+    await client.query('ROLLBACK').catch(() => {})
     throw err
   } finally {
     client.release()
