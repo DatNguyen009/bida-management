@@ -62,6 +62,7 @@ export function registerAuthHandlers(): void {
       authStore.set('agentId', staff.agent_id)
       authStore.set('allowedScreens', staff.allowed_screens)
       authStore.set('username', username)
+      authStore.set('staffPassword', password)
       return { role: 'staff', agentId: staff.agent_id, allowedScreens: staff.allowed_screens, username }
     }
   })

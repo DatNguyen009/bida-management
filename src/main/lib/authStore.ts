@@ -8,6 +8,7 @@ interface AuthStoreType {
   agentId: string | null
   allowedScreens: string[]
   username: string
+  staffPassword: string  // lưu encrypted cho staff để gọi lại API
 }
 
 export const authStore = new Store<AuthStoreType>({
@@ -19,3 +20,4 @@ export const getAgentId = (): string | null => authStore.get('agentId') ?? null
 export const getAccessToken = (): string | null => authStore.get('accessToken') ?? null
 export const getUsername = (): string => authStore.get('username') ?? ''
 export const getRole = (): string => authStore.get('role') ?? ''
+export const getStaffPassword = (): string | null => authStore.get('staffPassword') ?? null

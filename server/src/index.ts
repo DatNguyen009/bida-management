@@ -9,6 +9,7 @@ import syncRouter from './routes/sync'
 import masterRouter from './routes/master'
 import payosRouter from './routes/payos'
 import agentPortalRouter from './routes/agentPortal'
+import staffPortalRouter from './routes/staffPortal'
 import { runMigrations } from './migrate'
 
 dotenv.config()
@@ -30,6 +31,7 @@ app.use('/api/v1/sync', syncRouter)
 app.use('/api/v1/master', masterRouter)
 app.use('/api/v1/payos', payosRouter)
 app.use('/api/v1/agent', agentPortalRouter)
+app.use('/api/v1/staff', staffPortalRouter)
 
 const dashboardDir = path.join(__dirname, '../public/dashboard')
 app.use('/dashboard', express.static(dashboardDir))

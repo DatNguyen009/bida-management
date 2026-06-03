@@ -1,7 +1,7 @@
 // src/main/handlers/invoices.ts
 import { ipcMain } from 'electron'
 import { query, queryOne } from '../db'
-import { getAgentId, getAccessToken, getUsername, getRole } from '../lib/authStore'
+import { getAgentId, getAccessToken, getUsername, getRole, getStaffPassword } from '../lib/authStore'
 import type { Invoice, InvoiceCreateInput, PageResult, InvoiceListRow } from '../../renderer/src/types'
 import { printInvoice } from './printer'
 
@@ -239,36 +239,24 @@ export function registerInvoiceHandlers() {
       return data
     }
 
-    // Staff: direct DB insert
-    const invoice = await queryOne<{ id: number; session_id: number }>(
-      `SELECT id, session_id FROM cloud_invoices
-       WHERE id=$1 AND agent_id=$2
-         AND DATE(created_at + INTERVAL '7 hours') = CURRENT_DATE`,
-      [payload.invoiceId, agentId]
-    )
-    if (!invoice) throw new Error('Hóa đơn không tồn tại hoặc không trong ngày hôm nay')
-
-    const existing = await queryOne<{ id: number }>(
-      `SELECT id FROM invoice_edit_requests WHERE invoice_id=$1 AND agent_id=$2 AND status='pending'`,
-      [payload.invoiceId, agentId]
-    )
-    if (existing) throw new Error('Đã có yêu cầu chỉnh sửa đang chờ duyệt')
-
-    const oldItems = await query<{ product_id: number; product_name: string; quantity: number; unit_price: number; subtotal: number }>(
-      `SELECT oi.product_id, p.name AS product_name, oi.quantity, oi.unit_price, oi.subtotal
-       FROM cloud_order_items oi
-       JOIN cloud_products p ON p.id = oi.product_id AND p.agent_id = $2
-       WHERE oi.session_id=$1 AND oi.agent_id=$2`,
-      [invoice.session_id, agentId]
-    )
-
-    await queryOne(
-      `INSERT INTO invoice_edit_requests
-         (agent_id, invoice_id, session_id, requested_by, old_items, new_items, note)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [agentId, payload.invoiceId, invoice.session_id, username,
-       JSON.stringify(oldItems), JSON.stringify(payload.newItems), payload.note || null]
-    )
-    return { success: true }
+    // Staff: gọi server API với username/password (không cần JWT)
+    const storedPassword = getStaffPassword()
+    if (!storedPassword) throw new Error('Không tìm thấy thông tin đăng nhập nhân viên')
+    const apiUrl = import.meta.env.MAIN_VITE_API_URL ?? 'https://bida-management.onrender.com/api/v1'
+    const response = await fetch(`${apiUrl}/staff/edit-requests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agent_id: agentId,
+        username,
+        password: storedPassword,
+        invoice_id: payload.invoiceId,
+        new_items: payload.newItems,
+        note: payload.note,
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error ?? 'Gửi yêu cầu thất bại')
+    return data
   })
 }
