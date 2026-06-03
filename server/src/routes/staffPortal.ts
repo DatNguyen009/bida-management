@@ -15,6 +15,18 @@ router.post('/edit-requests', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'Thiếu thông tin bắt buộc' }); return
   }
 
+  const validItems = new_items.every((item: unknown) => {
+    if (typeof item !== 'object' || item === null) return false
+    const i = item as Record<string, unknown>
+    return typeof i.product_id === 'number' &&
+      typeof i.quantity === 'number' && i.quantity > 0 &&
+      typeof i.unit_price === 'number' && i.unit_price >= 0 &&
+      typeof i.subtotal === 'number' && i.subtotal >= 0
+  })
+  if (!validItems) {
+    res.status(400).json({ error: 'new_items phải là mảng {product_id, quantity, unit_price, subtotal}' }); return
+  }
+
   // 1. Verify staff credentials
   const staffRow = await pool.query(
     `SELECT id, password_hash FROM cloud_staff

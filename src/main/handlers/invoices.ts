@@ -192,7 +192,7 @@ export async function getInvoiceList(input: InvoiceListInput): Promise<PageResul
 export async function getInvoiceOrderItems(sessionId: number) {
   const agentId = getAgentId()
   return query(
-    `SELECT p.name AS product_name, oi.quantity, oi.unit_price, oi.subtotal
+    `SELECT oi.product_id, p.name AS product_name, oi.quantity, oi.unit_price, oi.subtotal
      FROM cloud_order_items oi
      JOIN cloud_products p ON p.id = oi.product_id
      WHERE oi.session_id = $1 AND oi.agent_id = $2

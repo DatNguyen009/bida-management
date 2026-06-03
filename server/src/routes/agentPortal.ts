@@ -573,6 +573,18 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
     const sessionId: number = editReq.session_id
     const invoiceId: number = editReq.invoice_id
 
+    // Bảo vệ: yêu cầu cũ có thể chứa item thiếu product_id (dữ liệu lỗi) — không cho approve để tránh INSERT null
+    const invalidItem = newItems.some(i =>
+      typeof i.product_id !== 'number' ||
+      typeof i.quantity !== 'number' || i.quantity <= 0 ||
+      typeof i.unit_price !== 'number' || i.unit_price < 0 ||
+      typeof i.subtotal !== 'number' || i.subtotal < 0
+    )
+    if (invalidItem) {
+      await client.query('ROLLBACK')
+      res.status(422).json({ error: 'Yêu cầu chứa dữ liệu sản phẩm không hợp lệ, không thể duyệt. Vui lòng từ chối và tạo lại yêu cầu.' }); return
+    }
+
     const allProductIds = new Set([...oldItems.map(i => i.product_id), ...newItems.map(i => i.product_id)])
 
     const maxStockTxIdRow = await client.query(
