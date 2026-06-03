@@ -301,13 +301,17 @@ export default function InvoiceListPage({ role, username }: Props) {
                 Đã in lúc {new Date(selected.printed_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
               </p>
             )}
-            {isToday(selected.created_at) && role !== 'owner' && (
+            {role !== 'owner' && (
               <button
                 onClick={openEditModal}
-                disabled={!orderItems.length}
+                disabled={!isToday(selected.created_at) || !orderItems.length}
+                title={!isToday(selected.created_at) ? 'Chỉ có thể yêu cầu sửa hóa đơn trong ngày hôm nay' : ''}
                 className="mt-3 w-full py-2 text-xs rounded-lg border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ✏️ Yêu cầu chỉnh sửa đồ uống
+                {!isToday(selected.created_at) && (
+                  <span className="block text-[10px] text-yellow-400/50 mt-0.5">Chỉ áp dụng cho HĐ hôm nay</span>
+                )}
               </button>
             )}
           </div>
