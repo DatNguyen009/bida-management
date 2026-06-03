@@ -79,11 +79,11 @@ export default function InvoiceListPage({ role, username }: Props) {
 
   async function openEditModal() {
     setEditItems(orderItems.map(i => ({
-      product_id: i.product_id,
+      product_id: Number(i.product_id),
       product_name: i.product_name,
-      quantity: i.quantity,
-      unit_price: i.unit_price,
-      subtotal: i.subtotal,
+      quantity: Number(i.quantity),
+      unit_price: Number(i.unit_price),
+      subtotal: Number(i.subtotal),
     })))
     setEditNote('')
     setEditSuccess(false)
@@ -102,7 +102,7 @@ export default function InvoiceListPage({ role, username }: Props) {
           : i
         )
       }
-      return [...items, { product_id: product.id, product_name: product.name, quantity: 1, unit_price: product.price, subtotal: product.price }]
+      return [...items, { product_id: Number(product.id), product_name: product.name, quantity: 1, unit_price: Number(product.price), subtotal: Number(product.price) }]
     })
     setProductSearch('')
   }
