@@ -602,11 +602,19 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
     }
 
     await client.query(`DELETE FROM cloud_order_items WHERE session_id=$1 AND agent_id=$2`, [sessionId, agentId])
+
+    // cloud_order_items có composite PK (agent_id, id) — phải tự generate id
+    const maxIdRow = await client.query(
+      `SELECT COALESCE(MAX(id), 0) AS max_id FROM cloud_order_items WHERE agent_id=$1`,
+      [agentId]
+    )
+    let nextId: number = maxIdRow.rows[0].max_id + 1
+
     for (const item of newItems) {
       await client.query(
-        `INSERT INTO cloud_order_items (agent_id, session_id, product_id, quantity, unit_price, subtotal)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [agentId, sessionId, item.product_id, item.quantity, item.unit_price, item.subtotal]
+        `INSERT INTO cloud_order_items (agent_id, id, session_id, product_id, quantity, unit_price, subtotal)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+        [agentId, nextId++, sessionId, item.product_id, item.quantity, item.unit_price, item.subtotal]
       )
     }
 
