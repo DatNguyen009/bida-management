@@ -593,6 +593,8 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
     )
     let nextStockTxId: number = maxStockTxIdRow.rows[0].max_id + 1
 
+    const note = `Sửa HĐ #${invoiceId} - yêu cầu ID ${editReq.id}`
+
     for (const productId of allProductIds) {
       const oldQty = oldItems.find(i => i.product_id === productId)?.quantity ?? 0
       const newQty = newItems.find(i => i.product_id === productId)?.quantity ?? 0
@@ -603,21 +605,55 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
         `SELECT stock_quantity, product_type FROM cloud_products WHERE id=$1 AND agent_id=$2`,
         [productId, agentId]
       )
-      if (!prodRow.rows[0] || prodRow.rows[0].product_type !== 'stock') continue
+      if (!prodRow.rows[0]) continue
+      const productType: string = prodRow.rows[0].product_type
+      const txType = diff > 0 ? 'out' : 'in'
 
-      const before = prodRow.rows[0].stock_quantity
-      const after = before - diff
-      await client.query(
-        `UPDATE cloud_products SET stock_quantity=$1 WHERE id=$2 AND agent_id=$3`,
-        [after, productId, agentId]
-      )
-      await client.query(
-        `INSERT INTO cloud_stock_transactions
-           (agent_id, id, product_id, type, quantity, before_qty, after_qty, note)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-        [agentId, nextStockTxId++, productId, diff > 0 ? 'out' : 'in', Math.abs(diff), before, after,
-         `Sửa HĐ #${invoiceId} - yêu cầu ID ${editReq.id}`]
-      )
+      if (productType === 'composite') {
+        // Hàng chế biến: trừ/cộng kho theo từng nguyên liệu × diff (mirror logic checkout)
+        const recipe = await client.query(
+          `SELECT ingredient_id, quantity FROM cloud_product_recipes WHERE product_id=$1 AND agent_id=$2`,
+          [productId, agentId]
+        )
+        for (const ing of recipe.rows as { ingredient_id: number; quantity: number }[]) {
+          const ingDiff = ing.quantity * diff
+          const ingRow = await client.query(
+            `UPDATE cloud_products SET stock_quantity = stock_quantity - $1
+             WHERE id=$2 AND agent_id=$3 RETURNING stock_quantity`,
+            [ingDiff, ing.ingredient_id, agentId]
+          )
+          if (!ingRow.rows[0]) continue
+          const ingAfter = ingRow.rows[0].stock_quantity
+          const ingBefore = ingAfter + ingDiff
+          await client.query(
+            `INSERT INTO cloud_stock_transactions
+               (agent_id, id, product_id, type, quantity, before_qty, after_qty, note)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+            [agentId, nextStockTxId++, ing.ingredient_id, txType, Math.abs(ingDiff), ingBefore, ingAfter, `${note} (chế biến)`]
+          )
+        }
+        // Ghi log xuất/nhập cho bản thân sản phẩm chế biến để thống kê
+        await client.query(
+          `INSERT INTO cloud_stock_transactions
+             (agent_id, id, product_id, type, quantity, before_qty, after_qty, note)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          [agentId, nextStockTxId++, productId, txType, Math.abs(diff), 0, 0, note]
+        )
+      } else {
+        // Hàng nhập: trừ/cộng kho bình thường
+        const before = prodRow.rows[0].stock_quantity
+        const after = before - diff
+        await client.query(
+          `UPDATE cloud_products SET stock_quantity=$1 WHERE id=$2 AND agent_id=$3`,
+          [after, productId, agentId]
+        )
+        await client.query(
+          `INSERT INTO cloud_stock_transactions
+             (agent_id, id, product_id, type, quantity, before_qty, after_qty, note)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          [agentId, nextStockTxId++, productId, txType, Math.abs(diff), before, after, note]
+        )
+      }
     }
 
     await client.query(`DELETE FROM cloud_order_items WHERE session_id=$1 AND agent_id=$2`, [sessionId, agentId])
