@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { InvoiceListRow, InvoiceOrderItem, StaffMember } from '../types'
+import type { InvoiceListRow, InvoiceOrderItem, StaffMember, Product } from '../types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Pagination from '../components/Pagination'
@@ -74,8 +74,10 @@ export default function InvoiceListPage({ role, username }: Props) {
   const [editNote, setEditNote] = useState('')
   const [editSubmitting, setEditSubmitting] = useState(false)
   const [editSuccess, setEditSuccess] = useState(false)
+  const [allProducts, setAllProducts] = useState<Product[]>([])
+  const [productSearch, setProductSearch] = useState('')
 
-  function openEditModal() {
+  async function openEditModal() {
     setEditItems(orderItems.map(i => ({
       product_id: i.product_id,
       product_name: i.product_name,
@@ -85,7 +87,24 @@ export default function InvoiceListPage({ role, username }: Props) {
     })))
     setEditNote('')
     setEditSuccess(false)
+    setProductSearch('')
+    const products = await window.api.products.getAll()
+    setAllProducts(products.filter(p => p.is_active))
     setShowEditModal(true)
+  }
+
+  function addProduct(product: Product) {
+    setEditItems(items => {
+      const existing = items.find(i => i.product_id === product.id)
+      if (existing) {
+        return items.map(i => i.product_id === product.id
+          ? { ...i, quantity: i.quantity + 1, subtotal: i.unit_price * (i.quantity + 1) }
+          : i
+        )
+      }
+      return [...items, { product_id: product.id, product_name: product.name, quantity: 1, unit_price: product.price, subtotal: product.price }]
+    })
+    setProductSearch('')
   }
 
   function updateEditQty(productId: number, qty: number) {
@@ -357,6 +376,35 @@ export default function InvoiceListPage({ role, username }: Props) {
                   ))}
                   {editItems.length === 0 && (
                     <p className="text-white/30 text-xs text-center py-2">Tất cả sản phẩm đã bị xoá</p>
+                  )}
+                </div>
+
+                {/* Thêm sản phẩm */}
+                <div>
+                  <label className="text-white/50 text-xs uppercase tracking-widest block mb-1">Thêm sản phẩm</label>
+                  <input
+                    type="text"
+                    placeholder="Tìm tên sản phẩm..."
+                    value={productSearch}
+                    onChange={e => setProductSearch(e.target.value)}
+                    className="w-full bg-white/[0.07] border border-white/14 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-yellow-500/60 placeholder-white/30"
+                  />
+                  {productSearch && (
+                    <div className="mt-1 max-h-32 overflow-y-auto rounded-lg border border-white/10 bg-[rgba(14,12,16,0.98)]">
+                      {allProducts
+                        .filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()))
+                        .slice(0, 8)
+                        .map(p => (
+                          <button key={p.id} onClick={() => addProduct(p)}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-white/10 transition-colors flex justify-between items-center">
+                            <span className="text-white/80">{p.name}</span>
+                            <span className="text-yellow-400 text-xs">{p.price.toLocaleString('vi-VN')}đ</span>
+                          </button>
+                        ))}
+                      {allProducts.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
+                        <p className="px-3 py-2 text-white/30 text-xs">Không tìm thấy</p>
+                      )}
+                    </div>
                   )}
                 </div>
 
