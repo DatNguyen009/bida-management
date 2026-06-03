@@ -217,7 +217,16 @@ router.get('/reports/lowstock', async (req: AuthRequest, res: Response) => {
 router.get('/products', async (req: AuthRequest, res: Response) => {
   const agentId = req.account!.agentId!
   const { rows } = await pool.query(
-    `SELECT p.*, cat.name AS category_name, cat.icon AS category_icon
+    `SELECT p.*, cat.name AS category_name, cat.icon AS category_icon,
+            CASE
+              WHEN p.product_type = 'composite' THEN (
+                SELECT FLOOR(MIN(ing.stock_quantity::numeric / r.quantity))
+                FROM cloud_product_recipes r
+                JOIN cloud_products ing ON ing.id = r.ingredient_id AND ing.agent_id = r.agent_id
+                WHERE r.product_id = p.id AND r.agent_id = p.agent_id
+              )
+              ELSE p.stock_quantity::numeric
+            END AS effective_stock
      FROM cloud_products p
      LEFT JOIN cloud_categories cat ON cat.id = p.category_id AND cat.agent_id = $1
      WHERE p.agent_id = $1 ORDER BY p.name`,

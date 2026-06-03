@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency as fmt } from '../../lib/format'
 import AgentLayout from '../../components/AgentLayout'
 
 interface InvoiceRow {
@@ -12,7 +13,6 @@ interface InvoiceRow {
 }
 interface InvoiceDetail { invoice: InvoiceRow; items: { product_name: string; quantity: number; unit_price: number; subtotal: number }[] }
 
-function fmt(n: number) { return n.toLocaleString('vi-VN') + 'đ' }
 function fmtDate(s: string) { return new Date(s).toLocaleString('vi-VN') }
 
 export default function AgentInvoicesPage() {

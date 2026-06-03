@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency } from '../../lib/format'
 import AgentLayout from '../../components/AgentLayout'
 
-interface Product { id: number; name: string; category_id: number | null; category_name: string | null; category_icon: string | null; price: number; stock_quantity: number; unit: string; min_stock_alert: number; is_active: boolean; product_type: string }
+interface Product { id: number; name: string; category_id: number | null; category_name: string | null; category_icon: string | null; price: number; stock_quantity: number; effective_stock: number | string | null; unit: string; min_stock_alert: number; is_active: boolean; product_type: string }
 interface Category { id: number; name: string; icon: string }
 
 type Form = { name: string; category_id: string; price: string; unit: string; min_stock_alert: string; product_type: string; is_active: boolean }
@@ -75,8 +76,8 @@ export default function AgentProductsPage() {
                 <td className="px-4 py-3 text-white/90 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-white/50 text-xs">{p.category_icon} {p.category_name ?? '—'}</td>
                 <td className="px-4 py-3 text-white/50 text-xs">{p.product_type === 'composite' ? 'Pha chế' : 'Thông thường'}</td>
-                <td className="px-4 py-3 text-white">{p.price.toLocaleString('vi-VN')}đ</td>
-                <td className="px-4 py-3 text-white/70">{p.stock_quantity} {p.unit}</td>
+                <td className="px-4 py-3 text-white">{formatCurrency(p.price)}</td>
+                <td className="px-4 py-3 text-white/70">{Number(p.product_type === 'composite' ? (p.effective_stock ?? 0) : p.stock_quantity)} {p.unit}</td>
                 <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${p.is_active?'bg-green-500/20 text-green-300':'bg-white/10 text-white/40'}`}>{p.is_active?'Hoạt động':'Ẩn'}</span></td>
                 <td className="px-4 py-3 text-right space-x-1">
                   <button className="btn-glass text-xs" onClick={() => openEdit(p)}>Sửa</button>

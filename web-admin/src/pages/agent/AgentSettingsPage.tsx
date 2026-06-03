@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency } from '../../lib/format'
 import { useAuthStore } from '../../stores/authStore'
 import AgentLayout from '../../components/AgentLayout'
 
@@ -90,7 +91,7 @@ export default function AgentSettingsPage() {
           <Field label="1 điểm = ? đồng giảm giá" k="vnd_per_point" type="number" />
           <p className="text-white/30 text-xs">
             VD: Chi 200.000đ = {Math.floor(200000 / 10000) * pointsPer10k} điểm.
-            Đổi 100 điểm = {(100 * vndPerPoint).toLocaleString('vi-VN')}đ giảm giá.
+            Đổi 100 điểm = {formatCurrency(100 * vndPerPoint)} giảm giá.
           </p>
         </section>
 

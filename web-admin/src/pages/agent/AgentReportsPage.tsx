@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency as fmtFull, formatCurrencyShort as fmt } from '../../lib/format'
 import AgentLayout from '../../components/AgentLayout'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
@@ -10,8 +11,6 @@ interface ProductStat { product_name: string; category_name: string; category_ic
 interface StaffStat { staff_name: string; invoice_count: string; total_revenue: string; play_revenue: string; items_revenue: string }
 interface LowStock { id: number; name: string; stock_quantity: number; min_stock_alert: number; unit: string; category_name: string; category_icon: string }
 
-function fmt(n: number) { return n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M` : `${(n/1000).toFixed(0)}k` }
-function fmtFull(n: number) { return Number(n).toLocaleString('vi-VN') + 'đ' }
 function fmtMin(m: number) { const h = Math.floor(m/60); const min = Math.round(m%60); return h > 0 ? `${h}g${min}p` : `${min}p` }
 
 const today = new Date().toISOString().slice(0, 10)

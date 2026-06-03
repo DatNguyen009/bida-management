@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency } from '../../lib/format'
 import AgentLayout from '../../components/AgentLayout'
 
 interface Promo { id: number; name: string; type: string; discount_type: string; discount_value: number; apply_to: string; max_discount: number | null; code: string | null; max_uses: number | null; used_count: number; days_of_week: number[] | null; time_from: string | null; time_to: string | null; valid_from: string | null; valid_to: string | null; is_active: boolean }
@@ -73,7 +74,7 @@ export default function AgentPromotionsPage() {
               <tr key={p.id} className={`border-b border-white/[0.05] ${i%2===1?'bg-white/[0.02]':''}`}>
                 <td className="px-4 py-3 text-white/90 font-medium">{p.name}</td>
                 <td className="px-4 py-3"><span className={`text-[10px] px-2 py-0.5 rounded-full ${TYPE_COLORS[p.type]??''}`}>{TYPE_LABELS[p.type]}</span></td>
-                <td className="px-4 py-3 text-white/80">{p.discount_type==='percent'?`${p.discount_value}%`:`${Number(p.discount_value).toLocaleString('vi-VN')}đ`}</td>
+                <td className="px-4 py-3 text-white/80">{p.discount_type==='percent'?`${p.discount_value}%`:formatCurrency(p.discount_value)}</td>
                 <td className="px-4 py-3 text-white/50 text-xs">
                   {p.type==='voucher'&&`${p.code} · ${p.max_uses?`${p.used_count}/${p.max_uses}lượt`:'Không giới hạn'}`}
                   {p.type==='time_slot'&&p.days_of_week&&`${p.days_of_week.map(d=>DAY_LABELS[d-1]).join(',')} ${p.time_from?.slice(0,5)}–${p.time_to?.slice(0,5)}`}

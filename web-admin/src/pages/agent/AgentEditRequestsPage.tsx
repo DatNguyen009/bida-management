@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../../lib/api'
+import { formatCurrency as fmt } from '../../lib/format'
 import { useAuthStore } from '../../stores/authStore'
 import AgentLayout from '../../components/AgentLayout'
 
@@ -15,7 +16,6 @@ interface EditRequest {
   created_at: string
 }
 
-function fmt(n: number) { return Number(n).toLocaleString('vi-VN') + 'đ' }
 function fmtDate(s: string) { return new Date(s).toLocaleString('vi-VN') }
 
 const STATUS_LABEL: Record<string, string> = { pending: 'Chờ duyệt', approved: 'Đã duyệt', rejected: 'Từ chối' }
