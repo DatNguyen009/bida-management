@@ -304,7 +304,7 @@ export default function InvoiceListPage({ role, username }: Props) {
             {role !== 'owner' && (
               <button
                 onClick={openEditModal}
-                disabled={!isToday(selected.created_at) || !orderItems.length}
+                disabled={!isToday(selected.created_at)}
                 title={!isToday(selected.created_at) ? 'Chỉ có thể yêu cầu sửa hóa đơn trong ngày hôm nay' : ''}
                 className="mt-3 w-full py-2 text-xs rounded-lg border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
