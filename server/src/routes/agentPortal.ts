@@ -574,6 +574,13 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
     const invoiceId: number = editReq.invoice_id
 
     const allProductIds = new Set([...oldItems.map(i => i.product_id), ...newItems.map(i => i.product_id)])
+
+    const maxStockTxIdRow = await client.query(
+      `SELECT COALESCE(MAX(id), 0) AS max_id FROM cloud_stock_transactions WHERE agent_id=$1`,
+      [agentId]
+    )
+    let nextStockTxId: number = maxStockTxIdRow.rows[0].max_id + 1
+
     for (const productId of allProductIds) {
       const oldQty = oldItems.find(i => i.product_id === productId)?.quantity ?? 0
       const newQty = newItems.find(i => i.product_id === productId)?.quantity ?? 0
@@ -594,9 +601,9 @@ router.put('/edit-requests/:id/approve', async (req: AuthRequest, res: Response)
       )
       await client.query(
         `INSERT INTO cloud_stock_transactions
-           (agent_id, product_id, type, quantity, before_qty, after_qty, note)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [agentId, productId, diff > 0 ? 'out' : 'in', Math.abs(diff), before, after,
+           (agent_id, id, product_id, type, quantity, before_qty, after_qty, note)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [agentId, nextStockTxId++, productId, diff > 0 ? 'out' : 'in', Math.abs(diff), before, after,
          `Sửa HĐ #${invoiceId} - yêu cầu ID ${editReq.id}`]
       )
     }
